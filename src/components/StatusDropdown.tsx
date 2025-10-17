@@ -50,9 +50,9 @@ export const StatusDropdown: React.FC<StatusDropdownProps> = ({ value, onChange 
                     items={statusOptions}
                     placeholder={{ label: "Seleccionar estado...", value: null }}
                     style={{
-                    inputIOS: styles.input,
-                    inputAndroid: styles.input,
-                    placeholder: { color: "#888" },
+                        inputIOS: styles.input,
+                        inputAndroid: styles.input,
+                        placeholder: { color: "#888" },
                     }}
                 />
             </TouchableOpacity>
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#000000ff",
     borderRadius: 10,
-    padding: 12,
+    // padding: 12,
     backgroundColor: "#fff",
     fontSize: 16,
     color: "#333",

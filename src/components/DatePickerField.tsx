@@ -46,7 +46,6 @@ export default function DatePickerField({
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
-
       <TouchableOpacity style={styles.inputBox} onPress={showPicker}>
         <Text style={styles.dateText}>{formattedDate || "Seleccionar fecha"}</Text>
       </TouchableOpacity>
