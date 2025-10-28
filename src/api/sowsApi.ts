@@ -2,26 +2,21 @@ import client from "./client";
 
 export type Sow = {
   sow_id: number;
-  status_name: string;
-  breed_name: string;
+  status_id: number | undefined;
+  breed_id: number | undefined;
   sow_tag_number: string;
   entry_date: string;
-  weight?: number;
-  length?: number;
+  weight?: number | undefined;
+  length?: number | undefined;
   mammary_glands: number;
-  farrowing_number?: number;
-  status: {
-    status_id?: number; // Added for dropdown compatibility
-    status_name: string;
-  };
-  breeds: {
-    breed_id?: number; // Added for dropdown compatibility
-    breed_name: string;
-  };
+  farrowing_number: number;
   last_weaning_date?: string | null;
-  description?: string;
+  description?: string | undefined;
   removal_date?: string | null;
-  removal_reason?: string;
+  removal_reason?: string | undefined;
+
+  status: { status_id: number; status_name: string } | null; // Added to include status details
+  breeds: { breed_id: number; breed_name: string } | null; // Added to include breed details
 };
 
 export const getSows = async (): Promise<Sow[]> => {

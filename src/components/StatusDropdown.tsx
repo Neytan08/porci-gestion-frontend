@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
-import { getStatus } from "../api/statusApi"; // 👈 tu clase StatusApi
+import { getStatus } from "../api/statusApi";
 import { Status } from "../api/statusApi";
 
 type StatusDropdownProps = {
@@ -14,7 +14,11 @@ export const StatusDropdown: React.FC<StatusDropdownProps> = ({ value, onChange 
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchStatus = async () => {
+        fetchStatus();
+    }, []);
+    
+    // Fetch status from API
+    const fetchStatus = async () => {
         try {
             const data = await getStatus();
             const mapped = data.map((item: Status) => ({
@@ -27,10 +31,7 @@ export const StatusDropdown: React.FC<StatusDropdownProps> = ({ value, onChange 
         } finally {
             setLoading(false);
         }
-        };
-        fetchStatus();
-    }, []);
-
+    };
     if (loading) {
         return (
         <View style={styles.loadingContainer}>
@@ -61,16 +62,12 @@ export const StatusDropdown: React.FC<StatusDropdownProps> = ({ value, onChange 
 }
 
 const styles = StyleSheet.create({
-  container: { marginVertical: 10 },
+  container: { marginVertical: 10},
   label: { fontSize: 16, marginBottom: 5 },
   input: {
-    borderWidth: 1,
-    borderColor: "#000000ff",
-    borderRadius: 10,
-    // padding: 12,
+    borderColor: "#37474F",
     backgroundColor: "#fff",
     fontSize: 16,
-    color: "#333",
   },
   loadingContainer: { flexDirection: "row", alignItems: "center", gap: 10 },
 });

@@ -38,6 +38,11 @@ export default function DetailsSowScreen() {
     setRefreshing(false);
   };
 
+  const handleLongPress = (sowId: number) => {
+    console.log("Ver detalles");
+    navigation.navigate("EditSow", { sowId });
+  };
+
   useEffect(() => {
     loadSowsDetails();
   }, []);
@@ -47,11 +52,6 @@ export default function DetailsSowScreen() {
       loadSowsDetails();
     }, [])
   );
-
-  const handleLongPress = (sowId: number) => {
-    console.log("Ver detalles");
-    navigation.navigate("EditSow", { sowId });
-  };
 
   if (loading) {
     return (
@@ -78,7 +78,7 @@ export default function DetailsSowScreen() {
     { label: "Peso(cm)", value: sow.weight ?? "-" },
     { label: "Largo(cm)", value: sow.length ?? "-" },
     { label: "Cantidad de partos", value: sow.farrowing_number ?? "-" },
-    { label: "Descripción", value: sow.description ?? " " },
+    { label: "Descripción", value: (sow.description?.trim() || "-") },
   ];
 
   return (
@@ -123,7 +123,7 @@ export default function DetailsSowScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F9FAFB",
   },
   center: {
     flex: 1,
@@ -150,8 +150,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   table: {
-    borderTopWidth: 3,
-    borderColor: "#ddd",
+    // borderTopWidth: 3,
+    // borderColor: "#ddd",
     backgroundColor: "#fff",
   },
   row: {
@@ -160,14 +160,16 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderBottomWidth: 1,
     borderColor: "#eee",
-    marginHorizontal: 10,
+    marginHorizontal: 5,
   },
   label: {
-    fontWeight: "600",
+    fontWeight: "500",
     color: "#555",
+    fontSize: 16,
+    marginBottom: 5,
   },
   value: {
-    fontSize: 16,
+    fontSize: 15,
     color: "#333",
   },
   bottomButtons: {

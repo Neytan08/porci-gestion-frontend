@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import {View, Text, FlatList, TouchableOpacity, Pressable, ActivityIndicator, StyleSheet, RefreshControl, Modal, Alert} from "react-native";
+import {View, Text, FlatList, TouchableOpacity, Pressable, ActivityIndicator, StyleSheet, RefreshControl, Modal, Alert, Image} from "react-native";
 import { deleteSow, getSows, Sow } from "../../api/sowsApi";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -16,6 +16,7 @@ export default function SowsScreen() {
   const navigation = useNavigation<NavigationProp>();
   const [selectedSow, setSelectedSow] = useState<{sow_id: number; sow_tag_number: string } | null>(null);
 
+  // Reload the sows list when the screen is focused
   const loadSows = async () => {
     try {
       setLoading(true);
@@ -42,43 +43,18 @@ export default function SowsScreen() {
     setRefreshing(false);
   };
 
-  useEffect(() => {
-    loadSows();
-  }, []);
-
-//Reload the screen when coming back to it
-  useFocusEffect(
-    useCallback(() => {
-      loadSows(); // Reload the sows list when the screen is focused
-    }, [])
-  );
-//In case of loading last to long
-  if (loading) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" />
-        <Text>Cargando cerdas...</Text>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.center}>
-        <Text style={{ color: "red" }}>{error}</Text>
-      </View>
-    );
-  }
-
+  // Navigate to AddSow screen
   const handleAddPress = () => {
     navigation.navigate("AddSow" as never); 
   };
 
+  // Navigate to DetailsSow screen
   const handleDetailsPress = (sowId: number) => {
     console.log("Ver detalles");
     navigation.navigate('DetailsSow', { sowId });
   };
 
+  // Handle deleting a sow
   const handleDeleteSow =  async (sowId: number) => {
     try {
       setError(null);
@@ -100,6 +76,35 @@ export default function SowsScreen() {
     console.log("Delete");
   };
 
+  useEffect(() => {
+    loadSows();
+  }, []);
+
+  //Reload the screen when coming back to it
+  useFocusEffect(
+    useCallback(() => {
+      loadSows(); 
+    }, [])
+  );
+
+  //In case of loading last to long
+  if (loading) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+        <Text>Cargando cerdas...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={{ color: "red" }}>{error}</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {/* Headers row */}
@@ -114,7 +119,7 @@ export default function SowsScreen() {
       <FlatList<Sow>
         data={sows}
         keyExtractor={(item, index) =>
-          item.sow_id != null ? `sow-${item.sow_id}` : `sow-${index}`
+          item.sow_id != null ? `${item.sow_id}` : `${index}`
         }
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -128,7 +133,7 @@ export default function SowsScreen() {
           onPress={() => handleDetailsPress(item.sow_id)} 
           onLongPress={() => handleLongPress(item.sow_id, item.sow_tag_number)} >
             <Text style={[styles.cell, { flex: 1 }]}>{item.sow_tag_number ?? '-'}</Text>
-            <Text style={[styles.cell, { flex: 1 }]}>{item.status?.status_name || "Sin estado"}</Text>
+            <Text style={[styles.cell, { flex: 1 }]}>{item.status?.status_name ?? "Sin estado"}</Text>
             <Text style={[styles.cell, { flex: 1.2 }]}>{(item.entry_date ?? '').toString().split('T')[0] || '-'}</Text>
             <Text style={[styles.cell, { flex: 0.8 }]}>{item.farrowing_number ?? "-"}</Text>
           </Pressable>
@@ -138,8 +143,13 @@ export default function SowsScreen() {
         }
       />
       {/* Floating Action Button */}
-      <TouchableOpacity style={styles.fab} onPress={handleAddPress}>
-        <Text style={styles.fabText}>＋ Agregar</Text>
+      <TouchableOpacity style={styles.addSowButton} onPress={handleAddPress}>
+          <Image
+          source={require("../../../assets/icons/add.png")}
+          style={styles.icon}
+          resizeMode="contain"
+          />
+        <Text style={styles.addSowText}> Agregar</Text>
       </TouchableOpacity>
 
       {/* Deleting Pop up */}
@@ -168,11 +178,11 @@ export default function SowsScreen() {
     </View>
   );
 }
-//#1947edff
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#F9FAFB",
     paddingHorizontal: 8,
     paddingTop: 16,
   },
@@ -183,16 +193,17 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: "row",
-    backgroundColor: "#f0f0f0",
-    paddingVertical: 10,
+    backgroundColor: "#81C784",
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
   },
   headerCell: {
     paddingHorizontal: 7,
+    marginVertical: 10,
     alignContent: "center",
     fontWeight: "bold",
     textAlign: "left",
+    textAlignVertical: "center",
   },
   row: {
     flexDirection: "row",
@@ -206,13 +217,14 @@ const styles = StyleSheet.create({
     textAlign: "left",
     color: "#333",
   },
-  fab: {
+  addSowButton: {
+    flexDirection: "row",
     position: "absolute",
     bottom: 20,
     right: 20,
     backgroundColor: "#FFA000", // color naranja similar al ejemplo
-    width: 125,
-    height: 60,
+    width: 140,
+    height: 50,
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
@@ -222,7 +234,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4, // sombra en iOS
   },
-  fabText: {
+  addSowText: {
     fontSize: 20,
     color: "#fff",
     marginBottom: 2,
@@ -253,5 +265,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 16,
   },
+  icon: {  width: 42, height: 42 },
 });

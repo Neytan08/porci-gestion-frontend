@@ -60,10 +60,13 @@ export default function EditSowScreen() {
       // Formatting data before sending
       const updatedSow = {
         ...sow,
+        entry_date: sow.entry_date,
+        status_id: sow.status?.status_id,
+        breed_id: sow.breeds?.breed_id,
         weight: typeof sow.weight === "number" ? sow.weight : parseFloat(sow.weight ?? "0") || 0,
         length: typeof sow.length === "number" ? sow.length : parseFloat(sow.length ?? "0") || 0,
-        mammary_glands: typeof sow.mammary_glands === "number" ? sow.mammary_glands : parseFloat(sow.mammary_glands ?? "0.0") || 0.0,
-        farrowing_number: typeof sow.farrowing_number === "number" ? sow.farrowing_number : parseFloat(sow.farrowing_number ?? "0.0") || 0.0,
+        mammary_glands: typeof sow.mammary_glands === "number" ? sow.mammary_glands : parseFloat(sow.mammary_glands ?? "0") || 0.0,
+        farrowing_number: typeof sow.farrowing_number === "number" ? sow.farrowing_number : parseFloat(sow.farrowing_number ?? "0") || 0.0,
         last_weaning_date: sow.last_weaning_date || null,
         removal_date: sow.removal_date || null,
         removal_reason: "",
@@ -101,6 +104,7 @@ export default function EditSowScreen() {
     }
   };
 
+  // Load data once the component is mounted
   useEffect(() => {
     loadSowDetails();
     loadDropdownOptions();
@@ -119,6 +123,9 @@ export default function EditSowScreen() {
     return (
       <View style={styles.center}>
         <Text style={{ color: "red" }}>No se pudo cargar la cerda.</Text>
+        <TouchableOpacity onPress={loadSowDetails}>
+          <Text style={{ color: "blue" }}>Reintentar</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -128,6 +135,7 @@ export default function EditSowScreen() {
         {/* Formulario editable */}
         <View style={styles.header}>
             <View style={styles.imagePlaceholder} />
+            {/* Sow Tag Number Editable */}
             <TouchableOpacity onPress={() => setBannerTagNumberVisible(true)}>
               <Text style={styles.name}>{sow.sow_tag_number}</Text>
             </TouchableOpacity>
@@ -148,7 +156,7 @@ export default function EditSowScreen() {
                             setSowDetails({ ...sow, sow_tag_number: newSowTagNumber });
                             setBannerTagNumberVisible(false);
                           }}
-                        >
+                          >
                           <Text style={styles.bannerButtonText}>Aceptar</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -163,6 +171,7 @@ export default function EditSowScreen() {
             </Modal>
         </View>
         <View>
+          {/* Dropdowns and Date Picker */}
             <View>
               <StatusDropdown
                 value={sow.status?.status_id || null}
@@ -193,6 +202,7 @@ export default function EditSowScreen() {
               onChange={(newDate: Date) => setSowDetails({ ...sow, entry_date: newDate.toISOString() })}
               />
             </View>
+            {/* Additional Fields */}
             <View style={styles.table}>
                 {([
                     { label: "Cantidad de pezones *", value: sow.mammary_glands, key: "mammary_glands", keyboardType: "numeric" as const},
@@ -204,6 +214,7 @@ export default function EditSowScreen() {
                 <View key={index} style={styles.row}>
                     <Text style={styles.label}>{item.label}</Text>
                     <TextInput
+                        accessibilityLabel={`Editar ${item.label}`}
                         style={styles.input}
                         value={item.value?.toString() ?? ""}
                         keyboardType={item.keyboardType || "default"}
@@ -228,31 +239,11 @@ export default function EditSowScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#f5f5f5",
-  },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  imagePlaceholder: {
-    width: 120,
-    height: 120,
-    backgroundColor: "#ccc",
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  name: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
+  scrollContent: { flex: 1, padding: 20, backgroundColor: "#F9FAFB" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  header: { alignItems: "center", marginBottom: 20 },
+  imagePlaceholder: { width: 120, height: 120, backgroundColor: "#ccc", borderRadius: 10, marginBottom: 10 },
+  name: { fontSize: 20, fontWeight: "bold", },
   table: {
     // borderTopWidth: 3,
     borderColor: "#ddd",
@@ -264,13 +255,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#eee",
   },
-  label: {
-    fontWeight: "600",
-    color: "#555",
-    flex: 1,
-  },
-  input: {
-    flex: 2,
+  label: { fontWeight: "600", color: "#555", flex: 1 },
+  input: { flex: 2,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
@@ -284,10 +270,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: "center",
   },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
+  buttonText: { color: "#fff", fontWeight: "bold" },
   banner: {
   position: "absolute",
   top: "40%",
@@ -302,11 +285,7 @@ const styles = StyleSheet.create({
   shadowRadius: 4,
   elevation: 5,
 },
-bannerTitle: {
-  fontSize: 18,
-  fontWeight: "bold",
-  marginBottom: 10,
-},
+bannerTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
 bannerInput: {
   borderWidth: 1,
   borderColor: "#ccc",
@@ -314,10 +293,7 @@ bannerInput: {
   padding: 10,
   marginBottom: 20,
 },
-bannerButtons: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-},
+bannerButtons: { flexDirection: "row", justifyContent: "space-between" },
 bannerButton: {
   flex: 1,
   padding: 10,
@@ -326,8 +302,5 @@ bannerButton: {
   borderRadius: 5,
   alignItems: "center",
 },
-bannerButtonText: {
-  color: "#fff",
-  fontWeight: "bold",
-},
+bannerButtonText: { color: "#fff", fontWeight: "bold" },
 });

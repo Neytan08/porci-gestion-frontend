@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Modal, StyleSheet, TextInput, Button, Text, TouchableOpacity } from "react-native";
+import { View, Modal, StyleSheet, TextInput, Button, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import { getBreed, createBreed } from "../api/breedApi";
 import type { Breed } from "../api/breedApi";
@@ -10,6 +10,7 @@ type BreedDropdownProps = {
 };
 
 export const BreedDropdown: React.FC<BreedDropdownProps> = ({ value, onChange }) => {
+  const [loading, setLoading] = useState(true);
   const [breedsOptions, setBreeds] = useState<{ label: string; value: number }[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [newBreed, setNewBreed] = useState<Breed>({
@@ -22,15 +23,29 @@ export const BreedDropdown: React.FC<BreedDropdownProps> = ({ value, onChange })
     fetchBreeds();
   }, []);
 
+  // Fetch breeds from API
   const fetchBreeds = async () => {
     try {
       const data = await getBreed();
-      setBreeds(data.map((item: Breed) => ({ label: item.breed_name, value: item.breed_id })));
+      const mapped = data.map((item: Breed) => ({ label: item.breed_name, value: item.breed_id }));
+      setBreeds(mapped);
     } catch (error) {
       console.error("Error fetching breeds:", error);
+    }finally {
+      setLoading(false);
     }
   };
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" />
+          <Text>Cargando razas...</Text>
+      </View>
+    );
+  }
+
+  // Handle creating a new breed
   const handleCreateBreed = async () => {
     if (!newBreed.breed_name.trim()) return;
     try {
@@ -60,42 +75,24 @@ export const BreedDropdown: React.FC<BreedDropdownProps> = ({ value, onChange })
             }}
           />
         </View>
-        {/* Botón ➕ */}
+        {/* Button ➕ */}
         <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Text style={{ fontSize: 22, marginLeft: 10 }}>➕</Text>
+          <Text style={{ fontSize: 22, marginLeft: 10, color: "#FFA000" }}>➕</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Modal para agregar nueva raza */}
+      {/* Modal for adding new breed */}
       <Modal visible={modalVisible} transparent animationType="slide">
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            backgroundColor: "rgba(0,0,0,0.4)",
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "white",
-              padding: 20,
-              margin: 20,
-              borderRadius: 10,
-            }}
-          >
-            <Text style={{ fontWeight: "bold", fontSize: 16, marginBottom: 10 }}>Agregar nueva raza</Text>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalTitle}>Agregar nueva raza</Text>
             <TextInput
               placeholder="Nombre de la raza"
               value={newBreed.breed_name}
               onChangeText={(text) =>
                 setNewBreed({ ...newBreed, breed_name: text })
               }
-              style={{
-                borderWidth: 1,
-                borderColor: "#ccc",
-                marginBottom: 10,
-                padding: 8,
-              }}
+              style={styles.modalInputs}
             />
             <TextInput
               placeholder="Descripción (opcional)"
@@ -103,15 +100,16 @@ export const BreedDropdown: React.FC<BreedDropdownProps> = ({ value, onChange })
               onChangeText={(text) =>
                 setNewBreed({ ...newBreed, description: text })
               }
-              style={{
-                borderWidth: 1,
-                borderColor: "#ccc",
-                marginBottom: 10,
-                padding: 8,
-              }}
+              style={styles.modalInputs}
             />
-            <Button title="Guardar" onPress={handleCreateBreed} />
-            <Button title="Cancelar" onPress={() => setModalVisible(false)} />
+            <View style={styles.bannerButtons}>
+              <TouchableOpacity style={styles.bannerButton} onPress={handleCreateBreed}>
+                <Text style={styles.bannerButtonText}>Guardar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.bannerButton} onPress={() => setModalVisible(false)}>
+                <Text style={styles.bannerButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -131,4 +129,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
   },
+  loadingContainer: { flexDirection: "row", alignItems: "center", gap: 10 },
+  modalContainer: { flex: 1, justifyContent: "center", backgroundColor: "rgba(0,0,0,0.4)" },
+  modalView: { backgroundColor: "white", margin: 20, padding: 20 },
+  modalTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+  modalInputs: { marginBottom: 10, borderWidth: 1, borderColor: "#37474F", padding: 8 },
+  bannerButtons: { flexDirection: "row", justifyContent: "space-between" },
+  bannerButton: {
+    flex: 1,
+    padding: 10,
+    marginHorizontal: 5,
+    backgroundColor: "#007AFF",
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  bannerButtonText: { color: "#fff", fontWeight: "bold" },
 });
