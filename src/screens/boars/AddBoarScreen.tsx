@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    StyleSheet,
-    Alert,
-} from "react-native";
+import { ScrollView, Text, TextInput, TouchableOpacity, StyleSheet, Alert,} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { createBoar } from "../../api/boarsApi";
 import DatePickerField from "../../components/DatePickerField";
