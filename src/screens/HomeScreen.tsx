@@ -14,10 +14,17 @@ export default function HomeScreen() {
 
   //Main menu cards
   const cards = [
-    { id: "1", title: "Cerdas", route: "Sows" },
-    { id: "2", title: "Cerdos", route: "Boars" },
-    { id: "3", title: "Eventos", route: "Events" },
-  ];
+  { id: "1", title: "Cerdas", route: "Sows",   iconKey: "sows" },
+  { id: "2", title: "Cerdos", route: "Boars",  iconKey: "boars" },
+  { id: "3", title: "Eventos", route: "Events",iconKey: "events" },
+];
+
+  //Icon mapping
+  const iconMap = {
+    sows: require("../../assets/icons/sow.png"),
+    boars: require("../../assets/icons/farm.png"),
+    events: require("../../assets/icons/add-event.png"),
+  } as const;
 
   const renderCard = ({ item }: any) => (
     <Pressable
@@ -26,17 +33,20 @@ export default function HomeScreen() {
         pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
       ]}
       onPress={() => navigation.navigate(item.route as never)}>
+      <View style={styles.iconWrap}>
+        <Image source={iconMap[item.iconKey as keyof typeof iconMap]} style={styles.icon} resizeMode="contain" />
+      </View>
       <Text style={styles.cardText}>{item.title}</Text>
     </Pressable>
   );
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>PorciGestión</Text>
+      {/* <Text style={styles.title}>PorciGestión</Text>
       <Image
         source={require("../../assets/images/logo.jpg")}
         style={styles.image}
         resizeMode="contain"
-      />
+      /> */}
       <FlatList
         data={cards}
         renderItem={renderCard}
@@ -52,7 +62,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#F9FAFB",
     alignItems: "center",
     paddingTop: 40,
   },
@@ -95,4 +105,19 @@ const styles = StyleSheet.create({
     fontWeight: "600", 
     color: "#34495e" 
   },
+  iconWrap: {
+    width: 84,
+    height: 84,
+    borderRadius: 16,
+    // backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    // marginBottom: 10,
+    // shadowColor: "#000",
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.12,
+    // shadowRadius: 4,
+    // elevation: 4,
+  },
+  icon: { alignItems: "center", width: 68, height: 68 },
 });

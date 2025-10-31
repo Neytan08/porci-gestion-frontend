@@ -10,6 +10,11 @@ export const getStatus = async (): Promise<Status[]> => {
   return res.data;
 };
 
+export const getStatusById = async (id: number): Promise<Status> => {
+  const res = await client.get(`/api/status/${id}`);
+  return res.data;
+}
+
 // si necesitás POST/PUT/DELETE:
 // export const createSow = async (payload: Partial<Sow>) => {
 //   const res = await client.post('/api/breedingsows/', payload);
