@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
-import { getStatus } from "../api/statusApi";
-import { Status } from "../api/statusApi";
+import { getStatus, Status } from "../api/statusApi";
 
 type StatusDropdownProps = {
   value: number | null;

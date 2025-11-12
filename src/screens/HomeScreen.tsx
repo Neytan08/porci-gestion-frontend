@@ -16,7 +16,7 @@ export default function HomeScreen() {
   const cards = [
   { id: "1", title: "Cerdas", route: "Sows",   iconKey: "sows" },
   { id: "2", title: "Cerdos", route: "Boars",  iconKey: "boars" },
-  { id: "3", title: "Eventos", route: "Events",iconKey: "events" },
+  { id: "3", title: "Eventos", route: "MatingEvents",iconKey: "events" },
 ];
 
   //Icon mapping

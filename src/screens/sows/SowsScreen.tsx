@@ -7,6 +7,7 @@ import { RootStackParamList } from "../../navigation/AppNavigator";
 import StatusFilter from "../../components/filters/StatusFilter";
 import BreedFilter from "../../components/filters/BreedFilter";
 import SearchFilter from "../../components/filters/SearchFilter";
+import RowCheckbox from "../../components/uiControls/RowCheckbox";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Sows'>;
 
@@ -22,6 +23,7 @@ export default function SowsScreen() {
   const [selectedStatusId, setSelectedStatusId] = useState<number | null>(null);
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
   // Build breed options from sows (id -> name), no extra API call
   const breedOptions = useMemo(
@@ -37,7 +39,7 @@ export default function SowsScreen() {
     [sows]
   );
 
-  // Build breed options from boars (id -> name), no extra API call
+  // Build status options from sows (id -> name), no extra API call
   const statusOptions = useMemo(
     () => {
       const map = new Map<number, string>();
@@ -67,6 +69,21 @@ export default function SowsScreen() {
       return matchBreed && matchStatus && matchSearch;
     });
   }, [sows, selectedBreedId, selectedStatusId, searchQuery]);
+
+  // Select one sow and clear the previous selection
+  const selectOne = useCallback((id: number) => {
+    setSelectedId(prev => (prev === id ? null : id));
+  }, []);
+
+  // 
+  const handleRowAction = useCallback((action: "edit" | "delete", sow: Sow) => {
+    // TODO: implementa navegación/confirmación
+    if (action === "edit") navigation.navigate("EditSow", { sowId: sow.sow_id });
+    if (action === "delete") {
+      setModalVisible(true);
+      setSelectedSow(sow);
+    }
+  }, []);
 
   // Reload the sows list when the screen is focused
   const loadSows = async () => {
@@ -206,7 +223,7 @@ export default function SowsScreen() {
         <Text style={[styles.headerTitleCell, { flex: 1 }]}>Nombre</Text>
         <Text style={[styles.headerTitleCell, { flex: 1 }]}>Estado</Text>
         <Text style={[styles.headerTitleCell, { flex: 1.2 }]}>Ingreso</Text>
-        <Text style={[styles.headerTitleCell, { flex: 0.8 }]}>Total Partos</Text>
+        <Text style={[styles.headerTitleCell, { flex: 0.8 }]}>Partos</Text>
       </View>
       {/*Breeding Sow List */}
       <FlatList<Sow>
@@ -219,16 +236,53 @@ export default function SowsScreen() {
         }
         renderItem={({ item }) => (
           <Pressable 
-          style={({ pressed }) => [
-            styles.flatlistRow,
-            pressed && { backgroundColor: "#e0e0e0", opacity: 0.6, }
-          ]} 
-          onPress={() => handleDetailsPress(item.sow_id)} 
-          onLongPress={() => handleLongPress(item.sow_id, item.sow_tag_number)} >
+            style={({ pressed }) => [
+              styles.flatlistRow,
+              pressed && { backgroundColor: "#e0e0e0", opacity: 0.6, }
+            ]} 
+            onPress={() => handleDetailsPress(item.sow_id)} 
+            onLongPress={() => handleLongPress(item.sow_id, item.sow_tag_number)} >
+
+            {/* Checkbox Component */}
+            <RowCheckbox
+              selected={selectedId === item.sow_id} 
+              onPress={() => selectOne(item.sow_id)}
+              size={15}
+              style={styles.checkboxCell} 
+            /> 
             <Text style={[styles.flatlistCell, { flex: 1 }]}>{item.sow_tag_number ?? '-'}</Text>
             <Text style={[styles.flatlistCell, { flex: 1 }]}>{item.status?.status_name ?? "Sin estado"}</Text>
             <Text style={[styles.flatlistCell, { flex: 1.2 }]}>{(item.entry_date ?? '').toString().split('T')[0] || '-'}</Text>
-            <Text style={[styles.flatlistCell, { flex: 0.8 }]}>{item.farrowing_number ?? "-"}</Text>
+            <Text style={[styles.flatlistCell, { flex: 0.3 }]}>{item.farrowing_number ?? "-"}</Text>
+            {/* Actions once selected */}
+            {selectedId === item.sow_id && (
+              <View style={styles.rowActions}>
+                {/* <> */}
+                  <TouchableOpacity
+                    onPress={() => handleRowAction("edit", item)}
+                    style={styles.actionBtn}
+                    hitSlop={10}
+                  >
+                    <Image
+                      source={require("../../../assets/icons/edit.png")} // ajusta nombres/rutas
+                      style={styles.actionIcon}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => handleRowAction("delete", item)}
+                    style={styles.actionBtn}
+                    hitSlop={10}
+                    >
+                    <Image
+                      source={require("../../../assets/icons/trash.png")}
+                      style={styles.actionIcon}
+                      resizeMode="contain"
+                    />
+                  </TouchableOpacity>
+                {/* </> */}
+              </View> 
+            )}
           </Pressable>
         )}
         ListEmptyComponent={
@@ -250,11 +304,11 @@ export default function SowsScreen() {
       />
       {/* Floating Add Button */}
       <TouchableOpacity style={styles.addSowButton} onPress={handleAddPress}>
-          <Image
-          source={require("../../../assets/icons/add.png")}
-          style={styles.icon}
-          resizeMode="contain"
-          />
+        <Image
+        source={require("../../../assets/icons/add.png")}
+        style={styles.icon}
+        resizeMode="contain"
+        />
         <Text style={styles.addSowText}> Agregar</Text>
       </TouchableOpacity>
 
@@ -263,7 +317,7 @@ export default function SowsScreen() {
         <View style={styles.deleteContainer}>
           <View style={styles.deleteView}>
             <Text style={styles.deleteViewMessage}>Seguro que desea eliminar a {selectedSow?.sow_tag_number ?? ""}?</Text>
-            <View style={styles.buttonRow}>
+            <View style={styles.deleteButtonRow}>
               <TouchableOpacity
                 style={[styles.deletebuttons, { backgroundColor: "#ac0202ff" }]}
                 onPress={() => selectedSow && handleDeleteSow(selectedSow.sow_id)}>
@@ -290,8 +344,10 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: "#F9FAFB",
-    paddingHorizontal: 8,
-    paddingTop: 16,
+    paddingHorizontal: 4,
+    paddingTop: 10,
+    // maxHeight: '80%',
+    // maxWidth: '80%',
   },
   messagesAlignment: {
     flex: 1,
@@ -308,10 +364,11 @@ const styles = StyleSheet.create({
   headerTitleCell: {
     paddingHorizontal: 7,
     marginVertical: 5,
-    alignContent: "center",
+    fontSize: 16,
     fontWeight: "bold",
-    textAlign: "left",
+    textAlign: "center",
     textAlignVertical: "center",
+    // borderWidth: 1,
   },
   flatlistRow: {
     flexDirection: "row",
@@ -319,11 +376,19 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
     paddingVertical: 10,
   },
+  checkboxCell: { 
+    // width: 25, 
+    justifyContent: "center", 
+    alignItems: "center" 
+  },
   flatlistCell: {
-    paddingHorizontal: 8,
-    marginVertical: 5,
+    paddingHorizontal: 5,
+    marginVertical: 2,
+    fontSize: 14,
     textAlign: "left",
+    textAlignVertical: "center",
     color: "#333",
+    // borderWidth: 1,
   },
   noSowsText: {
     textAlign: "center",
@@ -337,9 +402,25 @@ const styles = StyleSheet.create({
   },
   filterLinkText: {
     fontSize: 14,
-    color: "#2E7D32",
-    fontWeight: "700",
+    fontWeight: "400",
   },
+  // Row Actions (Edit/Delete)
+  rowActions: {
+    width: 40,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 4,
+    paddingRight: 4,
+  },
+  actionBtn: { 
+    padding: 2, 
+  },
+  actionIcon: {
+    width: 18,
+    height: 18, 
+    tintColor: "#616161", 
+    },
   // Floating Add Button
   addSowButton: {
     flexDirection: "row",
@@ -377,10 +458,10 @@ const styles = StyleSheet.create({
   },
   deleteViewMessage:{
     fontWeight: "bold", 
-    fontSize: 16, 
+    fontSize: 18, 
     marginBottom: 10,
   },
-  buttonRow: {
+  deleteButtonRow: {
    flexDirection: "row",
     justifyContent: "space-between",
   },
@@ -388,7 +469,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     marginHorizontal: 5,
-    backgroundColor: "#007AFF",
     borderRadius: 5,
     alignItems: "center",
   },
