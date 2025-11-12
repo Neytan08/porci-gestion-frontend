@@ -167,7 +167,7 @@ export default function BoarsScreen() {
           </View>
         )}
         ListEmptyComponent={
-          <Text style={styles.noSowsText}>No hay verracos registrados.</Text>
+          <Text style={styles.noBoarsText}>No hay verracos registrados.</Text>
         }
         ListFooterComponent={
           <View style={styles.footerBar}>
@@ -201,8 +201,8 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: "#F9FAFB",
-    paddingHorizontal: 8,
-    paddingTop: 16,
+    paddingHorizontal: 4,
+    paddingTop: 10,
   },
   messageAlignment: {
     flex: 1,
@@ -220,6 +220,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7,
     marginVertical: 5,
     alignContent: "center",
+    fontSize: 16,
     fontWeight: "bold",
     textAlign: "left",
     textAlignVertical: "center",
@@ -231,12 +232,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   flatlistCell: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 5,
     marginVertical: 5,
+    fontSize: 16,
     textAlign: "left",
     color: "#333",
   },
-  noSowsText: {
+  noBoarsText: {
     textAlign: "center",
     marginTop: 20,
   },
@@ -248,8 +250,7 @@ const styles = StyleSheet.create({
   },
   filterLinkText: {
     fontSize: 14,
-    color: "#2E7D32",
-    fontWeight: "700",
+    fontWeight: "400",
   },
   // Floating Add Button
   addBoarButton: {

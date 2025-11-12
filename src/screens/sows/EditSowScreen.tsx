@@ -153,6 +153,12 @@ export default function EditSowScreen() {
                         <TouchableOpacity
                           style={styles.bannerButton}
                           onPress={() => {
+                            {/* Checking if the input is empty */}
+                            const trimmed = newSowTagNumber.trim();
+                            if (!trimmed) {
+                              Alert.alert("Error", "El nombre no puede estar vacío.");
+                              return;
+                            }
                             setSowDetails({ ...sow, sow_tag_number: newSowTagNumber });
                             setBannerTagNumberVisible(false);
                           }}

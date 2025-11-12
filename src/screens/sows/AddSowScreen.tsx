@@ -56,7 +56,7 @@ export default function AddSow() {
       console.error("Error al agregar cerda:", error);
       Alert.alert("Error", "Hubo un problema al agregar la cerda. Intente nuevamente.");
     }
-  }
+  };
 
   return (
     <ScrollView style={styles.container}>

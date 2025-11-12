@@ -20,7 +20,7 @@ export type Sow = {
 };
 
 export const getSows = async (): Promise<Sow[]> => {
-  const res = await client.get('/api/breedingsows/'); // ajustá la ruta según tu API
+  const res = await client.get('/api/breedingsows/');
   return res.data;
 };
 
