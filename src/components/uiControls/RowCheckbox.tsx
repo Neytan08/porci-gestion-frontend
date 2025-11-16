@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { Pressable, View, StyleSheet, ViewStyle } from "react-native";
 
 /** A customizable checkbox component for use in rows or lists 
- *  Props: what the component accepts
+ *  Props: Type of what the component accepts
 */
 type Props = {
   selected: boolean;
@@ -13,6 +13,7 @@ type Props = {
   disabled?: boolean;
 };
 
+// RowCheckbox component definition
 const RowCheckbox: React.FC<Props> = ({
   selected,
   onPress,
