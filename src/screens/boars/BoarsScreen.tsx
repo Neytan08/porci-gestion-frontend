@@ -7,6 +7,8 @@ import { RootStackParamList } from "../../navigation/AppNavigator";
 import BreedFilter from "../../components/filters/BreedFilter";
 import SearchFilter from "../../components/filters/SearchFilter";
 import RowCheckbox from "../../components/uiControls/RowCheckbox";
+import EditAction from "../../components/uiControls/EditAction";
+import DeleteAction from "../../components/uiControls/DeleteAction";
 import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 import { useDeleteEntity } from "../../hooks/useDeleteEntity";
 
@@ -237,29 +239,9 @@ export default function BoarsScreen() {
             {selectedId === item.boar_id && (
               <View style={styles.rowActions}>
                 {/* Edit Action */}
-                <TouchableOpacity
-                  onPress={() => handleSelectedBoarAction("edit", item)}
-                  style={styles.actionBtn}
-                  hitSlop={10}
-                  >
-                  <Image
-                    source={require("../../../assets/icons/edit.png")} // ajusta nombres/rutas
-                    style={styles.actionIcon}
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
+                <EditAction onPress={() => handleSelectedBoarAction("edit", item)} />
                 {/* Delete Action */}
-                <TouchableOpacity
-                  onPress={() => handleSelectedBoarAction("delete", item)}
-                  style={styles.actionBtn}
-                  hitSlop={10}
-                  >
-                  <Image
-                    source={require("../../../assets/icons/trash.png")}
-                    style={styles.actionIcon}
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
+                <DeleteAction onPress={() => handleSelectedBoarAction("delete", item)} />
               </View> 
             )}
           </Pressable>

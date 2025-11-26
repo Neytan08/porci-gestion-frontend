@@ -8,6 +8,8 @@ import StatusFilter from "../../components/filters/StatusFilter";
 import BreedFilter from "../../components/filters/BreedFilter";
 import SearchFilter from "../../components/filters/SearchFilter";
 import RowCheckbox from "../../components/uiControls/RowCheckbox";
+import EditAction from "../../components/uiControls/EditAction";
+import DeleteAction from "../../components/uiControls/DeleteAction";
 import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 import { useDeleteEntity } from "../../hooks/useDeleteEntity";
 
@@ -269,29 +271,9 @@ export default function SowsScreen() {
             {selectedId === item.sow_id && (
               <View style={styles.rowActions}>
                 {/* Edit Action */}
-                <TouchableOpacity
-                  onPress={() => handleSelectedSowAction("edit", item)}
-                  style={styles.actionBtn}
-                  hitSlop={10}
-                >
-                  <Image
-                    source={require("../../../assets/icons/edit.png")} // ajusta nombres/rutas
-                    style={styles.actionIcon}
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
+                <EditAction onPress={() => handleSelectedSowAction("edit", item)} />
                 {/* Delete Action */}
-                <TouchableOpacity
-                  onPress={() => handleSelectedSowAction("delete", item)}
-                  style={styles.actionBtn}
-                  hitSlop={10}
-                >
-                  <Image
-                    source={require("../../../assets/icons/trash.png")}
-                    style={styles.actionIcon}
-                    resizeMode="contain"
-                  />
-                </TouchableOpacity>
+                <DeleteAction onPress={() => handleSelectedSowAction("delete", item)} />
               </View>
             )}
           </Pressable>
@@ -411,14 +393,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 4,
     paddingRight: 4,
-  },
-  actionBtn: {
-    padding: 2,
-  },
-  actionIcon: {
-    width: 18,
-    height: 18,
-    tintColor: "#616161",
   },
   // Floating Add Button
   addSowButton: {

@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Pressable, View, StyleSheet, ViewStyle } from "react-native";
+import { Pressable, View, StyleSheet, ViewStyle, Image, ImageStyle } from "react-native";
 
 /** A customizable checkbox component for use in rows or lists 
  *  Props: Type of what the component accepts
@@ -8,6 +8,9 @@ type Props = {
   selected: boolean;
   onPress: () => void;
   size?: number;       
+  selectedColor?: string;
+  radius?: number;
+  width?: number;       
   color?: string;      
   style?: ViewStyle;       
   disabled?: boolean;
@@ -17,8 +20,11 @@ type Props = {
 const RowCheckbox: React.FC<Props> = ({
   selected,
   onPress,
-  size,
-  color = "#2E7D32",
+  size = 15,
+  selectedColor = "#2E7D32",
+  radius = 4,
+  width = 1.5,
+  color = "transparent",
   style,
   disabled = false,
 }) => {
@@ -34,11 +40,16 @@ const RowCheckbox: React.FC<Props> = ({
       <View
         style={[
           styles.box,
-          { width: size, height: size, borderRadius: 4 },
-          selected && { backgroundColor: color, borderColor: color },
+          { width: size, height: size, borderRadius: radius, borderWidth: width, borderColor: color },
+          selected && { backgroundColor: selectedColor, borderColor: selectedColor },
         ]}
         >
-        {selected && (<View style={{ backgroundColor: "#fff" }} />)}
+        <Image
+          source={require('../../../assets/icons/check.png')}
+          style={[{ width: size-5, height: size-5, tintColor: '#000000ff' }]}
+          resizeMode="contain"
+        />
+        {/* {selected && (<View style={{ backgroundColor: "#fff" }} />)} */}
       </View>
     </Pressable>
   );

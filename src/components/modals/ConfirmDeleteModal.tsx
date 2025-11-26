@@ -6,7 +6,8 @@ interface ConfirmDeleteModalProps {
     visible: boolean;
     name?: string | number | null;
     title?: string; // Optional custom title
-    message?: string; // Optional custom message. If omitted, a default using name is used
+    // message can be a string or any React node (allow bold parts, links, etc.)
+    message?: string | React.ReactNode; // Optional custom message. If omitted, a default using name is used
     confirmText?: string;
     cancelText?: string;
     loading?: boolean;
@@ -33,7 +34,15 @@ export default function ConfirmDeleteModal({
             <View style={styles.overlay}>
                 <View style={styles.card}>
                     {!!title && <Text style={styles.title}>{title}</Text>}
-                    <Text style={styles.message}>{resolvedMessage}</Text>
+                    {/*  
+                        You can pass a string for simple messages or a React node for complex formatting
+                        You can use <Text> components with styles for bold, links, etc.
+                    */}
+                    {typeof resolvedMessage === 'string' ? (
+                        <Text style={styles.message}>{resolvedMessage}</Text>
+                    ) : (
+                        <View style={styles.messageContainer}>{resolvedMessage}</View>
+                    )}
                     <View style={styles.row}>
                         <TouchableOpacity
                             style={[styles.button, { backgroundColor: "#ac0202ff" }, loading && styles.disabled]}
@@ -98,5 +107,8 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontWeight: "bold",
         fontSize: 16,
+    },
+    messageContainer: {
+        marginBottom: 10,
     },
 });
