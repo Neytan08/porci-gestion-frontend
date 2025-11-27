@@ -34,7 +34,8 @@ export default function MattingEventsScreen() {
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [matingToDelete, setMatingToDelete] = useState<{ event: MatingEvent } | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  
+  const [selectedActionsVisible, setSelectedActionsVisible] = useState(false);
+
   // Navigate to AddMatingEvent screen
   const handleAddPress = () => {
     navigation.navigate("AddMatingEvent" as never);
@@ -181,7 +182,7 @@ export default function MattingEventsScreen() {
                 }}
                 // style={{ borderWidth: 1 }}
               >
-                
+                {/* Row Content */}
                 <View style={[styles.row, isActive && styles.rowActive]}>
                   <RowCheckbox
                     selected={selectedIds.has(item.mating_id)}
@@ -215,6 +216,7 @@ export default function MattingEventsScreen() {
           contentContainerStyle={{ paddingBottom: 90, paddingTop: 8 }}
         />
       )}
+      {/* Modal for actions */}
       <Modal
         visible={actionModalVisible}
         transparent
@@ -238,34 +240,35 @@ export default function MattingEventsScreen() {
           </View>
         </View>
       </Modal>
+      {/* Selected or Add button depending on selection */}
       {selectedIds.size > 0 ? (
-        <TouchableOpacity style={styles.addMatingButton} onPress={() => Alert.alert('Need to implement', 'Functionalities are not implemented yet.')}>
-          <Image
+        <TouchableOpacity style={styles.addMatingButton} onPress={() => setSelectedActionsVisible(true)}>
+        <Image
           source={require("../../../assets/icons/dots.png")}
           style={styles.icon}
           resizeMode="contain"
         />
-        <Text style={styles.addSowText}>Seleccionados</Text>
+        <Text style={styles.addSowText}>{`(${selectedIds.size})   `}</Text>
         </TouchableOpacity>
-      ):(
+        ):(
         // Floating Add Button 
-      <TouchableOpacity style={styles.addMatingButton} onPress={handleAddPress}>
-        <Image
-          source={require("../../../assets/icons/add.png")}
-          style={styles.icon}
-          resizeMode="contain"
-        />
-        <Text style={styles.addSowText}>Agregar</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.addMatingButton} onPress={handleAddPress}>
+          <Image
+            source={require("../../../assets/icons/add.png")}
+            style={styles.icon}
+            resizeMode="contain"
+          />
+          <Text style={styles.addSowText}>Agregar</Text>
+        </TouchableOpacity>
       )}
-      
       {/* Deleting Pop up */}
       <ConfirmDeleteModal
         visible={deleteModalVisible && matingToDelete !== null}
         title="Eliminar Inseminación"
         message={(
           <Text>
-            ¿Seguro que desea eliminar la inseminación tipo <Text style={{ fontWeight: 'bold' }}>{matingToDelete?.event.insemination_type ?? ''}</Text> a la cerda <Text style={{ fontWeight: 'bold' }}>{matingToDelete?.event.breedingsows?.sow_tag_number ?? ''}</Text>?
+            ¿Seguro que desea eliminar la inseminación tipo <Text style={{ fontWeight: 'bold' }}>{matingToDelete?.event.insemination_type ?? ''}</Text>
+            a la cerda <Text style={{ fontWeight: 'bold' }}>{matingToDelete?.event.breedingsows?.sow_tag_number ?? ''}</Text>?
           </Text>
         )}
         confirmText="Eliminar"
@@ -274,6 +277,54 @@ export default function MattingEventsScreen() {
         onConfirm={deleteMatingEventHandler}
         onCancel={() => { setDeleteModalVisible(false); setMatingToDelete(null); }}
       />
+      {/* Selection Section */}
+      <Modal
+        visible={selectedActionsVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedActionsVisible(false)}
+      >
+        <Pressable style={styles.filterOverlay} onPress={() => setSelectedActionsVisible(false)}>
+          <View style={styles.filterOverlayView}>
+            <Text style={styles.filterOverlayTitle}>{`Inseminaciones Seleccionadas (${selectedIds.size})`}</Text>
+            <View style={styles.filterBtnRow}>
+              <Pressable
+                style={styles.filterBtn}
+                onPress={() => Alert.alert('Funcion no implementada')}
+              >
+                <Image
+                  source={require("../../../assets/icons/change-status.png")}
+                  style={styles.icon}
+                  resizeMode="contain"
+                />
+                <Text style={{ fontWeight: "700", marginLeft: 8 }}>Cambiar estado de inseminación</Text>
+              </Pressable>
+              <Pressable
+                style={styles.filterBtn}
+                onPress={() => Alert.alert('Funcion no implementada')}
+              >
+                <Image
+                  source={require("../../../assets/icons/pdf-file.png")}
+                  style={styles.icon}
+                  resizeMode="contain"
+                />
+                <Text style={{ fontWeight: "700", marginLeft: 8 }}>Extraer a PDF</Text>
+              </Pressable>
+              <Pressable
+                style={styles.filterBtn}
+                onPress={() => [setSelectedIds(new Set()), setSelectedActionsVisible(false)]}
+              >
+                <Image
+                  source={require("../../../assets/icons/uncheck.png")}
+                  style={styles.icon}
+                  resizeMode="contain"
+                />
+                <Text style={{ fontWeight: "700", marginLeft: 8 }}>Limpiar selección</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -423,5 +474,40 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 8,
+  },
+  // Filter Modal Styles
+  filterOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.25)",
+    justifyContent: "flex-end",
+  },
+  filterOverlayView: {
+    backgroundColor: "#fff",
+    paddingTop: 12,
+    paddingBottom: 8,
+    paddingHorizontal: 16,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  filterOverlayTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 8
+  },
+  // Buttons
+  filterBtnRow: {
+    flexDirection: "column",
+    // justifyContent: "space-between",
+    gap: 10,
+    marginTop: 12,
+    marginBottom: 6,
+  },
+  filterBtn: {
+    flexDirection: "row",
+    minHeight: 40,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderTopWidth: 1,
+    alignItems: "center",
   },
 });
