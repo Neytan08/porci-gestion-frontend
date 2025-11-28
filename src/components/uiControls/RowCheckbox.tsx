@@ -33,7 +33,7 @@ const RowCheckbox: React.FC<Props> = ({
       onPress={onPress}
       disabled={disabled}
       style={[styles.cell, style]}
-      hitSlop={30} /*Increases touchable area*/
+      hitSlop={15} /*Increases touchable area*/
       accessibilityRole="checkbox" 
       accessibilityState={{ selected, disabled }}
       >

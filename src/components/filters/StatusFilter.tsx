@@ -51,7 +51,7 @@ const StatusFilter: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-  sectionTitle: { fontSize: 14, fontWeight: "700", color: "#555", marginTop: 8, marginBottom: 4 },
+  sectionTitle: { fontSize: 17, fontWeight: "700", color: "#555", marginTop: 8, marginBottom: 4 },
   optionRow: {
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
