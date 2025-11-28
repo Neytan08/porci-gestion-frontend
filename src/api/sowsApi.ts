@@ -39,7 +39,7 @@ export const updateSow = async (id: number, payload: Partial<Sow>) => {
   return res.data;
 };
 
-export const deleteSow = async (id: number) =>{
-  const rest = await client.delete(`/api/breedingsows/${id}`);
-  return rest.data;
+export const deleteSowbyId = async (id: number) => {
+  const res = await client.delete(`/api/breedingsows/${id}`);
+  return res.data;
 }

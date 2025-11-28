@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
-import {View, Text, FlatList, TouchableOpacity, Pressable, ActivityIndicator, StyleSheet, RefreshControl, Modal, Alert, Image, TextInput} from "react-native";
-import { deleteSow, getSows, Sow } from "../../api/sowsApi";
+import { View, Text, FlatList, TouchableOpacity, Pressable, ActivityIndicator, StyleSheet, RefreshControl, Modal, Alert, Image } from "react-native";
+import { deleteSowbyId, getSows, Sow } from "../../api/sowsApi";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
@@ -8,85 +8,100 @@ import StatusFilter from "../../components/filters/StatusFilter";
 import BreedFilter from "../../components/filters/BreedFilter";
 import SearchFilter from "../../components/filters/SearchFilter";
 import RowCheckbox from "../../components/uiControls/RowCheckbox";
+import EditAction from "../../components/uiControls/EditAction";
+import DeleteAction from "../../components/uiControls/DeleteAction";
+import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
+import { useDeleteEntity } from "../../hooks/useDeleteEntity";
+import ListAction from "../../components/uiControls/ListAction";
+import DetailsAction from "../../components/uiControls/DetailsAction";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Sows'>;
 
 export default function SowsScreen() {
+  const navigation = useNavigation<NavigationProp>();
   const [sows, setSows] = useState<Sow[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const navigation = useNavigation<NavigationProp>();
-  const [selectedSow, setSelectedSow] = useState<{sow_id: number; sow_tag_number: string } | null>(null);
-  const [selectedBreedId, setSelectedBreedId] = useState<number | null>(null);
-  const [selectedStatusId, setSelectedStatusId] = useState<number | null>(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [deleteSelectedSow, setDeleteSelectedSow] = useState<{ sow_id: number; sow_tag_number: string } | null>(null);
+  const [filterSelectedBreedId, setFilterSelectedBreedId] = useState<number | null>(null);
+  const [filterSelectedStatusId, setFilterSelectedStatusId] = useState<number | null>(null);
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedSows, setSelectedSows] = useState<Set<number>>(new Set());
+  const [actionsModalVisible, setActionsModalVisible] = useState(false);
+  const [sowAction, setSowAction] = useState<Sow | null>(null);
+  const [selectedActionsVisible, setSelectedActionsVisible] = useState(false);
 
   // Build breed options from sows (id -> name), no extra API call
-  const breedOptions = useMemo(
-    () => {
-      const map = new Map<number, string>();
-      sows.forEach(b => {
-        const id = b.breeds?.breed_id ?? (b as any).breed_id;
-        const name = b.breeds?.breed_name ?? (b as any).breed_name;
-        if (id != null && typeof name === "string" && name.trim()) map.set(id, name);
-      });
-      return Array.from(map, ([value, label]) => ({ value, label }));
-    },
-    [sows]
+  const breedOptions = useMemo(() => {
+    const map = new Map<number, string>();
+    // Go through all sows to extract unique breeds
+    sows.forEach(b => {
+      const id = b.breeds?.breed_id ?? (b as any).breed_id;
+      const name = b.breeds?.breed_name ?? (b as any).breed_name;
+      if (id != null && typeof name === "string" && name.trim()) map.set(id, name);
+    });
+    return Array.from(map, ([value, label]) => ({ value, label }));
+  }, [sows]
   );
 
   // Build status options from sows (id -> name), no extra API call
-  const statusOptions = useMemo(
-    () => {
-      const map = new Map<number, string>();
-      sows.forEach(b => {
-        const id = b.status?.status_id ?? (b as any).status_id;
-        const name = b.status?.status_name ?? (b as any).status_name;
-        if (id != null && typeof name === "string" && name.trim()) map.set(id, name);
-      });
-      return Array.from(map, ([value, label]) => ({ value, label }));
-    },
-    [sows]
+  const statusOptions = useMemo(() => {
+    const map = new Map<number, string>();
+    // Go through all sows to extract unique statuses
+    sows.forEach(s => {
+      const id = s.status?.status_id ?? (s as any).status_id;
+      const name = s.status?.status_name ?? (s as any).status_name;
+      if (id != null && typeof name === "string" && name.trim()) map.set(id, name);
+    });
+    return Array.from(map, ([value, label]) => ({ value, label }));
+  }, [sows]
   );
 
-  // Filtered list
-  const filteredSows = useMemo(() => {
+  // Filter list of sows based on selected filters and search query
+  const filterSows = useMemo(() => {
     return sows.filter((s) => {
-      const q = searchQuery.trim().toLowerCase();
+
+      // Match breeds with selected breed filter
       const breedId = s.breeds?.breed_id ?? (s as any).breed_id ?? null;
+      const matchBreed = filterSelectedBreedId == null || breedId === filterSelectedBreedId;
+
+      // Match status with selected status filter
       const statusId = s.status?.status_id ?? (s as any).status_id ?? null;
+      const matchStatus = filterSelectedStatusId == null || statusId === filterSelectedStatusId;
 
-      const matchBreed = selectedBreedId == null || breedId === selectedBreedId;
-      const matchStatus = selectedStatusId == null || statusId === selectedStatusId;
-
+      // Match each letter in the tag number with the search query
+      const searchName = searchQuery.trim().toLowerCase();
       const tag = (s.sow_tag_number ?? "").toString().toLowerCase();
-      const matchSearch = q.length === 0 || tag.includes(q);
+      const matchSearch = searchName.length === 0 || tag.includes(searchName);
 
       return matchBreed && matchStatus && matchSearch;
     });
-  }, [sows, selectedBreedId, selectedStatusId, searchQuery]);
+  }, [sows, filterSelectedBreedId, filterSelectedStatusId, searchQuery]);
 
-  // Select one sow and clear the previous selection
-  const selectOne = useCallback((id: number) => {
-    setSelectedId(prev => (prev === id ? null : id));
+  // Select multiple Sows
+  const toggleSelect = useCallback((id: number) => {
+    setSelectedSows(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
   }, []);
 
-  // 
-  const handleRowAction = useCallback((action: "edit" | "delete", sow: Sow) => {
-    // TODO: implementa navegación/confirmación
+  // Redirect to Sow screens based on action selected
+  const handleSelectedSowAction = useCallback((action: "edit" | "delete" | "moreDetails", sow: Sow) => {
     if (action === "edit") navigation.navigate("EditSow", { sowId: sow.sow_id });
+    if (action === "moreDetails") navigation.navigate("DetailsSow", { sowId: sow.sow_id });
     if (action === "delete") {
-      setModalVisible(true);
-      setSelectedSow(sow);
+      setDeleteModalVisible(true);
+      setDeleteSelectedSow(sow);
     }
   }, []);
 
   // Reload the sows list when the screen is focused
-  const loadSows = async () => {
+  const loadSows =useCallback( async () => {
     try {
       setLoading(true);
       setError(null);
@@ -104,17 +119,21 @@ export default function SowsScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadSows();
-    setRefreshing(false);
-  };
+  // Handle pull-to-refresh action
+  const onRefresh = useCallback(async () => {
+      setRefreshing(true);
+      try {
+        await loadSows();
+      } finally {
+        setRefreshing(false);
+      }
+    }, [loadSows]);
 
   // Navigate to AddSow screen
   const handleAddPress = () => {
-    navigation.navigate("AddSow" as never); 
+    navigation.navigate("AddSow" as never);
   };
 
   // Navigate to DetailsSow screen
@@ -123,40 +142,46 @@ export default function SowsScreen() {
     navigation.navigate('DetailsSow', { sowId });
   };
 
-  // Handle deleting a sow
-  const handleDeleteSow =  async (sowId: number) => {
-    try {
-      setError(null);
-      await deleteSow(sowId);
-      setModalVisible(false);
-      setSelectedSow(null);
-      await loadSows();
-      Alert.alert('Eliminación completada', 'La cerda fue eliminada correctamente.');
-    } catch (err: any) {
-      console.error("Error deleting sow:", err);
-      setError("No se pudo eliminar la cerda.");
-      Alert.alert('Error', 'No se pudo eliminar la cerda. Intente nuevamente.');
-    }
-  };
-
-  const handleLongPress = (sow_id: number, sow_tag_number: string) => {
-    setSelectedSow({ sow_id: sow_id, sow_tag_number: sow_tag_number });
-    setModalVisible(true);
+  // Handle long press to show confirm delete modal
+  const handleDeletePress = (sow_id: number, sow_tag_number: string) => {
+    setDeleteSelectedSow({ sow_id: sow_id, sow_tag_number: sow_tag_number });
+    setDeleteModalVisible(true);
     console.log("Delete");
   };
 
+  // Handle deleting sows by using the custom hook
+  const { deleting, deleteById } = useDeleteEntity<number>({
+    deleteFn: deleteSowbyId,
+    onDeleted: loadSows,
+    messages: {
+      successTitle: 'Eliminación completada',
+      successMessage: 'La cerda fue eliminada correctamente.',
+      errorTitle: 'Error',
+      errorMessage: 'No se pudo eliminar la cerda. Intente nuevamente.',
+    }
+  });
+
+  // Confirm a sow was selected before delete it (using shared hook)
+  const deleteSow = async () => {
+    if (!deleteSelectedSow) return;
+    setDeleteModalVisible(false);
+    await deleteById(deleteSelectedSow.sow_id);
+    setDeleteSelectedSow(null);
+  };
+
+  // Initial load
   useEffect(() => {
     loadSows();
-  }, []);
+  }, [loadSows]);
 
-  //Reload the screen when coming back to it
+  // Reload the screen when coming back to it
   useFocusEffect(
     useCallback(() => {
-      loadSows(); 
+      loadSows();
     }, [])
   );
 
-  //In case of loading last to long
+  // In case of loading last to long
   if (loading) {
     return (
       <View style={styles.messagesAlignment}>
@@ -166,6 +191,7 @@ export default function SowsScreen() {
     );
   }
 
+  // In case of error
   if (error) {
     return (
       <View style={styles.messagesAlignment}>
@@ -182,247 +208,342 @@ export default function SowsScreen() {
         transparent
         animationType="fade"
         onRequestClose={() => setFilterSheetVisible(false)}
-        >
+      >
         <Pressable style={styles.filterOverlay} onPress={() => setFilterSheetVisible(false)}>
           <View style={styles.filterOverlayView}>
             <Text style={styles.filterOverlayTitle}>Filtros</Text>
             {/* Status Section */}
             <StatusFilter
               options={statusOptions}               // [{label, value}]
-              selectedId={selectedStatusId}         // number | null
-              onChange={setSelectedStatusId}        // (id) => void
+              selectedId={filterSelectedStatusId}   // number | null
+              onChange={setFilterSelectedStatusId}  // (id) => void
             />
             {/* Divider */}
             <View style={styles.sectionDivider} />
             {/* Breed Section */}
             <BreedFilter
               options={breedOptions}                 // [{label, value}]
-              selectedId={selectedBreedId}           // number | null
-              onChange={setSelectedBreedId}          // (id) => void
+              selectedId={filterSelectedBreedId}     // number | null
+              onChange={setFilterSelectedBreedId}    // (id) => void
             />
-            {/* Filter Actions */}
+            {/* Filter Buttons */}
             <View style={styles.filterBtnRow}>
               <Pressable
                 style={[styles.filterBtn, { backgroundColor: "#e0e0e0" }]}
-                onPress={() => { setSelectedBreedId(null); setSelectedStatusId(null); }}
-                >
+                onPress={() => { setFilterSelectedBreedId(null); setFilterSelectedStatusId(null); setFilterSheetVisible(false); }}
+              >
                 <Text style={{ fontWeight: "700", color: "#333" }}>Limpiar filtros</Text>
               </Pressable>
               <Pressable
                 style={[styles.filterBtn, { backgroundColor: "#2E7D32" }]}
                 onPress={() => setFilterSheetVisible(false)}
-                >
+              >
                 <Text style={{ fontWeight: "700", color: "#fff" }}>Aplicar</Text>
               </Pressable>
             </View>
           </View>
         </Pressable>
       </Modal>
-      {/* Headers row */}
-      <View style={styles.headerTitleList}>
-        <Text style={[styles.headerTitleCell, { flex: 1 }]}>Nombre</Text>
-        <Text style={[styles.headerTitleCell, { flex: 1 }]}>Estado</Text>
-        <Text style={[styles.headerTitleCell, { flex: 1.2 }]}>Ingreso</Text>
-        <Text style={[styles.headerTitleCell, { flex: 0.8 }]}>Partos</Text>
-      </View>
       {/*Breeding Sow List */}
       <FlatList<Sow>
-        data={filteredSows}
-        keyExtractor={(item, index) =>
-          item.sow_id != null ? `${item.sow_id}` : `${index}`
-        }
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        renderItem={({ item }) => (
-          <Pressable 
-            style={({ pressed }) => [
-              styles.flatlistRow,
+        data={filterSows}
+        keyExtractor={(item) => `${item.sow_id}`}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        renderItem={({ item }) => {
+          // Compute active state for styling when the modal is open for the item
+          const isActive = sowAction?.sow_id === item.sow_id && actionsModalVisible;
+          /* Each row is pressable to view details or long-press to delete */
+          return (
+            <Pressable
+              style={({ pressed }) => [
+                styles.pressableRow,
               pressed && { backgroundColor: "#e0e0e0", opacity: 0.6, }
-            ]} 
-            onPress={() => handleDetailsPress(item.sow_id)} 
-            onLongPress={() => handleLongPress(item.sow_id, item.sow_tag_number)} >
-
-            {/* Checkbox Component */}
-            <RowCheckbox
-              selected={selectedId === item.sow_id} 
-              onPress={() => selectOne(item.sow_id)}
-              size={15}
-              style={styles.checkboxCell} 
-            /> 
-            <Text style={[styles.flatlistCell, { flex: 1 }]}>{item.sow_tag_number ?? '-'}</Text>
-            <Text style={[styles.flatlistCell, { flex: 1 }]}>{item.status?.status_name ?? "Sin estado"}</Text>
-            <Text style={[styles.flatlistCell, { flex: 1.2 }]}>{(item.entry_date ?? '').toString().split('T')[0] || '-'}</Text>
-            <Text style={[styles.flatlistCell, { flex: 0.3 }]}>{item.farrowing_number ?? "-"}</Text>
-            {/* Actions once selected */}
-            {selectedId === item.sow_id && (
-              <View style={styles.rowActions}>
-                {/* <> */}
-                  <TouchableOpacity
-                    onPress={() => handleRowAction("edit", item)}
-                    style={styles.actionBtn}
-                    hitSlop={10}
-                  >
-                    <Image
-                      source={require("../../../assets/icons/edit.png")} // ajusta nombres/rutas
-                      style={styles.actionIcon}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => handleRowAction("delete", item)}
-                    style={styles.actionBtn}
-                    hitSlop={10}
-                    >
-                    <Image
-                      source={require("../../../assets/icons/trash.png")}
-                      style={styles.actionIcon}
-                      resizeMode="contain"
-                    />
-                  </TouchableOpacity>
-                {/* </> */}
-              </View> 
-            )}
-          </Pressable>
-        )}
+              ]}
+              onPress={() => handleDetailsPress(item.sow_id)}
+              onLongPress={() => handleDeletePress(item.sow_id, item.sow_tag_number)} 
+            >
+              {/* FlatList Content */}
+              <View style={[styles.contentRow, isActive && styles.contentRowActive]}>
+                <RowCheckbox
+                  selected={selectedSows.has(item.sow_id)}
+                  onPress={() => toggleSelect(item.sow_id)}
+                  size={18}
+                  radius={4}
+                  width={1}
+                  color={"#eee"}
+                  style={styles.checkBox}
+                />
+                <Text style={[styles.textCell, {flex: 1.3}]}>
+                  <Text style={{ fontWeight: '700' }}>Nombre: </Text>
+                  {item.sow_tag_number ?? '-'}
+                </Text>
+                <Text style={[styles.textCell, {flex: 1}]}> 
+                  <Text style={{ fontWeight: '700' }}>Estado: </Text>
+                  {item.status?.status_name ?? "Sin estado"}
+                </Text>
+                <Text style={[styles.textCell, {width: '101%'}]}>
+                  <Text style={{ fontWeight: '700' }}>Ingreso: </Text>
+                  {item.entry_date ? item.entry_date.split("T")[0] : "-"}
+                </Text>
+                <Text style={[styles.textCell, {width: '101%'}]}>
+                  <Text style={{ fontWeight: '700' }}>Partos: </Text>
+                  {item.farrowing_number ?? "-"}
+                </Text>       
+                <View style={styles.detailsButton}>
+                  {/* List Action: pop up a small view with actions for the item */}
+                  <ListAction  onPress={() => { setSowAction(item); setActionsModalVisible(true); }} />
+                </View>
+              </View>
+            </Pressable>
+          );
+        }}
         ListEmptyComponent={
           <Text style={styles.noSowsText}>No hay cerdas registradas.</Text>
         }
-        ListFooterComponent={
-          <View style={styles.footerBar}>
-              <Pressable onPress={() => setFilterSheetVisible(true)}>
-                <Text style={styles.filterLinkText}>Filtrar por…</Text>
-              </Pressable>
+        ListHeaderComponent={
+          <View style={styles.flatListHeader}>
+            <Pressable
+            style={({ pressed }) => [
+                styles.filterBtnText,
+              pressed && { backgroundColor: "#e0e0e0", opacity: 0.6, }
+              ]}
+              onPress={() => setFilterSheetVisible(true)
+            }>
+              <Text style={styles.filterLinkText}>Filtrar por…</Text>
+            </Pressable>
             <SearchFilter
               value={searchQuery}
               onChange={setSearchQuery}
             />
           </View>
         }
-        ListFooterComponentStyle={{ paddingTop: 12, paddingBottom: 16 }}
-        contentContainerStyle={{ paddingBottom: 90 }} 
+        ListHeaderComponentStyle={{ paddingTop: 2, paddingBottom: 4 }}
+        contentContainerStyle={{ paddingBottom: 90 }}
       />
-      {/* Floating Add Button */}
-      <TouchableOpacity style={styles.addSowButton} onPress={handleAddPress}>
-        <Image
-        source={require("../../../assets/icons/add.png")}
-        style={styles.icon}
-        resizeMode="contain"
-        />
-        <Text style={styles.addSowText}> Agregar</Text>
-      </TouchableOpacity>
-
-      {/* Deleting Pop up */}
-      <Modal visible={modalVisible && selectedSow !== null} transparent animationType="fade">
-        <View style={styles.deleteContainer}>
-          <View style={styles.deleteView}>
-            <Text style={styles.deleteViewMessage}>Seguro que desea eliminar a {selectedSow?.sow_tag_number ?? ""}?</Text>
-            <View style={styles.deleteButtonRow}>
-              <TouchableOpacity
-                style={[styles.deletebuttons, { backgroundColor: "#ac0202ff" }]}
-                onPress={() => selectedSow && handleDeleteSow(selectedSow.sow_id)}>
-                <Text  style={styles.deleteButtonText}>Eliminar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.deletebuttons, { backgroundColor: "#007AFF" }]}
-                onPress={() => {
-                  setModalVisible(false);
-                  setSelectedSow(null);
-                }}>
-                <Text style={styles.deleteButtonText}>Cancelar</Text>
-              </TouchableOpacity>
+      {/* Modal for actions */}
+      <Modal
+        visible={actionsModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => { setActionsModalVisible(false); setSowAction(null); }} // Android back button
+      >
+        <View style={styles.modalActionsContainer}>
+          {/* Overlay catch clicks outside the panel and closes it */}
+          <Pressable style={styles.modalActionsOverlay} onPress={() => { setActionsModalVisible(false); setSowAction(null); }} />
+          {/* Container for the panel with buttons (will not touch the overlay) */}
+          <View style={styles.modalActionsView}>
+            <Text style={{ fontWeight: '700', marginBottom: 8 }}>
+              Acciones Disponibles: {sowAction?.sow_tag_number ?? sowAction?.sow_id}
+            </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <EditAction onPress={() => { setActionsModalVisible(false); /* luego navega/edit */ handleSelectedSowAction('edit', sowAction!); }} />
+              <DetailsAction onPress={() => { setActionsModalVisible(false); handleSelectedSowAction('moreDetails', sowAction!); }} />
+              <DeleteAction onPress={() => { setActionsModalVisible(false); handleSelectedSowAction('delete', sowAction!); }} />
             </View>
           </View>
         </View>
+      </Modal>
+      {/*  Selected or Add button depending on selection */}
+      {selectedSows.size > 0 ? (
+        // Floating Selected Actions Button
+        <TouchableOpacity style={styles.pinnedSowButton} onPress={() => setSelectedActionsVisible(true)}>
+        <Image
+          source={require("../../../assets/icons/dots.png")}
+          style={styles.icon}
+          resizeMode="contain"
+        />
+        <Text style={styles.pinnedSowButtonText}>{`(${selectedSows.size})   `}</Text>
+        </TouchableOpacity>
+      ):(
+        // Floating Add Button 
+        <TouchableOpacity style={styles.pinnedSowButton} onPress={handleAddPress}>
+          <Image
+            source={require("../../../assets/icons/add.png")}
+            style={styles.icon}
+            resizeMode="contain"
+          />
+          <Text style={styles.pinnedSowButtonText}> Agregar</Text>
+        </TouchableOpacity>
+      )}
+      {/* Deleting Pop up */}
+      <ConfirmDeleteModal
+        visible={deleteModalVisible && deleteSelectedSow !== null}
+        name={deleteSelectedSow?.sow_tag_number}
+        title="Eliminar cerda"
+        message={`¿Seguro que desea eliminar a la cerda ${deleteSelectedSow?.sow_tag_number ?? ''}?`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        loading={deleting}
+        onConfirm={deleteSow}
+        onCancel={() => { setDeleteModalVisible(false); setDeleteSelectedSow(null); }}
+      />
+      {/* Selection Section */}
+      <Modal
+        visible={selectedActionsVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedActionsVisible(false)}
+      >
+        <Pressable style={styles.filterOverlay} onPress={() => setSelectedActionsVisible(false)}>
+          <View style={styles.filterOverlayView}>
+            <Text style={styles.filterOverlayTitle}>{`Cerdas Seleccionadas (${selectedSows.size})`}</Text>
+            <View style={styles.filterBtnRow}>
+              {/* PDF Extraction */}
+              <Pressable
+                style={styles.filterBtn}
+                onPress={() => Alert.alert('Funcion no implementada')}
+              >
+                <Image
+                  source={require("../../../assets/icons/pdf-file.png")}
+                  style={styles.icon}
+                  resizeMode="contain"
+                />
+                <Text style={{ fontWeight: "700", textAlign: "center" }}>Extraer a PDF</Text>
+              </Pressable>
+              {/* Retire Sow */}
+              <Pressable
+                style={styles.filterBtn}
+                onPress={() => Alert.alert('Funcion no implementada')}
+              >
+                <Image
+                  source={require("../../../assets/icons/trash.png")}
+                  style={styles.icon}
+                  resizeMode="contain"
+                />
+                <Text style={{ fontWeight: "700", textAlign: "center" }}>Desechar Cerdas</Text>
+              </Pressable>
+              {/* Clear selection */}
+              <Pressable
+                style={styles.filterBtn}
+                onPress={() => [setSelectedSows(new Set()), setSelectedActionsVisible(false)]}
+              >
+                <Image
+                  source={require("../../../assets/icons/uncheck.png")}
+                  style={styles.icon}
+                  resizeMode="contain"
+                />
+                <Text style={{ fontWeight: "700", textAlign: "center"}}>Limpiar Selección</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Pressable>
       </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  icon: {  width: 42, height: 42 },
+  icon: { width: 42, height: 42 },
   mainContainer: {
     flex: 1,
     backgroundColor: "#F9FAFB",
     paddingHorizontal: 4,
     paddingTop: 10,
-    // maxHeight: '80%',
-    // maxWidth: '80%',
   },
   messagesAlignment: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  /* FlatList Styles */
-  headerTitleList: {
-    flexDirection: "row",
-    backgroundColor: "#81C784",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  headerTitleCell: {
-    paddingHorizontal: 7,
-    marginVertical: 5,
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
-    textAlignVertical: "center",
-    // borderWidth: 1,
-  },
-  flatlistRow: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    paddingVertical: 10,
-  },
-  checkboxCell: { 
-    // width: 25, 
-    justifyContent: "center", 
-    alignItems: "center" 
-  },
-  flatlistCell: {
-    paddingHorizontal: 5,
-    marginVertical: 2,
-    fontSize: 14,
-    textAlign: "left",
-    textAlignVertical: "center",
-    color: "#333",
-    // borderWidth: 1,
-  },
   noSowsText: {
     textAlign: "center",
     marginTop: 20,
   },
-  // FlatList Footer
-  footerBar: {
+  // Filter Modal Styles
+  filterOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.25)",
+    justifyContent: "flex-end",
+  },
+  filterOverlayView: {
+    backgroundColor: "#fff",
+    paddingTop: 12,
+    paddingBottom: 8,
+    paddingHorizontal: 16,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  filterOverlayTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 8
+  },
+  sectionDivider: {
+    height: 1,
+    backgroundColor: "#eee",
+    marginVertical: 8
+  },
+  filterBtnRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 10,
+    marginTop: 12,
+    marginBottom: 6,
+  },
+  filterBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  // FlatList Header
+  flatListHeader: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between", // Left: Filtrar, Right: Buscar
+    justifyContent: "space-between",
   },
   filterLinkText: {
     fontSize: 14,
     fontWeight: "400",
   },
-  // Row Actions (Edit/Delete)
-  rowActions: {
-    width: 40,
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 4,
-    paddingRight: 4,
+  filterBtnText: {
+    minHeight: 40, 
+    minWidth: 150, 
+    alignContent: "center",  
+    padding: 8, 
+    borderRadius: 6,
   },
-  actionBtn: { 
-    padding: 2, 
+  // FlatList Rows
+  pressableRow: {
+    flexDirection: "row",
+    borderRadius: 10,
+    marginBottom: 5,
   },
-  actionIcon: {
-    width: 18,
-    height: 18, 
-    tintColor: "#616161", 
-    },
-  // Floating Add Button
-  addSowButton: {
+  contentRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "#eee",
+  },
+  contentRowActive: {
+    backgroundColor: '#e2e2e2',
+  },
+  textCell: { 
+    color: "#333", 
+    fontSize: 14, 
+    marginBottom: 2,
+  },
+  checkBox: {
+    position: 'absolute',
+    left: -4,
+    top: -3,
+  },
+  detailsButton: {
+    width: '101%', // So the wrapper takes full width
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    minHeight: 40,
+    marginTop: -20,
+    marginBottom: -5,
+    marginRight: -20,
+  },
+  // Floating Buttons
+  pinnedSowButton: {
     flexDirection: "row",
     position: "absolute",
     bottom: 20,
@@ -439,80 +560,36 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4, // sombra en iOS
   },
-  addSowText: {
+  pinnedSowButtonText: {
     fontSize: 20,
     color: "#fff",
     marginBottom: 2,
   },
-  // Delete Modal Styles
-  deleteContainer:{
+  // Modal Actions Styles
+  modalActionsContainer: {
     flex: 1,
-    justifyContent: "center",
-    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  deleteView:{
-    backgroundColor: "white",
-    padding: 20,
-    margin: 20,
+  modalActionsOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  modalActionsView: {
+    minWidth: 300,
+    marginHorizontal: 16,
+    backgroundColor: '#fff',
     borderRadius: 10,
-  },
-  deleteViewMessage:{
-    fontWeight: "bold", 
-    fontSize: 18, 
-    marginBottom: 10,
-  },
-  deleteButtonRow: {
-   flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  deletebuttons: {
-    flex: 1,
-    padding: 10,
-    marginHorizontal: 5,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  deleteButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  // Filter Modal Styles
-  filterOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.25)",
-    justifyContent: "flex-end",
-  },
-  filterOverlayView: {
-    backgroundColor: "#fff",
-    paddingTop: 12,
-    paddingBottom: 8,
-    paddingHorizontal: 16,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-  },
-  filterOverlayTitle: { 
-    fontSize: 16, 
-    fontWeight: "700", 
-    marginBottom: 8 
-  },
-  sectionDivider: { 
-    height: 1, 
-    backgroundColor: "#eee", 
-    marginVertical: 8 
-  },
-  // Buttons
-  filterBtnRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 10,
-    marginTop: 12,
-    marginBottom: 6,
-  },
-  filterBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: "center",
+    padding: 12,
+    zIndex: 500,
+    elevation: 10, // sombra Android
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
   },
 });

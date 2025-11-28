@@ -49,7 +49,8 @@ export const updateMatingEvent = async (id: number, payload: Partial<MatingEvent
 };
 
 export const deleteMatingEvent = async (id: number): Promise<void> => {
-  await client.delete(`/api/matingevents/${id}`);
+  const response = await client.delete(`/api/matingevents/${id}`);
+  return response.data;
 };
 
 export const getAllGroupedByPregnancyResult = async (): Promise<MatingEventsGroup<MatingEvent>[]> => {

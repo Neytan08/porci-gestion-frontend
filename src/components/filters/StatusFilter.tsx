@@ -21,8 +21,12 @@ const StatusFilter: React.FC<Props> = ({
   return (
     <View>
       <Text style={styles.sectionTitle}>{title}</Text>
-
-      <Pressable style={styles.optionRow} onPress={() => onChange(null)}>
+      <Pressable
+        style={styles.optionRow}
+        onPress={() => onChange(null)}
+        accessibilityRole="button"
+        accessibilityLabel={`Seleccionar ${allLabel}`}
+        >
         <Text style={[styles.optionText, styles.optionAll]}>{allLabel}</Text>
       </Pressable>
 
@@ -37,7 +41,7 @@ const StatusFilter: React.FC<Props> = ({
               styles.optionText,
               selectedId === opt.value && styles.optionSelected,
             ]}
-          >
+            >
             {opt.label}
           </Text>
         </Pressable>
@@ -47,7 +51,7 @@ const StatusFilter: React.FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-  sectionTitle: { fontSize: 14, fontWeight: "700", color: "#555", marginTop: 8, marginBottom: 4 },
+  sectionTitle: { fontSize: 17, fontWeight: "700", color: "#555", marginTop: 8, marginBottom: 4 },
   optionRow: {
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,

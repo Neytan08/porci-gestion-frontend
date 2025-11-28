@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import { View, Text, TextInput, StyleSheet, Pressable } from "react-native";
 
 type Props = {
   value: string;
@@ -16,15 +16,15 @@ const SearchFilter: React.FC<Props> = ({
 }) => {
   return (
     <View style={styles.row}>
-      <Text style={styles.label}>{label}</Text>
-      <TextInput
-        style={styles.input}
-        value={value}
-        onChangeText={onChange}
-        placeholder={placeholder}
-        autoCorrect={false}
-        autoCapitalize="none"
-      />
+        <Text style={styles.label}>{label}</Text>
+        <TextInput
+          style={styles.input}
+          value={value}
+          onChangeText={onChange}
+          placeholder={placeholder}
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
     </View>
   );
 };
