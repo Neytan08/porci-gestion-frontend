@@ -16,7 +16,7 @@ type EditRouteProp = RouteProp<RootStackParamList, 'EditSow'>;
 export default function EditSowScreen() {
   const [sow, setSowDetails] = useState<Sow | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // const [error, setError] = useState<string | null>(null);
   const [statusOptions, setStatusOptions] = useState<{ label: string; value: number }[]>([]);
   const [breedsOptions, setBreedsOptions] = useState<{ label: string; value: number }[]>([]);
   const [isBannerTagNumberVisible, setBannerTagNumberVisible] = useState(false);
@@ -204,7 +204,7 @@ export default function EditSowScreen() {
             </View>
             <View>
               <DatePickerField  label="Fecha de Ingreso *"
-              value={new Date(sow.entry_date)}
+              value={sow.entry_date? new Date(sow.entry_date) : new Date()}
               onChange={(newDate: Date) => setSowDetails({ ...sow, entry_date: newDate.toISOString() })}
               />
             </View>

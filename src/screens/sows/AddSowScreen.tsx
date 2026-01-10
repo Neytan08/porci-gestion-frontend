@@ -62,7 +62,7 @@ export default function AddSow() {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Agregar Nueva Cerda</Text>
       <Text style={styles.label}>Indentificador Animal *</Text>
-      <TextInput style={styles.input} value={form?.sow_tag_number} onChangeText={(text) => setForm({...form, sow_tag_number: text})} placeholder="Ej: 12345 o nombre" />
+      <TextInput style={styles.input} value={form?.sow_tag_number} onChangeText={(text) => setForm({...form, sow_tag_number: text})} placeholder="Ej: 12345" />
       <StatusDropdown value={statusId} onChange={(value: number) => setStatusId(Number(value))}/>
       <BreedDropdown value={breedId} onChange={(value: number) => setBreedId(Number(value))}/>
       <DatePickerField label="Fecha de Ingreso *" value={entryDate} onChange={(date) => setEntryDate(date)} />
@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#F9FAFB",
+   // paddingBottom: 50,
   },
   title: {
     fontSize: 20,
@@ -110,6 +111,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
+    marginBottom: 20,
   },
   buttonText: {
     color: "#fff",

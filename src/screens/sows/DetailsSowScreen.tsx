@@ -5,6 +5,7 @@ import { getSowbyId, Sow } from "../../api/sowsApi";
 import type { RouteProp } from "@react-navigation/native";
 import { RootStackParamList } from "../../navigation/AppNavigator";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import EditAction from "../../components/uiControls/EditAction";
 
 type DetailsRouteProp = RouteProp<RootStackParamList, "DetailsSow">;
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "DetailsSow">;
@@ -39,7 +40,7 @@ export default function DetailsSowScreen() {
   };
 
   const handleLongPress = (sowId: number) => {
-    console.log("Ver detalles");
+    console.log("Ir a edicion de cerda:", sowId);
     navigation.navigate("EditSow", { sowId });
   };
 
@@ -95,8 +96,19 @@ export default function DetailsSowScreen() {
             styles.editDetails,
             pressed && { backgroundColor: "#e0e0e0", opacity: 0.6 },
           ]}
-          onLongPress={() => handleLongPress(sow.sow_id)}
+          // onLongPress={() => handleLongPress(sow.sow_id)}
         >
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", backgroundColor: "#2E7D32", padding: 8 }}>
+            <Text style={{ fontWeight: "bold", fontSize: 16, color: "#fff" }}>Detalles de la cerda</Text>
+            <EditAction 
+              style = {styles.editAction} 
+              onPress={() => {
+                console.log("Ir a edicion de cerda:", sow);
+                navigation.navigate("EditSow", { sowId }); 
+              }} 
+              size={24} 
+              color ="#fff" />
+          </View>
           <View style={styles.table}>
             {datos.map((item, index) => (
               <View key={index} style={styles.row}>
@@ -199,4 +211,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     borderRadius: 5,
   },
+  editAction: {
+    position: 'absolute',
+    // top: 10,
+    right: 3,
+  }
 });

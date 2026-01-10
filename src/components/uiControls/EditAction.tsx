@@ -4,6 +4,7 @@ import { TouchableOpacity, Image, ImageStyle, StyleProp, StyleSheet } from 'reac
 type EditActionProps = {
   onPress: () => void;
   size?: number; // icon size (width/height)
+  color?: string; // icon color
   style?: StyleProp<ImageStyle>;
   hitSlop?: number;
   accessibilityLabel?: string;
@@ -12,6 +13,7 @@ type EditActionProps = {
 export default function EditAction({
   onPress,
   size = 20,
+  color = '#616161',
   style,
   hitSlop = 10,
   accessibilityLabel = 'Editar',
@@ -20,7 +22,7 @@ export default function EditAction({
     <TouchableOpacity onPress={onPress} style={[styles.button, style]} hitSlop={hitSlop} accessibilityRole="button" accessibilityLabel={accessibilityLabel}>
       <Image
         source={require('../../../assets/icons/edit.png')}
-        style={[{ width: size, height: size, tintColor: '#616161' }, style]}
+        style={[{ width: size, height: size, tintColor: color }, style]}
         resizeMode="contain"
       />
     </TouchableOpacity>

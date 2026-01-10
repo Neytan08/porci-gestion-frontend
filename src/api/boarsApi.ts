@@ -4,7 +4,7 @@ export type Boar = {
   boar_id: number;
   boar_tag_number: string;
   breed_id: number | undefined;
-  entry_date: string;
+  birth_date: string;
   weight?: number | undefined;
   length?: number | undefined;
   removal_date?: string | null;

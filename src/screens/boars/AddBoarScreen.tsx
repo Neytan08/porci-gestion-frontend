@@ -57,7 +57,7 @@ export default function AddBoar() {
         <Text style={styles.label}>Indentificador Animal *</Text>
         <TextInput style={styles.input} value={form?.boar_tag_number} onChangeText={(text) => setForm({...form, boar_tag_number: text})} placeholder="Ej: 12345 o nombre" />
         <BreedDropdown value={breedId} onChange={(value: number) => setBreedId(Number(value))}/>
-        <DatePickerField label="Fecha de Ingreso *" value={entryDate} onChange={(date) => setEntryDate(date)} />
+        <DatePickerField label="Fecha de Nacimiento *" value={entryDate} onChange={(date) => setEntryDate(date)} />
         <Text style={styles.label}>Peso (kg)</Text>
         <TextInput style={styles.input} value={form.weight} onChangeText={(text) => setForm({...form, weight: text})} placeholder="Ej: 120.5" keyboardType="numeric" />
         <Text style={styles.label}>Largo (cm)</Text>

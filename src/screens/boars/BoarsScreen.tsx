@@ -251,8 +251,8 @@ export default function BoarsScreen() {
                 {item.breed?.breed_name ?? "-"}
               </Text>       
               <Text style={[styles.textCell, {width: '101%'}]}>
-                <Text style={{ fontWeight: '700' }}>Ingreso: </Text>
-                {item.entry_date ? item.entry_date.split("T")[0] : "-"}
+                <Text style={{ fontWeight: '700' }}>Fecha Nacimiento: </Text>
+                {item.birth_date ? item.birth_date.split("T")[0] : "-"}
               </Text>
               <Text style={[styles.textCell, {width: '101%'}]}> 
                 <Text style={{ fontWeight: '700' }}>Descripción: </Text>

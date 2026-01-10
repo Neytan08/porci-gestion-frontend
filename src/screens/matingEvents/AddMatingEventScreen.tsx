@@ -10,7 +10,7 @@ import { BoarPicker } from "../../components/BoarsPicker";
 
 export default function AddMatingEventScreen() {
   const navigation = useNavigation();
-  const [inseminationDate, setInseminationDate] = useState(new Date());
+  const [inseminationDate, setInseminationDate] = useState(new Date()); // Change this to use the date picker
   const [sowId, setSowId] = useState<number | null>(null); // Sow call
   const [boarId, setBoarId] = useState<number | null>(null); // Boar call
   const [form, setForm] = useState<{ // In case of need to add more fields, extend this form state (needs to match the API)

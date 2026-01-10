@@ -37,7 +37,7 @@ export default function SowsScreen() {
   // Build breed options from sows (id -> name), no extra API call
   const breedOptions = useMemo(() => {
     const map = new Map<number, string>();
-    // Go through all sows to extract unique breeds
+    // Go through all sows to extract breeds
     sows.forEach(b => {
       const id = b.breeds?.breed_id ?? (b as any).breed_id;
       const name = b.breeds?.breed_name ?? (b as any).breed_name;
@@ -277,7 +277,7 @@ export default function SowsScreen() {
                   style={styles.checkBox}
                 />
                 <Text style={[styles.textCell, {flex: 1.3}]}>
-                  <Text style={{ fontWeight: '700' }}>Nombre: </Text>
+                  <Text style={{ fontWeight: '700' }}>Identificador: </Text>
                   {item.sow_tag_number ?? '-'}
                 </Text>
                 <Text style={[styles.textCell, {flex: 1}]}> 
@@ -328,7 +328,7 @@ export default function SowsScreen() {
         visible={actionsModalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => { setActionsModalVisible(false); setSowAction(null); }} // Android back button
+        onRequestClose={() => { setActionsModalVisible(false); setSowAction(null); }}
       >
         <View style={styles.modalActionsContainer}>
           {/* Overlay catch clicks outside the panel and closes it */}
