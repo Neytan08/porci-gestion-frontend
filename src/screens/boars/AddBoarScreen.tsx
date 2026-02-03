@@ -7,12 +7,12 @@ import { BreedDropdown } from "../../components/BreedDropdown";
 
 export default function AddBoar() {
     const navigation = useNavigation();
-    const [entryDate, setEntryDate] = useState(new Date()); // DatePicker state and handlers
+    const [birthDate, setBirthDate] = useState(new Date()); // DatePicker state and handlers
     const [breedId, setBreedId] = useState<number | null>(null); // Breed call
     const [form, setForm] = useState({
         // In case of need to add more fields, extend this form state (needs to match the API)
         boar_tag_number: "",
-        entry_date: "",
+        birth_date: "",
         weight: "",
         length: "",
         removal_date: "0000-00-00 00:00:00.000",
@@ -24,12 +24,12 @@ export default function AddBoar() {
         try {
             const finalData = {
                 ...form,
-                entry_date: entryDate.toISOString(),
+                birth_date: birthDate.toISOString(),
                 breed_id: Number(breedId),
             };
 
             // Validate required fields
-            if (!finalData.boar_tag_number || !finalData.entry_date || !finalData.breed_id) {
+            if (!finalData.boar_tag_number || !finalData.birth_date || !finalData.breed_id) {
                 Alert.alert("Error", "Por favor, complete todos los campos obligatorios.");
                 return;
             }
@@ -57,7 +57,7 @@ export default function AddBoar() {
         <Text style={styles.label}>Indentificador Animal *</Text>
         <TextInput style={styles.input} value={form?.boar_tag_number} onChangeText={(text) => setForm({...form, boar_tag_number: text})} placeholder="Ej: 12345 o nombre" />
         <BreedDropdown value={breedId} onChange={(value: number) => setBreedId(Number(value))}/>
-        <DatePickerField label="Fecha de Nacimiento *" value={entryDate} onChange={(date) => setEntryDate(date)} />
+        <DatePickerField label="Fecha de Nacimiento *" value={birthDate} onChange={(date) => setBirthDate(date)} />
         <Text style={styles.label}>Peso (kg)</Text>
         <TextInput style={styles.input} value={form.weight} onChangeText={(text) => setForm({...form, weight: text})} placeholder="Ej: 120.5" keyboardType="numeric" />
         <Text style={styles.label}>Largo (cm)</Text>

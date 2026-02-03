@@ -91,6 +91,7 @@ export default function BoarsScreen() {
       setLoading(true);
       setError(null);
       const data = await getBoars();
+      console.log('Loaded boars:', data);
       setBoars(data);
     } catch (err: any) {
       if (err?.code === 'ECONNABORTED') {
@@ -253,6 +254,10 @@ export default function BoarsScreen() {
               <Text style={[styles.textCell, {width: '101%'}]}>
                 <Text style={{ fontWeight: '700' }}>Fecha Nacimiento: </Text>
                 {item.birth_date ? item.birth_date.split("T")[0] : "-"}
+              </Text>
+              <Text style={[styles.textCell, {flex: 1}]}>
+                <Text style={{ fontWeight: '700' }}>Edad: </Text>
+                {item.age ? `${item.age.years} años y ${item.age.months} meses` : "-"}
               </Text>
               <Text style={[styles.textCell, {width: '101%'}]}> 
                 <Text style={{ fontWeight: '700' }}>Descripción: </Text>

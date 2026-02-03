@@ -11,6 +11,7 @@ export type Boar = {
   removal_reason?: string | undefined;
   description?: string | undefined;
   breed: { breed_id: number; breed_name: string } | null; // Added to include breed details
+  age: { years: number; months: number } | null;
 };
 
 export const getBoars = async (): Promise<Boar[]> => {
