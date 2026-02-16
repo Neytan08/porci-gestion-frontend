@@ -63,13 +63,15 @@ export default function AddMatingEventScreen() {
   };
   return (
       <ScrollView style={styles.container}>
-          <Text style={styles.title}>Agregar Evento de Inseminación</Text>
+          <Text style={styles.title}>Agregar Evento de Inseminación o Monta</Text>
           <DatePickerField label="Fecha de Inseminación*" value={inseminationDate} onChange={setInseminationDate}/>
           <BreedingSowPicker
+            label="Identificador Cerda*"
             value={sowId}
             onChange={(value: number | null) => setSowId(value)}
           />
           <InseminationTypePicker
+              label="Tipo de Inseminación o Monta*"
               value={form.insemination_type}
               onChange={(val) => { setForm({ ...form, insemination_type: val });
                 if (val !== 'Monta Natural') {
@@ -79,12 +81,14 @@ export default function AddMatingEventScreen() {
           />
           {isNatural && (
             <BoarPicker
-            value={boarId}
-            onChange={(value: number | null) => setBoarId(value)}
-          />
+              label="Identificador Verraco*"
+              value={boarId}
+              onChange={(value: number | null) => setBoarId(value)}
+            />
           )}
           
           <PregnancyResultPicker
+              label="Resultado*"
               value={form.pregnancy_result}
               onChange={(val) => setForm({ ...form, pregnancy_result: val })}
           />

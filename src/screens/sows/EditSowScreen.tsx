@@ -10,31 +10,27 @@ import { BreedDropdown } from "../../components/BreedDropdown";
 import { StatusDropdown } from "../../components/StatusDropdown";
 import DatePickerField from "../../components/DatePickerField";
 
-// Define the type for route parameters
+// This ensures that the `sowId` parameter is correctly typed and available when navigating to this screen.
 type EditRouteProp = RouteProp<RootStackParamList, 'EditSow'>;
 
-export default function EditSowScreen() {
+export default function EditSow() {
   const [sow, setSowDetails] = useState<Sow | null>(null);
   const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState<string | null>(null);
   const [statusOptions, setStatusOptions] = useState<{ label: string; value: number }[]>([]);
   const [breedsOptions, setBreedsOptions] = useState<{ label: string; value: number }[]>([]);
   const [isBannerTagNumberVisible, setBannerTagNumberVisible] = useState(false);
-  const [newSowTagNumber, setNewSowTagNumber] = useState(sow?.sow_tag_number || ""); 
   const route = useRoute<EditRouteProp>();
   const { sowId } = route.params;
   const navigation = useNavigation();
+  // const [error, setError] = useState<string | null>(null);
 
   // Load sow details by ID
   const loadSowDetails = async () => {
     try {
       setLoading(true);
-      // setError(null);
       const data = await getSowbyId(sowId);
       setSowDetails(data);
-    } catch (err: any) {
-      console.error("Error loading sow:", err);
-      // setError("No se pudo cargar la cerda.");
+    } catch (error: any) {
       Alert.alert("Error", "No se pudo cargar la cerda. Intente nuevamente.")
     } finally {
       setLoading(false);
@@ -42,47 +38,36 @@ export default function EditSowScreen() {
   };
 
   // Validation of required fields
-  const validateSow = (sow: Sow): boolean => {
-  return !!(
-    sow.sow_tag_number &&
-    sow.entry_date &&
-    sow.breeds?.breed_id &&
-    sow.mammary_glands &&
-    sow.status?.status_id
-    );
+  const validateSow = (sow: Partial<Sow>): boolean => {
+    if (!sow.sow_tag_number || !sow.entry_date || !sow.breed_id || !sow.mammary_glands || !sow.status_id) {
+      Alert.alert("Error", "Por favor, complete todos los campos obligatorios.");
+      return false;
+    }
+  return true;
   };
 
-  const handleUpdateSow = async () => {
-    try {
-      // setError(null);
-      if (!sow) return;
+  // Format data before sending to API (especially for numeric fields that come as strings from TextInput)
+  const formattingSowDataForAPI = (sow: Sow): Partial<Sow> => {
+    return {
+      ...sow,
+      weight: sow.weight ? parseFloat(sow.weight.toString()) : null,
+      length: sow.length ? parseFloat(sow.length.toString()) : null,
+      mammary_glands: sow.mammary_glands ? parseFloat(sow.mammary_glands.toString()) : 0,
+      farrowing_number: sow.farrowing_number ? parseFloat(sow.farrowing_number.toString()) : 0,
+    };
+  }
 
-      // Formatting data before sending
-      const updatedSow = {
-        ...sow,
-        entry_date: sow.entry_date,
-        status_id: sow.status?.status_id,
-        breed_id: sow.breeds?.breed_id,
-        weight: typeof sow.weight === "number" ? sow.weight : parseFloat(sow.weight ?? "0") || 0,
-        length: typeof sow.length === "number" ? sow.length : parseFloat(sow.length ?? "0") || 0,
-        mammary_glands: typeof sow.mammary_glands === "number" ? sow.mammary_glands : parseFloat(sow.mammary_glands ?? "0") || 0.0,
-        farrowing_number: typeof sow.farrowing_number === "number" ? sow.farrowing_number : parseFloat(sow.farrowing_number ?? "0") || 0.0,
-        last_weaning_date: sow.last_weaning_date || null,
-        removal_date: sow.removal_date || null,
-        removal_reason: "",
-        description: sow.description || "",
-      }
-      if (!validateSow(updatedSow)) {
-        Alert.alert("Error", "Por favor, complete todos los campos obligatorios.");
-        return;
-      }
-      await updateSow(sowId, updatedSow);
+  const handleUpdateSow = async () => {
+    if (!sow) return;
+    try {
+      if (!validateSow(sow)) return;
+      await updateSow(sowId, formattingSowDataForAPI(sow));
       Alert.alert("Actualización completada", "La cerda fue actualizada correctamente.");
       navigation.goBack();
-    } catch (err: any) {
-      console.error("Error updating sow:", err);
-      // setError("No se pudo actualizar la cerda.");
+    } catch (error: any) {
       Alert.alert("Error", "No se pudo actualizar la cerda. Intente nuevamente.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -99,8 +84,8 @@ export default function EditSowScreen() {
         label: breed.breed_name,
         value: breed.breed_id,
       })));
-    } catch (err: any) {
-      console.error("Error loading dropdown options:", err);
+    } catch (error: any) {
+      Alert.alert("Error", "No se pudieron cargar las opciones del desplegable. Intente nuevamente.");
     }
   };
 
@@ -132,126 +117,149 @@ export default function EditSowScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Formulario editable */}
-        <View style={styles.header}>
-            <View style={styles.imagePlaceholder} />
-            {/* Sow Tag Number Editable */}
-            <TouchableOpacity onPress={() => setBannerTagNumberVisible(true)}>
-              <Text style={styles.name}>{sow.sow_tag_number}</Text>
-            </TouchableOpacity>
-            <Modal visible={isBannerTagNumberVisible} transparent animationType="slide">
-              <View style={[styles.center, { backgroundColor: "rgba(0,0,0,0.4)" }]}>
-                  {isBannerTagNumberVisible && (
-                    <View style={styles.banner}>
-                      <Text style={styles.bannerTitle}>Ingrese el nombre</Text>
-                      <TextInput
-                        style={styles.bannerInput}
-                        value={newSowTagNumber}
-                        onChangeText={setNewSowTagNumber}
-                      />
-                      <View style={styles.bannerButtons}>
-                        <TouchableOpacity
-                          style={styles.bannerButton}
-                          onPress={() => {
-                            {/* Checking if the input is empty */}
-                            const trimmed = newSowTagNumber.trim();
-                            if (!trimmed) {
-                              Alert.alert("Error", "El nombre no puede estar vacío.");
-                              return;
-                            }
-                            setSowDetails({ ...sow, sow_tag_number: newSowTagNumber });
-                            setBannerTagNumberVisible(false);
-                          }}
-                          >
-                          <Text style={styles.bannerButtonText}>Aceptar</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={styles.bannerButton}
-                          onPress={() => setBannerTagNumberVisible(false)}>
-                          <Text style={styles.bannerButtonText}>Cancelar</Text>
-                        </TouchableOpacity>
-                      </View>
-                    </View>
-                  )}
-              </View>
-            </Modal>
-        </View>
-        <View>
-          {/* Dropdowns and Date Picker */}
-            <View>
-              <StatusDropdown
-                value={sow.status?.status_id || null}
-                onChange={(newStatusId: number) => {
-                  const selectedStatus = statusOptions.find((status) => status.value === newStatusId);
-                  setSowDetails({
-                    ...sow,
-                    status: { status_id: newStatusId, status_name: selectedStatus?.label || "" },
-                    });
-                }}
-              />
-            </View>
-            <View>
-            <BreedDropdown 
-                value={sow.breeds?.breed_id || null}
-                onChange={(newBreedId: number) => {
-                const selectedBreed = breedsOptions.find((breed) => breed.value === newBreedId);
-                setSowDetails({
-                  ...sow,
-                  breeds: { breed_id: newBreedId, breed_name: selectedBreed?.label || "" },
-                });
-                }}
-              />
-            </View>
-            <View>
-              <DatePickerField  label="Fecha de Ingreso *"
-              value={sow.entry_date? new Date(sow.entry_date) : new Date()}
-              onChange={(newDate: Date) => setSowDetails({ ...sow, entry_date: newDate.toISOString() })}
-              />
-            </View>
-            {/* Additional Fields */}
-            <View style={styles.table}>
-                {([
-                    { label: "Cantidad de pezones *", value: sow.mammary_glands, key: "mammary_glands", keyboardType: "numeric" as const},
-                    { label: "Peso(cm)", value: sow.weight, key: "weight", keyboardType: "numeric" as const },
-                    { label: "Largo(cm)", value: sow.length, key: "length", keyboardType: "numeric" as const },
-                    { label: "Cantidad de partos", value: sow.farrowing_number, key: "farrowing_number", keyboardType: "numeric" as const },
-                    { label: "Descripción", value: sow.description, key: "description", multiline: true },
-                ]).map((item, index) => (
-                <View key={index} style={styles.row}>
-                    <Text style={styles.label}>{item.label}</Text>
-                    <TextInput
-                        accessibilityLabel={`Editar ${item.label}`}
-                        style={styles.input}
-                        value={item.value?.toString() ?? ""}
-                        keyboardType={item.keyboardType || "default"}
-                        multiline={item.multiline}
-                        numberOfLines={item.multiline ? 4 : 1}
-                        onChangeText={(text) =>
-                          setSowDetails({
-                            ...sow,
-                            [item.key]: item.keyboardType === "numeric" ? (Number(text) || 0) : text,
-                          })
-                        }
-                    />
-                </View>
-                ))}
-            </View>
-        </View>
-        <TouchableOpacity style={styles.button} onPress={handleUpdateSow}>
-            <Text style={styles.buttonText}>Actualizar</Text>
+      {/* Formulario editable */}
+      <View style={styles.header}>
+        <View style={styles.imagePlaceholder} />
+        {/* Sow Tag Number Editable */}
+        <TouchableOpacity onPress={() => setBannerTagNumberVisible(true)}>
+          <Text style={styles.name}>{sow.sow_tag_number}</Text>
         </TouchableOpacity>
+        <Modal visible={isBannerTagNumberVisible} transparent animationType="slide">
+          <View style={[styles.center, { backgroundColor: "rgba(0,0,0,0.4)" }]}>
+            <View style={styles.banner}>
+              <Text style={styles.bannerTitle}>Ingrese el nombre</Text>
+              <TextInput
+                style={styles.bannerInput}
+                value={sow.sow_tag_number}
+                onChangeText={(text) => {
+                  setSowDetails({ ...sow, sow_tag_number: text })}
+                }
+              />
+              <View style={styles.bannerButtons}>
+                <TouchableOpacity
+                  style={styles.bannerButton}
+                  onPress={() => {
+                    /* Checking if the input is empty */
+                    const trimmed = sow.sow_tag_number.trim();
+                    if (!trimmed) {
+                      Alert.alert("Error", "El nombre no puede estar vacío.");
+                      return;
+                    }
+                    setSowDetails({ ...sow, sow_tag_number: trimmed });
+                    setBannerTagNumberVisible(false);
+                  }}
+                >
+                  <Text style={styles.bannerButtonText}>Aceptar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.bannerButton}
+                  onPress={() => setBannerTagNumberVisible(false)}>
+                  <Text style={styles.bannerButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </View>
+      {/* Dropdowns and Date Picker */}
+      <View>
+        <StatusDropdown
+          value={sow.status_id || null}
+          onChange={(newStatusId: number) => {
+            const selectedStatus = statusOptions.find((status) => status.value === newStatusId);
+            setSowDetails({
+              ...sow,
+              status_id: newStatusId,
+              // Update status details in the state to keep it consistent
+              status: { status_id: newStatusId, status_name: selectedStatus?.label || "" },
+            });
+          }}
+        />
+      </View>
+      <View>
+        <BreedDropdown 
+          value={sow.breed_id || null}
+          onChange={(newBreedId: number) => {
+            const selectedBreed = breedsOptions.find((breed) => breed.value === newBreedId);
+            setSowDetails({
+              ...sow,
+              breed_id: newBreedId,
+              // Update breed details in the state to keep it consistent
+              breed: { breed_id: newBreedId, breed_name: selectedBreed?.label || "" },
+            });
+          }}
+        />
+      </View>
+          <View>
+            <DatePickerField  label="Fecha de Ingreso *"
+              value={sow.entry_date? new Date(sow.entry_date) : new Date()}
+              onChange={(newDate: Date) => {
+                setSowDetails({ ...sow, entry_date: newDate.toISOString() });
+              }}
+            />
+          </View>
+          {/* Additional Fields */}
+          <View style={styles.table}>
+            {([
+              { label: "Cantidad de pezones *", value: sow.mammary_glands, key: "mammary_glands", keyboardType: "numeric" as const},
+              { label: "Peso(cm)", value: sow.weight, key: "weight", keyboardType: "numeric" as const },
+              { label: "Largo(cm)", value: sow.length, key: "length", keyboardType: "numeric" as const },
+              { label: "Cantidad de partos", value: sow.farrowing_number, key: "farrowing_number", keyboardType: "numeric" as const },
+              { label: "Descripción", value: sow.description, key: "description", multiline: true },
+            ]).map((item, index) => (
+              <View key={index} style={styles.row}>
+                  <Text style={styles.label}>{item.label}</Text>
+                  <TextInput
+                    accessibilityLabel={`Editar ${item.label}`}
+                    style={styles.input}
+                    value={item.value?.toString() ?? ""}
+                    keyboardType={item.keyboardType || "default"}
+                    multiline={item.multiline}
+                    numberOfLines={item.multiline ? 4 : 1}
+                    onChangeText={(text) =>
+                      setSowDetails({
+                        ...sow,
+                        [item.key]: item.keyboardType === "numeric" ? (Number(text) || 0) : text,
+                      })
+                    }
+                  />
+              </View>
+            ))}
+          </View>
+      <TouchableOpacity style={styles.button} onPress={handleUpdateSow}>
+          <Text style={styles.buttonText}>Actualizar</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { flex: 1, padding: 20, backgroundColor: "#F9FAFB" },
-  center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  header: { alignItems: "center", marginBottom: 20 },
-  imagePlaceholder: { width: 120, height: 120, backgroundColor: "#ccc", borderRadius: 10, marginBottom: 10 },
-  name: { fontSize: 20, fontWeight: "bold", },
+  scrollContent: { 
+    flex: 1, 
+    padding: 20, 
+    backgroundColor: "#F9FAFB" 
+  },
+  center: { 
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center" 
+  },
+  header: { 
+    alignItems: "center", 
+    marginBottom: 20 
+  },
+  imagePlaceholder: {
+    width: 120, 
+    height: 120, 
+    backgroundColor: "#ccc", 
+    borderRadius: 10, 
+    marginBottom: 10 
+  },
+  name: { 
+    fontSize: 20, 
+    fontWeight: "bold", 
+  },
   table: {
-    // borderTopWidth: 3,
     borderColor: "#ddd",
   },
   row: {
@@ -261,8 +269,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#eee",
   },
-  label: { fontWeight: "600", color: "#555", flex: 1 },
-  input: { flex: 2,
+  label: { 
+    fontWeight: "600", 
+    color: "#555", 
+    flex: 1 
+  },
+  input: { 
+    flex: 2,
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
@@ -276,7 +289,10 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: "center",
   },
-  buttonText: { color: "#fff", fontWeight: "bold" },
+  buttonText: { 
+    color: "#fff", 
+    fontWeight: "bold" 
+  },
   banner: {
   position: "absolute",
   top: "40%",
@@ -291,7 +307,11 @@ const styles = StyleSheet.create({
   shadowRadius: 4,
   elevation: 5,
 },
-bannerTitle: { fontSize: 18, fontWeight: "bold", marginBottom: 10 },
+bannerTitle: { 
+  fontSize: 18, 
+  fontWeight: "bold", 
+  marginBottom: 10 
+},
 bannerInput: {
   borderWidth: 1,
   borderColor: "#ccc",
@@ -299,7 +319,10 @@ bannerInput: {
   padding: 10,
   marginBottom: 20,
 },
-bannerButtons: { flexDirection: "row", justifyContent: "space-between" },
+bannerButtons: { 
+  flexDirection: "row", 
+  justifyContent: "space-between" 
+},
 bannerButton: {
   flex: 1,
   padding: 10,
@@ -308,5 +331,8 @@ bannerButton: {
   borderRadius: 5,
   alignItems: "center",
 },
-bannerButtonText: { color: "#fff", fontWeight: "bold" },
+bannerButtonText: { 
+  color: "#fff", 
+  fontWeight: "bold" 
+},
 });

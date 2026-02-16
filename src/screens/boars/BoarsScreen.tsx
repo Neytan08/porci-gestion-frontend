@@ -77,7 +77,7 @@ export default function BoarsScreen() {
   // Redirect to edit or delete based on action 
   const handleSelectedBoarAction = useCallback((action: "edit" | "delete" | "moreDetails", boar: Boar) => {
     // if (action === "edit") navigation.navigate("EditBoar", { boarId: boar.boar_id });
-    if (action === "edit") {Alert.alert('Need to implement', 'Edit boar functionality is not implemented yet.')};
+    if (action === "edit") navigation.navigate("EditBoar", { boarId: boar.boar_id });
     if (action === "moreDetails") {Alert.alert('Need to implement', 'More details functionality is not implemented yet.')};
     if (action === "delete") {
       setDeleteModalVisible(true);
@@ -91,7 +91,7 @@ export default function BoarsScreen() {
       setLoading(true);
       setError(null);
       const data = await getBoars();
-      console.log('Loaded boars:', data);
+      // console.log('Loaded boars:', data);
       setBoars(data);
     } catch (err: any) {
       if (err?.code === 'ECONNABORTED') {
@@ -257,7 +257,10 @@ export default function BoarsScreen() {
               </Text>
               <Text style={[styles.textCell, {flex: 1}]}>
                 <Text style={{ fontWeight: '700' }}>Edad: </Text>
-                {item.age ? `${item.age.years} años y ${item.age.months} meses` : "-"}
+                {/* Display age with correct pluralization */}
+                {item.age 
+                  ? `${item.age.years} año${item.age.years === 1 ? '' : 's'} y ${item.age.months} mes${item.age.months === 1 ? '' : 'es'}` 
+                  : "-"}
               </Text>
               <Text style={[styles.textCell, {width: '101%'}]}> 
                 <Text style={{ fontWeight: '700' }}>Descripción: </Text>

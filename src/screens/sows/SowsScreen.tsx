@@ -39,8 +39,8 @@ export default function SowsScreen() {
     const map = new Map<number, string>();
     // Go through all sows to extract breeds
     sows.forEach(b => {
-      const id = b.breeds?.breed_id ?? (b as any).breed_id;
-      const name = b.breeds?.breed_name ?? (b as any).breed_name;
+      const id = b.breed?.breed_id ?? (b as any).breed_id;
+      const name = b.breed?.breed_name ?? (b as any).breed_name;
       if (id != null && typeof name === "string" && name.trim()) map.set(id, name);
     });
     return Array.from(map, ([value, label]) => ({ value, label }));
@@ -65,7 +65,7 @@ export default function SowsScreen() {
     return sows.filter((s) => {
 
       // Match breeds with selected breed filter
-      const breedId = s.breeds?.breed_id ?? (s as any).breed_id ?? null;
+      const breedId = s.breed?.breed_id ?? (s as any).breed_id ?? null;
       const matchBreed = filterSelectedBreedId == null || breedId === filterSelectedBreedId;
 
       // Match status with selected status filter
