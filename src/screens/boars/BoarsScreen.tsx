@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { getBoars, Boar, deleteBoar } from "../../api/boarsApi";
-import { View, Text, ActivityIndicator, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Image, Modal, Pressable, Alert} from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Image, Modal, Pressable, Alert } from 'react-native';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/AppNavigator";
@@ -11,6 +11,8 @@ import EditAction from "../../components/uiControls/EditAction";
 import DeleteAction from "../../components/uiControls/DeleteAction";
 import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 import { useDeleteEntity } from "../../hooks/useDeleteEntity";
+import ListAction from "../../components/uiControls/ListAction";
+import DetailsAction from "../../components/uiControls/DetailsAction";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Boars'>;
 
@@ -21,16 +23,20 @@ export default function BoarsScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] =  useState<string | null>(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [selectedBreedId, setSelectedBreedId] = useState<number | null>(null);
+  const [deleteSelectedBoar, setDeleteSelectedBoar] = useState<{boar_id: number; boar_tag_number: string } | null>(null);
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
+  const [filterSelectedBreedId, setFilterSelectedBreedId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedBoar, setSelectedBoar] = useState<{boar_id: number; boar_tag_number: string } | null>(null);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-
+  const [selectedBoars, setSelectedBoars] = useState<Set<number>>(new Set());
+  const [actionsModalVisible, setActionsModalVisible] = useState(false);
+  const [boarAction, setBoarAction] = useState<Boar | null>(null);
+  const [selectedActionsVisible, setSelectedActionsVisible] = useState(false);
+  
   // Build breed options from boars (id -> name), no extra API call
   const breedOptions = useMemo(
     () => {
       const map = new Map<number, string>();
+      // Go through all boars to extract unique breeds
       boars.forEach(b => {
         const id = b.breed?.breed_id ?? (b as any).breed_id;
         const name = b.breed?.breed_name ?? (b as any).breed_name;
@@ -41,13 +47,13 @@ export default function BoarsScreen() {
     [boars]
   );
 
-  // Filtered list
-  const filteredBoars = useMemo(() => {
+  // Filter boars list based on selected breed and search query
+  const filterBoars = useMemo(() => {
     return boars.filter((b) => {
 
       // Match breeds with selected breed filter
       const breedId = b.breed?.breed_id ?? (b as any).breed_id ?? null;
-      const matchBreed = selectedBreedId == null || breedId === selectedBreedId;
+      const matchBreed = filterSelectedBreedId == null || breedId === filterSelectedBreedId;
       
       // Match each letter in the tag number with the search query
       const q = searchQuery.trim().toLowerCase();
@@ -56,28 +62,36 @@ export default function BoarsScreen() {
 
       return matchBreed && matchSearch;
     });
-  }, [boars, selectedBreedId, searchQuery]);
+  }, [boars, filterSelectedBreedId, searchQuery]);
   
-  // Select one boar and clear the previous selection
-  const selectOne = useCallback((id: number) => {
-    setSelectedId(prev => (prev === id ? null : id));
-  }, []);
+  // Select multiple boars
+  const toggleSelect = useCallback((id: number) => {
+      setSelectedBoars(prev => {
+        const next = new Set(prev);
+        // Remove it if already selected, else add it
+        if (next.has(id)) next.delete(id); else next.add(id);
+        return next;
+      });
+    }, []);
 
   // Redirect to edit or delete based on action 
-  const handleSelectedBoarAction = useCallback((action: "edit" | "delete", boar: Boar) => {
+  const handleSelectedBoarAction = useCallback((action: "edit" | "delete" | "moreDetails", boar: Boar) => {
     // if (action === "edit") navigation.navigate("EditBoar", { boarId: boar.boar_id });
+    if (action === "edit") navigation.navigate("EditBoar", { boarId: boar.boar_id });
+    if (action === "moreDetails") {Alert.alert('Need to implement', 'More details functionality is not implemented yet.')};
     if (action === "delete") {
       setDeleteModalVisible(true);
-      setSelectedBoar(boar);
+      setDeleteSelectedBoar(boar);
     }
   }, []);
 
   // Fetch boars from API
-  const loadBoars = async () => {
+  const loadBoars = useCallback( async () => {
     try {
       setLoading(true);
       setError(null);
       const data = await getBoars();
+      // console.log('Loaded boars:', data);
       setBoars(data);
     } catch (err: any) {
       if (err?.code === 'ECONNABORTED') {
@@ -91,14 +105,14 @@ export default function BoarsScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Pull-to-refresh handler
-  const onRefresh = async () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await loadBoars();
     setRefreshing(false);
-  };
+  }, [loadBoars]);
 
   // Navigate to AddBoar screen
   const handleAddPress = () => {
@@ -106,8 +120,8 @@ export default function BoarsScreen() {
   };
 
   // Handle long press to show delete modal
-  const handleLongPress = (boar_id: number, boar_tag_number: string) => {
-    setSelectedBoar({ boar_id: boar_id, boar_tag_number: boar_tag_number });
+  const handleDeletePress = (boar_id: number, boar_tag_number: string) => {
+    setDeleteSelectedBoar({ boar_id: boar_id, boar_tag_number: boar_tag_number });
     setDeleteModalVisible(true);
     console.log("Delete");
   };
@@ -127,17 +141,17 @@ export default function BoarsScreen() {
   });
   
   // Confirm a boar was selected before delete it (using shared hook)
-  const confirmDelete = async () => {
-    if (!selectedBoar) return;
+  const confirmDeleteBoar = async () => {
+    if (!deleteSelectedBoar) return;
     setDeleteModalVisible(false);
-    await deleteById(selectedBoar.boar_id);
-    setSelectedBoar(null);
+    await deleteById(deleteSelectedBoar.boar_id);
+    setDeleteSelectedBoar(null);
   };
 
   // Initial load
   useEffect(() => {
     loadBoars();
-  }, []);
+  }, [loadBoars]);
 
   //Reload the screen when coming back to it
   useFocusEffect(
@@ -146,6 +160,7 @@ export default function BoarsScreen() {
     }, [])
   );
 
+  // In case of loading last too long
   if (loading) {
     return (
       <View style={styles.messageAlignment}>
@@ -155,6 +170,7 @@ export default function BoarsScreen() {
   );
   }
 
+  // Show error message if any
   if (error) {
     return (
     <View style={styles.messageAlignment}>
@@ -178,14 +194,14 @@ export default function BoarsScreen() {
             {/* Breed Section */}
             <BreedFilter
               options={breedOptions}                 // [{label, value}]
-              selectedId={selectedBreedId}           // number | null
-              onChange={setSelectedBreedId}          // (id) => void
+              selectedId={filterSelectedBreedId}           // number | null
+              onChange={setFilterSelectedBreedId}          // (id) => void
             />
             {/* Filter Actions */}
             <View style={styles.filterBtnRow}>
               <Pressable
                 style={[styles.filterBtn, { backgroundColor: "#e0e0e0" }]}
-                onPress={() => { setSelectedBreedId(null); }}
+                onPress={() => { setFilterSelectedBreedId(null); setFilterSheetVisible(false); }}
                 >
                 <Text style={{ fontWeight: "700", color: "#333" }}>Limpiar filtros</Text>
               </Pressable>
@@ -199,58 +215,70 @@ export default function BoarsScreen() {
           </View>
         </Pressable>
       </Modal>
-      {/* Headers row */}
-      <View style={styles.headerTitleList}>
-        <Text style={[styles.headerTitleCell, { width: 20 }]}></Text>
-        <Text style={[styles.headerTitleCell, { flex: 1 }]}>Nombre</Text>
-        <Text style={[styles.headerTitleCell, { flex: 1 }]}>Raza</Text>
-        <Text style={[styles.headerTitleCell, { flex: 1 }]}>Ingreso</Text>
-      </View>
-
       {/* Boars list */}
       <FlatList<Boar>
-        data={filteredBoars}
-        keyExtractor={(item, index) =>
-          item.boar_id != null ? `${item.boar_id}` : `${index}`
-        }
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        renderItem={({ item }) => (
+        data={filterBoars}
+        keyExtractor={(item) => `${item.boar_id}` }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        renderItem={({ item }) => {
+          // Compute active state for styling when the modal is open for the item
+          const isActive = boarAction?.boar_id === item.boar_id && actionsModalVisible;
+          return (
           <Pressable 
             style={({pressed}) => [
-              styles.flatlistRow,
+              styles.pressableRow,
               pressed && { backgroundColor: "#e0e0e0", opacity: 0.6, }
             ]}
             onPress={() => Alert.alert('Need to implement', 'Edit boar functionality is not implemented yet.')}
-            onLongPress={() => handleLongPress(item.boar_id, item.boar_tag_number)}>
-            {/* Checkbox Component */}
-            <RowCheckbox
-              selected={selectedId === item.boar_id} 
-              onPress={() => selectOne(item.boar_id)}
-              size={15}
-              style={styles.checkboxCell} 
-            /> 
-            <Text style={[styles.flatlistCell, { flex: 1 }]}>{item.boar_tag_number ?? '-'}</Text>
-            <Text style={[styles.flatlistCell, { flex: 1 }]}>{item.breed?.breed_name ?? 'Sin Raza'}</Text>
-            <Text style={[styles.flatlistCell, { flex: 1 }]}>{(item.entry_date ?? '').toString().split('T')[0] || '-'}</Text>
-            {/*TODO: Make this a component */}
-            {/* Actions once selected */}
-            {selectedId === item.boar_id && (
-              <View style={styles.rowActions}>
-                {/* Edit Action */}
-                <EditAction onPress={() => handleSelectedBoarAction("edit", item)} />
-                {/* Delete Action */}
-                <DeleteAction onPress={() => handleSelectedBoarAction("delete", item)} />
-              </View> 
-            )}
+            onLongPress={() => handleDeletePress(item.boar_id, item.boar_tag_number)}
+            >
+            {/* FlatList Content */}
+            <View style={[styles.contentRow, isActive && styles.contentRowActive]}>
+              <RowCheckbox
+                selected={selectedBoars.has(item.boar_id)}
+                onPress={() => toggleSelect(item.boar_id)}
+                size={18}
+                radius={4}
+                width={1}
+                color={"#eee"}
+                style={styles.checkBox}
+              />
+              <Text style={[styles.textCell, {flex: 1.3}]}>
+                <Text style={{ fontWeight: '700' }}>Nombre: </Text>
+                {item.boar_tag_number ?? '-'}
+              </Text>
+              <Text style={[styles.textCell, {flex: 1}]}>
+                <Text style={{ fontWeight: '700' }}>Raza: </Text>
+                {item.breed?.breed_name ?? "-"}
+              </Text>       
+              <Text style={[styles.textCell, {width: '101%'}]}>
+                <Text style={{ fontWeight: '700' }}>Fecha Nacimiento: </Text>
+                {item.birth_date ? item.birth_date.split("T")[0] : "-"}
+              </Text>
+              <Text style={[styles.textCell, {flex: 1}]}>
+                <Text style={{ fontWeight: '700' }}>Edad: </Text>
+                {/* Display age with correct pluralization */}
+                {item.age 
+                  ? `${item.age.years} año${item.age.years === 1 ? '' : 's'} y ${item.age.months} mes${item.age.months === 1 ? '' : 'es'}` 
+                  : "-"}
+              </Text>
+              <Text style={[styles.textCell, {width: '101%'}]}> 
+                <Text style={{ fontWeight: '700' }}>Descripción: </Text>
+                {item.description ?? "Sin descripción"}
+              </Text>
+              <View style={styles.detailsButton}>
+                {/* List Action: pop up a small view with actions for the item */}
+                <ListAction  onPress={() => { setBoarAction(item); setActionsModalVisible(true); }} />
+              </View>
+            </View>
           </Pressable>
-        )}
+          );
+        }}
         ListEmptyComponent={
           <Text style={styles.noBoarsText}>No hay verracos registrados.</Text>
         }
-        ListFooterComponent={
-          <View style={styles.footerBar}>
+        ListHeaderComponent={
+          <View style={styles.flatListHeader}>
               <Pressable onPress={() => setFilterSheetVisible(true)}>
                 <Text style={styles.filterLinkText}>Filtrar por…</Text>
               </Pressable>
@@ -260,30 +288,116 @@ export default function BoarsScreen() {
             />
           </View>
         }
-        ListFooterComponentStyle={{ paddingTop: 12, paddingBottom: 16 }}
+        ListHeaderComponentStyle={{ paddingTop: 2, paddingBottom: 4 }}
         contentContainerStyle={{ paddingBottom: 90 }}
       />
-      {/* Floating Action Button */}
-      <TouchableOpacity style={styles.addBoarButton} onPress={handleAddPress}>
+      {/* Modal for actions */}
+      <Modal
+        visible={actionsModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => { setActionsModalVisible(false); setBoarAction(null); }} // Android back button
+      >
+        <View style={styles.modalActionsContainer}>
+          {/* Overlay catch clicks outside the panel and closes it */}
+          <Pressable style={styles.modalActionsOverlay} onPress={() => { setActionsModalVisible(false); setBoarAction(null); }} />
+          {/* Container for the panel with buttons (will not touch the overlay) */}
+          <View style={styles.modalActionsView}>
+            <Text style={{ fontWeight: '700', marginBottom: 8 }}>
+              Acciones Disponibles: {boarAction?.boar_tag_number ?? boarAction?.boar_id}
+            </Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <EditAction onPress={() => { setActionsModalVisible(false); /* luego navega/edit */ handleSelectedBoarAction('edit', boarAction!); }} />
+              <DetailsAction onPress={() => { setActionsModalVisible(false); handleSelectedBoarAction('moreDetails', boarAction!); }} />
+              <DeleteAction onPress={() => { setActionsModalVisible(false); handleSelectedBoarAction('delete', boarAction!); }} />
+            </View>
+          </View>
+        </View>
+      </Modal>
+      {selectedBoars.size > 0 ? (
+        // Floating Selected Actions Button
+        <TouchableOpacity style={styles.pinnedBoarButton} onPress={() => setSelectedActionsVisible(true)}>
         <Image
-          source={require("../../../assets/icons/add.png")}
+          source={require("../../../assets/icons/dots.png")}
           style={styles.icon}
           resizeMode="contain"
         />
-        <Text style={styles.addBoarText}> Agregar</Text>
-      </TouchableOpacity>
+        <Text style={styles.pinnedBoarButtonText}>{`(${selectedBoars.size})   `}</Text>
+        </TouchableOpacity>
+      ):(
+        // Floating Add Button
+        <TouchableOpacity style={styles.pinnedBoarButton} onPress={handleAddPress}>
+          <Image
+            source={require("../../../assets/icons/add.png")}
+            style={styles.icon}
+            resizeMode="contain"
+          />
+          <Text style={styles.pinnedBoarButtonText}> Agregar</Text>
+        </TouchableOpacity>
+      )}
       {/* Deleting Pop up */}
       <ConfirmDeleteModal
-        visible={deleteModalVisible && selectedBoar !== null}
+        visible={deleteModalVisible && deleteSelectedBoar !== null}
+        name={deleteSelectedBoar?.boar_tag_number}
         title="Eliminar verraco"
-        message={`¿Seguro que desea eliminar al verraco ${selectedBoar?.boar_tag_number ?? ''}?`}
-        name={selectedBoar?.boar_tag_number}
-        onConfirm={confirmDelete}
-        onCancel={() => { setDeleteModalVisible(false); setSelectedBoar(null); }}
+        message={`¿Seguro que desea eliminar al verraco ${deleteSelectedBoar?.boar_tag_number ?? ''}?`}
         confirmText="Eliminar"
         cancelText="Cancelar"
         loading={deleting}
+        onConfirm={confirmDeleteBoar}
+        onCancel={() => { setDeleteModalVisible(false); setDeleteSelectedBoar(null); }}
       />
+      {/* Selection Section */}
+      <Modal
+        visible={selectedActionsVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedActionsVisible(false)}
+      >
+        <Pressable style={styles.filterOverlay} onPress={() => setSelectedActionsVisible(false)}>
+          <View style={styles.filterOverlayView}>
+            <Text style={styles.filterOverlayTitle}>{`Verracos Seleccionados (${selectedBoars.size})`}</Text>
+            <View style={styles.filterBtnRow}>
+              {/* PDF Extraction */}
+              <Pressable
+                style={styles.filterBtn}
+                onPress={() => Alert.alert('Funcion no implementada')}
+              >
+                <Image
+                  source={require("../../../assets/icons/pdf-file.png")}
+                  style={styles.icon}
+                  resizeMode="contain"
+                />
+                <Text style={{ fontWeight: "700", textAlign: "center" }}>Extraer a PDF</Text>
+              </Pressable>
+              {/* Retire Boar */}
+              <Pressable
+                style={styles.filterBtn}
+                onPress={() => Alert.alert('Funcion no implementada')}
+              >
+                <Image
+                  source={require("../../../assets/icons/trash.png")}
+                  style={styles.icon}
+                  resizeMode="contain"
+                />
+                <Text style={{ fontWeight: "700", textAlign: "center" }}>Desechar Verracos</Text>
+              </Pressable>
+              {/* Clear selection */}
+              <Pressable
+                style={styles.filterBtn}
+                onPress={() => [setSelectedBoars(new Set()), setSelectedActionsVisible(false)]}
+              >
+                <Image
+                  source={require("../../../assets/icons/uncheck.png")}
+                  style={styles.icon}
+                  resizeMode="contain"
+                />
+                <Text style={{ fontWeight: "700", textAlign: "center"}}>Limpiar Selección</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -295,102 +409,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9FAFB",
     paddingHorizontal: 4,
     paddingTop: 10,
-    // maxHeight: "50%",
-    // maxWidth: "50%",
   },
   messageAlignment: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  /* FlatList Styles */
-  headerTitleList: {
-    flexDirection: "row",
-    backgroundColor: "#81C784",
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
-  headerTitleCell: {
-    paddingHorizontal: 7,
-    marginVertical: 5,
-    alignContent: "center",
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "left",
-    textAlignVertical: "center",
-  },
-  flatlistRow: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    paddingVertical: 10,
-  },
-  checkboxCell: { 
-    // width: 25, 
-    justifyContent: "center", 
-    alignItems: "center" 
-  },
-  flatlistCell: {
-    // borderWidth: 1,
-    paddingHorizontal: 5,
-    marginVertical: 5,
-    fontSize: 16,
-    textAlign: "left",
-    color: "#333",
-  },
   noBoarsText: {
     textAlign: "center",
     marginTop: 20,
-  },
-  // FlatList Footer
-  footerBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between", // Left: Filtrar, Right: Buscar
-  },
-  filterLinkText: {
-    fontSize: 14,
-    fontWeight: "400",
-  },
-  // Row Actions (Edit/Delete)
-  rowActions: {
-    width: 30,
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 4,
-    paddingRight: 4,
-  },
-  actionBtn: { 
-    padding: 2, 
-  },
-  actionIcon: {
-    width: 18,
-    height: 18, 
-    tintColor: "#616161", 
-  },
-  // Floating Add Button
-  addBoarButton: {
-    flexDirection: "row",
-    position: "absolute",
-    bottom: 20,
-    right: 20,
-    backgroundColor: "#FFA000", // color naranja similar al ejemplo
-    width: 140,
-    height: 50,
-    borderRadius: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 5, // sombra en Android
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4, // sombra en iOS
-  },
-  addBoarText: {
-    fontSize: 20,
-    color: "#fff",
-    marginBottom: 2,
   },
   // Filter Modal Styles
   filterOverlay: {
@@ -416,7 +443,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#eee", 
     marginVertical: 8 
   },
-  // Buttons
   filterBtnRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -429,5 +455,111 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     alignItems: "center",
+  },
+  // FlatList Header
+  flatListHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  filterLinkText: {
+    fontSize: 14,
+    fontWeight: "400",
+  },
+  filterBtnText: {
+    minHeight: 40, 
+    minWidth: 150, 
+    alignContent: "center",  
+    padding: 8, 
+    borderRadius: 6,
+  },
+  // FlatList Rows
+  pressableRow: {
+    flexDirection: "row",
+    borderRadius: 10,
+    marginBottom: 5,
+  },
+  contentRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    margin: 5,
+    borderWidth: 1,
+    borderColor: "#eee",
+  },
+  contentRowActive: {
+    backgroundColor: '#e2e2e2',
+  },
+  textCell: { 
+    color: "#333", 
+    fontSize: 14, 
+    marginBottom: 2,
+  },
+  checkBox: {
+    position: 'absolute',
+    left: -4,
+    top: -3,
+  },
+  detailsButton: {
+    width: '101%', // So the wrapper takes full width
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+    minHeight: 40,
+    marginTop: -20,
+    marginBottom: -5,
+    marginRight: -20,
+  },
+  // Floating Buttons
+  pinnedBoarButton: {
+    flexDirection: "row",
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "#FFA000", // color naranja similar al ejemplo
+    width: 140,
+    height: 50,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 5, // sombra en Android
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4, // sombra en iOS
+  },
+  pinnedBoarButtonText: {
+    fontSize: 20,
+    color: "#fff",
+    marginBottom: 2,
+  },
+  // Modal Actions Styles
+  modalActionsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalActionsOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+  },
+  modalActionsView: {
+    minWidth: 300,
+    marginHorizontal: 16,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 12,
+    zIndex: 500,
+    elevation: 10, // sombra Android
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 8,
   },
 });

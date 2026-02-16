@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { ScrollView, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { createSow } from "../../api/sowsApi";
+import { AxiosError } from "axios";
+import { createSow, Sow } from "../../api/sowsApi";
 import DatePickerField from "../../components/DatePickerField";
 import { StatusDropdown } from "../../components/StatusDropdown";
 import { BreedDropdown } from "../../components/BreedDropdown";
@@ -19,11 +20,9 @@ export default function AddSow() {
     mammary_glands: "",
     farrowing_number: "",
     description: "",
-    removal_date: "0000-00-00 00:00:00.000",
-    removal_reason: "",
-    last_weaning_date: "0000-00-00 00:00:00.000",
   });
   
+  // TODO: Add validation for duplicate sow_tag_number before submission
   const handleSubmit = async () => {
     try {
       const finalData = {//Joining the data
@@ -38,23 +37,39 @@ export default function AddSow() {
         return;
       }
       // Converting numeric fields
-      const payload = {
+      const payload:  Partial<Sow> = {
         ...finalData,
-        weight: form?.weight ? parseFloat(form.weight ?? "0") : 0,
-        length: form?.length ? parseFloat(form.length ?? "0") : 0,
+        weight: form?.weight ? parseFloat(form.weight) : null,
+        length: form?.length ? parseFloat(form.length) : null,
         mammary_glands: form?.mammary_glands ? parseFloat(form.mammary_glands ?? "0") : 0,
         farrowing_number: form?.farrowing_number ? parseFloat(form.farrowing_number ?? "0") : 0,
-        description: form?.description ? form.description : undefined,
-        removal_date: form?.removal_date === "0000-00-00 00:00:00.000" ? null : form?.removal_date,
-        removal_reason: form?.removal_reason ? form.removal_reason : undefined,
-        last_weaning_date: form?.last_weaning_date === "0000-00-00 00:00:00.000" ? null : form?.last_weaning_date,
+        description: form?.description ? form.description : null,
       };
-      await createSow(payload);// Call API
+      await createSow(payload);// API Call
       Alert.alert("Éxito", "Cerda agregada correctamente.");
       navigation.goBack();
-    } catch (error) {
-      console.error("Error al agregar cerda:", error);
-      Alert.alert("Error", "Hubo un problema al agregar la cerda. Intente nuevamente.");
+    } catch (error: any) {
+      if (error instanceof AxiosError) {
+        if (error.response) {
+          if (error.response.status === 409) {
+            // Handle duplicate tag_number error
+            Alert.alert("Error", "Ya existe un registro con este identificador. Por favor, use un identificador único.");
+            return;
+          }
+          // API responded with a status code outside the 2xx range
+          const serverMessage = error.response.data?.message || "Hubo un problema al agregar la cerda.";
+          Alert.alert("Error", serverMessage);
+        } else if (error.request) {
+          // The request was sent but no response was received
+          Alert.alert("Error", "No se recibió respuesta del servidor. Verifique su conexión.");
+        } else {
+          // Something else happened while setting up the request
+          Alert.alert("Error", "Hubo un problema al agregar la cerda. Intente nuevamente.");
+        }
+      } else {
+        // Error no related with Axios
+        Alert.alert("Error", "Hubo un problema al agregar la cerda. Intente nuevamente.");
+      }
     }
   };
 
@@ -62,7 +77,7 @@ export default function AddSow() {
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Agregar Nueva Cerda</Text>
       <Text style={styles.label}>Indentificador Animal *</Text>
-      <TextInput style={styles.input} value={form?.sow_tag_number} onChangeText={(text) => setForm({...form, sow_tag_number: text})} placeholder="Ej: 12345 o nombre" />
+      <TextInput style={styles.input} value={form?.sow_tag_number} onChangeText={(text) => setForm({...form, sow_tag_number: text})} placeholder="Ej: 12345" />
       <StatusDropdown value={statusId} onChange={(value: number) => setStatusId(Number(value))}/>
       <BreedDropdown value={breedId} onChange={(value: number) => setBreedId(Number(value))}/>
       <DatePickerField label="Fecha de Ingreso *" value={entryDate} onChange={(date) => setEntryDate(date)} />
@@ -88,6 +103,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#F9FAFB",
+   // paddingBottom: 50,
   },
   title: {
     fontSize: 20,
@@ -110,6 +126,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
+    marginBottom: 20,
   },
   buttonText: {
     color: "#fff",

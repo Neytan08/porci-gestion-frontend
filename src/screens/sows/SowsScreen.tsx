@@ -25,9 +25,9 @@ export default function SowsScreen() {
   const [error, setError] = useState<string | null>(null);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [deleteSelectedSow, setDeleteSelectedSow] = useState<{ sow_id: number; sow_tag_number: string } | null>(null);
+  const [filterSheetVisible, setFilterSheetVisible] = useState(false);
   const [filterSelectedBreedId, setFilterSelectedBreedId] = useState<number | null>(null);
   const [filterSelectedStatusId, setFilterSelectedStatusId] = useState<number | null>(null);
-  const [filterSheetVisible, setFilterSheetVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedSows, setSelectedSows] = useState<Set<number>>(new Set());
   const [actionsModalVisible, setActionsModalVisible] = useState(false);
@@ -37,10 +37,10 @@ export default function SowsScreen() {
   // Build breed options from sows (id -> name), no extra API call
   const breedOptions = useMemo(() => {
     const map = new Map<number, string>();
-    // Go through all sows to extract unique breeds
+    // Go through all sows to extract breeds
     sows.forEach(b => {
-      const id = b.breeds?.breed_id ?? (b as any).breed_id;
-      const name = b.breeds?.breed_name ?? (b as any).breed_name;
+      const id = b.breed?.breed_id ?? (b as any).breed_id;
+      const name = b.breed?.breed_name ?? (b as any).breed_name;
       if (id != null && typeof name === "string" && name.trim()) map.set(id, name);
     });
     return Array.from(map, ([value, label]) => ({ value, label }));
@@ -60,12 +60,12 @@ export default function SowsScreen() {
   }, [sows]
   );
 
-  // Filter list of sows based on selected filters and search query
+  // Filter sows list based on selected filters and search query
   const filterSows = useMemo(() => {
     return sows.filter((s) => {
 
       // Match breeds with selected breed filter
-      const breedId = s.breeds?.breed_id ?? (s as any).breed_id ?? null;
+      const breedId = s.breed?.breed_id ?? (s as any).breed_id ?? null;
       const matchBreed = filterSelectedBreedId == null || breedId === filterSelectedBreedId;
 
       // Match status with selected status filter
@@ -85,6 +85,7 @@ export default function SowsScreen() {
   const toggleSelect = useCallback((id: number) => {
     setSelectedSows(prev => {
       const next = new Set(prev);
+      // Remove it if already selected, else add it
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
@@ -149,7 +150,9 @@ export default function SowsScreen() {
     console.log("Delete");
   };
 
-  // Handle deleting sows by using the custom hook
+  /* Handle deleting boars by using the custom hook
+  * Re-writing useDeleteEntity interface
+  */
   const { deleting, deleteById } = useDeleteEntity<number>({
     deleteFn: deleteSowbyId,
     onDeleted: loadSows,
@@ -162,7 +165,7 @@ export default function SowsScreen() {
   });
 
   // Confirm a sow was selected before delete it (using shared hook)
-  const deleteSow = async () => {
+  const confirmDeleteSow = async () => {
     if (!deleteSelectedSow) return;
     setDeleteModalVisible(false);
     await deleteById(deleteSelectedSow.sow_id);
@@ -181,7 +184,7 @@ export default function SowsScreen() {
     }, [])
   );
 
-  // In case of loading last to long
+  // In case of loading last too long
   if (loading) {
     return (
       <View style={styles.messagesAlignment}>
@@ -191,7 +194,7 @@ export default function SowsScreen() {
     );
   }
 
-  // In case of error
+  // Show error message if any
   if (error) {
     return (
       <View style={styles.messagesAlignment}>
@@ -274,7 +277,7 @@ export default function SowsScreen() {
                   style={styles.checkBox}
                 />
                 <Text style={[styles.textCell, {flex: 1.3}]}>
-                  <Text style={{ fontWeight: '700' }}>Nombre: </Text>
+                  <Text style={{ fontWeight: '700' }}>Identificador: </Text>
                   {item.sow_tag_number ?? '-'}
                 </Text>
                 <Text style={[styles.textCell, {flex: 1}]}> 
@@ -325,7 +328,7 @@ export default function SowsScreen() {
         visible={actionsModalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => { setActionsModalVisible(false); setSowAction(null); }} // Android back button
+        onRequestClose={() => { setActionsModalVisible(false); setSowAction(null); }}
       >
         <View style={styles.modalActionsContainer}>
           {/* Overlay catch clicks outside the panel and closes it */}
@@ -374,7 +377,7 @@ export default function SowsScreen() {
         confirmText="Eliminar"
         cancelText="Cancelar"
         loading={deleting}
-        onConfirm={deleteSow}
+        onConfirm={confirmDeleteSow}
         onCancel={() => { setDeleteModalVisible(false); setDeleteSelectedSow(null); }}
       />
       {/* Selection Section */}

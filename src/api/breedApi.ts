@@ -11,7 +11,7 @@ export const getBreed = async (): Promise<Breed[]> => {
   return res.data;
 };
 
-export const createBreed = async (payload: Breed): Promise<Breed> => {
+export const createBreed = async (payload: Partial<Breed>)  => {
   const res = await client.post('/api/breeds/', payload);
   return res.data;
 };

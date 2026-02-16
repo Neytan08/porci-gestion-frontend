@@ -17,7 +17,12 @@ export default function DetailsAction({
   accessibilityLabel = 'Detalles',
 }: DetailsActionProps) {
   return (
-    <TouchableOpacity onPress={onPress} style={[styles.button, style]} hitSlop={hitSlop} accessibilityRole="button" accessibilityLabel={accessibilityLabel}>
+    <TouchableOpacity 
+    onPress={onPress} 
+    style={[styles.button, style]} 
+    hitSlop={hitSlop} 
+    accessibilityRole="button" 
+    accessibilityLabel={accessibilityLabel}>
       <Image
         source={require('../../../assets/icons/eye.png')}
         style={[{ width: size, height: size, tintColor: '#616161' }, style]}
