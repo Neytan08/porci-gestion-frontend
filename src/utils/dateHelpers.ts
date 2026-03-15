@@ -10,23 +10,27 @@
 
 // Converts a local Date to a Date set to UTC midnight
 export function localDateToUtcMidnight(date: Date): Date {
-  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+	return new Date(
+		Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+	);
 }
 
 // Converts a UTC ISO string or Date to a local Date for display
-export function utcIsoOrDateToLocalForDisplay(value?: string | Date | null): Date | null {
-  if (!value) return null;
-  const d = typeof value === "string" ? new Date(value) : value;
-  return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+export function utcIsoOrDateToLocalForDisplay(
+	value?: string | Date | null,
+): Date | null {
+	if (!value) return null;
+	const d = typeof value === "string" ? new Date(value) : value;
+	return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 }
 
 // Converts a local Date to a UTC ISO string at midnight
 export function utcIsoStringFromLocalDate(date: Date): string {
-  return localDateToUtcMidnight(date).toISOString();
+	return localDateToUtcMidnight(date).toISOString();
 }
 
 export default {
-  localDateToUtcMidnight,
-  utcIsoOrDateToLocalForDisplay,
-  utcIsoStringFromLocalDate,
+	localDateToUtcMidnight,
+	utcIsoOrDateToLocalForDisplay,
+	utcIsoStringFromLocalDate,
 };
