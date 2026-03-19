@@ -27,6 +27,7 @@ import ListAction from "../../components/uiControls/ListAction";
 import RowCheckbox from "../../components/uiControls/RowCheckbox";
 import { useDeleteEntity } from "../../hooks/useDeleteEntity";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
+import ScreenContainer from "../../components/uiControls/ScreenContainer";
 
 type NavigationProp = NativeStackNavigationProp<
 	RootStackParamList,
@@ -202,274 +203,276 @@ export default function MattingEventsScreen() {
 	// Data to show in the list based on selected tab
 	const listData = selectedTab ? eventsByResult[selectedTab] : [];
 	return (
-		<View style={styles.mainContainer}>
-			<View style={styles.tabsRowHeaders}>
-				{/* Tab buttons by headers */}
-				{headers.map((h) => {
-					const isSelected = selectedTab === h.key;
-					return (
-						<Pressable
-							key={h.key}
-							style={[styles.tabItem, isSelected && styles.tabItemSelected]}
-							onPress={() => setSelectedTab(h.key)}
-							disabled={loadingAll}
-						>
-							<Text
-								style={[styles.tabText, isSelected && styles.tabTextSelected]}
-							>
-								{h.label}
-							</Text>
-						</Pressable>
-					);
-				})}
-			</View>
-			{loadingAll && !selectedTab ? (
-				<View style={styles.center}>
-					<ActivityIndicator size="large" color="#2E7D32" />
-				</View>
-			) : (
-				<FlatList<MatingEvent>
-					data={listData}
-					keyExtractor={(item) => `${item.mating_id}`}
-					refreshControl={
-						<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-					}
-					renderItem={({ item }) => {
-						// Compute active state for styling when the modal is open for the item
-						const isActive =
-							actionForEvent?.mating_id === item.mating_id &&
-							actionModalVisible;
+		<ScreenContainer>
+			<View style={styles.mainContainer}>
+				<View style={styles.tabsRowHeaders}>
+					{/* Tab buttons by headers */}
+					{headers.map((h) => {
+						const isSelected = selectedTab === h.key;
 						return (
 							<Pressable
-								onPress={() => {}}
-								style={({ pressed }) => [
-									styles.pressableRow,
-									pressed && { backgroundColor: "#e0e0e0", opacity: 0.6 },
-								]}
+								key={h.key}
+								style={[styles.tabItem, isSelected && styles.tabItemSelected]}
+								onPress={() => setSelectedTab(h.key)}
+								disabled={loadingAll}
 							>
-								{/* FlatList Content */}
-								<View
-									style={[
-										styles.contentRow,
-										isActive && styles.contentRowActive,
-									]}
+								<Text
+									style={[styles.tabText, isSelected && styles.tabTextSelected]}
 								>
-									<RowCheckbox
-										selected={selectedIds.has(item.mating_id)}
-										onPress={() => toggleSelect(item.mating_id)}
-										size={18}
-										radius={4}
-										width={1}
-										color={"#eee"}
-										style={styles.checkBox}
-									/>
-									<Text style={[styles.textCell, { flex: 0.9 }]}>
-										Cerda: {item.breedingsows?.sow_tag_number ?? item.sow_id}
-									</Text>
-									<Text style={[styles.textCell, { flex: 0.8 }]}>
-										Fecha:{" "}
-										{item.insemination_date
-											? item.insemination_date.split("T")[0]
-											: "-"}
-									</Text>
-									<Text
-										style={[styles.textCell, { width: "101%", marginBlock: 8 }]}
-									>
-										Notas: {item.notes ?? "-"}
-									</Text>
-									<View style={styles.detailsButton}>
-										{/* List Action: pop up a small view with actions for the item */}
-										<ListAction
-											onPress={() => {
-												setActionForEvent(item);
-												setActionModalVisible(true);
-											}}
-										/>
-									</View>
-								</View>
+									{h.label}
+								</Text>
 							</Pressable>
 						);
-					}}
-					ListEmptyComponent={
-						<Text style={{ textAlign: "center", marginTop: 24, color: "#666" }}>
-							Sin registros
+					})}
+				</View>
+				{loadingAll && !selectedTab ? (
+					<View style={styles.center}>
+						<ActivityIndicator size="large" color="#2E7D32" />
+					</View>
+				) : (
+					<FlatList<MatingEvent>
+						data={listData}
+						keyExtractor={(item) => `${item.mating_id}`}
+						refreshControl={
+							<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+						}
+						renderItem={({ item }) => {
+							// Compute active state for styling when the modal is open for the item
+							const isActive =
+								actionForEvent?.mating_id === item.mating_id &&
+								actionModalVisible;
+							return (
+								<Pressable
+									onPress={() => {}}
+									style={({ pressed }) => [
+										styles.pressableRow,
+										pressed && { backgroundColor: "#e0e0e0", opacity: 0.6 },
+									]}
+								>
+									{/* FlatList Content */}
+									<View
+										style={[
+											styles.contentRow,
+											isActive && styles.contentRowActive,
+										]}
+									>
+										<RowCheckbox
+											selected={selectedIds.has(item.mating_id)}
+											onPress={() => toggleSelect(item.mating_id)}
+											size={18}
+											radius={4}
+											width={1}
+											color={"#eee"}
+											style={styles.checkBox}
+										/>
+										<Text style={[styles.textCell, { flex: 0.9 }]}>
+											Cerda: {item.breedingsows?.sow_tag_number ?? item.sow_id}
+										</Text>
+										<Text style={[styles.textCell, { flex: 0.8 }]}>
+											Fecha:{" "}
+											{item.insemination_date
+												? item.insemination_date.split("T")[0]
+												: "-"}
+										</Text>
+										<Text
+											style={[styles.textCell, { width: "101%", marginBlock: 8 }]}
+										>
+											Notas: {item.notes ?? "-"}
+										</Text>
+										<View style={styles.detailsButton}>
+											{/* List Action: pop up a small view with actions for the item */}
+											<ListAction
+												onPress={() => {
+													setActionForEvent(item);
+													setActionModalVisible(true);
+												}}
+											/>
+										</View>
+									</View>
+								</Pressable>
+							);
+						}}
+						ListEmptyComponent={
+							<Text style={{ textAlign: "center", marginTop: 24, color: "#666" }}>
+								Sin registros
+							</Text>
+						}
+						contentContainerStyle={{ paddingBottom: 90, paddingTop: 8 }}
+					/>
+				)}
+				{/* Modal for actions */}
+				<Modal
+					visible={actionModalVisible}
+					transparent
+					animationType="fade"
+					onRequestClose={() => {
+						setActionModalVisible(false);
+						setActionForEvent(null);
+					}} // Android back button
+				>
+					<View style={styles.modalActionsContainer}>
+						{/* Overlay catch clicks outside the panel and closes it */}
+						<Pressable
+							style={styles.modalActionsOverlay}
+							onPress={() => {
+								setActionModalVisible(false);
+								setActionForEvent(null);
+							}}
+						/>
+						{/* Container for the panel with buttons (will not touch the overlay) */}
+						<View style={styles.modalActionsView}>
+							<Text style={{ fontWeight: "700", marginBottom: 8 }}>
+								Acciones Disponibles
+								{/* para: {actionForEvent?.breedingsows?.sow_tag_number ?? actionForEvent?.sow_id} */}
+							</Text>
+							<View
+								style={{ flexDirection: "row", justifyContent: "space-between" }}
+							>
+								<EditAction
+									onPress={() => {
+										setActionModalVisible(false); /* luego navega/edit */
+										handleSelectedMatingAction("edit", actionForEvent!);
+									}}
+								/>
+								<DetailsAction
+									onPress={() => {
+										setActionModalVisible(false);
+										handleSelectedMatingAction("moreDetails", actionForEvent!);
+									}}
+								/>
+								<DeleteAction
+									onPress={() => {
+										setActionModalVisible(false);
+										handleSelectedMatingAction("delete", actionForEvent!);
+									}}
+								/>
+							</View>
+						</View>
+					</View>
+				</Modal>
+				{/* Selected or Add button depending on selection */}
+				{selectedIds.size > 0 ? (
+					// Floating Selected Actions Button
+					<TouchableOpacity
+						style={styles.pinnedSowButton}
+						onPress={() => setSelectedActionsVisible(true)}
+					>
+						<Image
+							source={require("../../../assets/icons/dots.png")}
+							style={styles.icon}
+							resizeMode="contain"
+						/>
+						<Text
+							style={styles.pinnedSowButtonText}
+						>{`(${selectedIds.size})   `}</Text>
+					</TouchableOpacity>
+				) : (
+					// Floating Add Button
+					<TouchableOpacity
+						style={styles.pinnedSowButton}
+						onPress={handleAddPress}
+					>
+						<Image
+							source={require("../../../assets/icons/add.png")}
+							style={styles.icon}
+							resizeMode="contain"
+						/>
+						<Text style={styles.pinnedSowButtonText}>Agregar</Text>
+					</TouchableOpacity>
+				)}
+				{/* Deleting Pop up */}
+				<ConfirmDeleteModal
+					visible={deleteModalVisible && matingToDelete !== null}
+					title="Eliminar Inseminación"
+					message={
+						<Text>
+							¿Seguro que desea eliminar la inseminación tipo{" "}
+							<Text style={{ fontWeight: "bold" }}>
+								{matingToDelete?.event.insemination_type ?? ""}{" "}
+							</Text>
+							a la cerda{" "}
+							<Text style={{ fontWeight: "bold" }}>
+								{matingToDelete?.event.breedingsows?.sow_tag_number ?? ""}
+							</Text>
+							?
 						</Text>
 					}
-					contentContainerStyle={{ paddingBottom: 90, paddingTop: 8 }}
+					confirmText="Eliminar"
+					cancelText="Cancelar"
+					loading={deleting}
+					onConfirm={deleteMatingEventHandler}
+					onCancel={() => {
+						setDeleteModalVisible(false);
+						setMatingToDelete(null);
+					}}
 				/>
-			)}
-			{/* Modal for actions */}
-			<Modal
-				visible={actionModalVisible}
-				transparent
-				animationType="fade"
-				onRequestClose={() => {
-					setActionModalVisible(false);
-					setActionForEvent(null);
-				}} // Android back button
-			>
-				<View style={styles.modalActionsContainer}>
-					{/* Overlay catch clicks outside the panel and closes it */}
+				{/* Selection Section */}
+				<Modal
+					visible={selectedActionsVisible}
+					transparent
+					animationType="fade"
+					onRequestClose={() => setSelectedActionsVisible(false)}
+				>
 					<Pressable
-						style={styles.modalActionsOverlay}
-						onPress={() => {
-							setActionModalVisible(false);
-							setActionForEvent(null);
-						}}
-					/>
-					{/* Container for the panel with buttons (will not touch the overlay) */}
-					<View style={styles.modalActionsView}>
-						<Text style={{ fontWeight: "700", marginBottom: 8 }}>
-							Acciones Disponibles
-							{/* para: {actionForEvent?.breedingsows?.sow_tag_number ?? actionForEvent?.sow_id} */}
-						</Text>
-						<View
-							style={{ flexDirection: "row", justifyContent: "space-between" }}
-						>
-							<EditAction
-								onPress={() => {
-									setActionModalVisible(false); /* luego navega/edit */
-									handleSelectedMatingAction("edit", actionForEvent!);
-								}}
-							/>
-							<DetailsAction
-								onPress={() => {
-									setActionModalVisible(false);
-									handleSelectedMatingAction("moreDetails", actionForEvent!);
-								}}
-							/>
-							<DeleteAction
-								onPress={() => {
-									setActionModalVisible(false);
-									handleSelectedMatingAction("delete", actionForEvent!);
-								}}
-							/>
+						style={styles.filterOverlay}
+						onPress={() => setSelectedActionsVisible(false)}
+					>
+						<View style={styles.filterOverlayView}>
+							<Text
+								style={styles.filterOverlayTitle}
+							>{`Inseminaciones Seleccionadas (${selectedIds.size})`}</Text>
+							<View style={styles.filterBtnRow}>
+								{/* Change status */}
+								<Pressable
+									style={styles.filterBtn}
+									onPress={() => Alert.alert("Funcion no implementada")}
+								>
+									<Image
+										source={require("../../../assets/icons/change-status.png")}
+										style={styles.icon}
+										resizeMode="contain"
+									/>
+									<Text style={{ fontWeight: "700", textAlign: "center" }}>
+										Cambiar estado de inseminación
+									</Text>
+								</Pressable>
+								{/* PDF Extraction */}
+								<Pressable
+									style={styles.filterBtn}
+									onPress={() => Alert.alert("Funcion no implementada")}
+								>
+									<Image
+										source={require("../../../assets/icons/pdf-file.png")}
+										style={styles.icon}
+										resizeMode="contain"
+									/>
+									<Text style={{ fontWeight: "700", textAlign: "center" }}>
+										Extraer a PDF
+									</Text>
+								</Pressable>
+								{/* Clear selection */}
+								<Pressable
+									style={styles.filterBtn}
+									onPress={() => [
+										setSelectedIds(new Set()),
+										setSelectedActionsVisible(false),
+									]}
+								>
+									<Image
+										source={require("../../../assets/icons/uncheck.png")}
+										style={styles.icon}
+										resizeMode="contain"
+									/>
+									<Text style={{ fontWeight: "700", textAlign: "center" }}>
+										Limpiar selección
+									</Text>
+								</Pressable>
+							</View>
 						</View>
-					</View>
-				</View>
-			</Modal>
-			{/* Selected or Add button depending on selection */}
-			{selectedIds.size > 0 ? (
-				// Floating Selected Actions Button
-				<TouchableOpacity
-					style={styles.pinnedSowButton}
-					onPress={() => setSelectedActionsVisible(true)}
-				>
-					<Image
-						source={require("../../../assets/icons/dots.png")}
-						style={styles.icon}
-						resizeMode="contain"
-					/>
-					<Text
-						style={styles.pinnedSowButtonText}
-					>{`(${selectedIds.size})   `}</Text>
-				</TouchableOpacity>
-			) : (
-				// Floating Add Button
-				<TouchableOpacity
-					style={styles.pinnedSowButton}
-					onPress={handleAddPress}
-				>
-					<Image
-						source={require("../../../assets/icons/add.png")}
-						style={styles.icon}
-						resizeMode="contain"
-					/>
-					<Text style={styles.pinnedSowButtonText}>Agregar</Text>
-				</TouchableOpacity>
-			)}
-			{/* Deleting Pop up */}
-			<ConfirmDeleteModal
-				visible={deleteModalVisible && matingToDelete !== null}
-				title="Eliminar Inseminación"
-				message={
-					<Text>
-						¿Seguro que desea eliminar la inseminación tipo{" "}
-						<Text style={{ fontWeight: "bold" }}>
-							{matingToDelete?.event.insemination_type ?? ""}{" "}
-						</Text>
-						a la cerda{" "}
-						<Text style={{ fontWeight: "bold" }}>
-							{matingToDelete?.event.breedingsows?.sow_tag_number ?? ""}
-						</Text>
-						?
-					</Text>
-				}
-				confirmText="Eliminar"
-				cancelText="Cancelar"
-				loading={deleting}
-				onConfirm={deleteMatingEventHandler}
-				onCancel={() => {
-					setDeleteModalVisible(false);
-					setMatingToDelete(null);
-				}}
-			/>
-			{/* Selection Section */}
-			<Modal
-				visible={selectedActionsVisible}
-				transparent
-				animationType="fade"
-				onRequestClose={() => setSelectedActionsVisible(false)}
-			>
-				<Pressable
-					style={styles.filterOverlay}
-					onPress={() => setSelectedActionsVisible(false)}
-				>
-					<View style={styles.filterOverlayView}>
-						<Text
-							style={styles.filterOverlayTitle}
-						>{`Inseminaciones Seleccionadas (${selectedIds.size})`}</Text>
-						<View style={styles.filterBtnRow}>
-							{/* Change status */}
-							<Pressable
-								style={styles.filterBtn}
-								onPress={() => Alert.alert("Funcion no implementada")}
-							>
-								<Image
-									source={require("../../../assets/icons/change-status.png")}
-									style={styles.icon}
-									resizeMode="contain"
-								/>
-								<Text style={{ fontWeight: "700", textAlign: "center" }}>
-									Cambiar estado de inseminación
-								</Text>
-							</Pressable>
-							{/* PDF Extraction */}
-							<Pressable
-								style={styles.filterBtn}
-								onPress={() => Alert.alert("Funcion no implementada")}
-							>
-								<Image
-									source={require("../../../assets/icons/pdf-file.png")}
-									style={styles.icon}
-									resizeMode="contain"
-								/>
-								<Text style={{ fontWeight: "700", textAlign: "center" }}>
-									Extraer a PDF
-								</Text>
-							</Pressable>
-							{/* Clear selection */}
-							<Pressable
-								style={styles.filterBtn}
-								onPress={() => [
-									setSelectedIds(new Set()),
-									setSelectedActionsVisible(false),
-								]}
-							>
-								<Image
-									source={require("../../../assets/icons/uncheck.png")}
-									style={styles.icon}
-									resizeMode="contain"
-								/>
-								<Text style={{ fontWeight: "700", textAlign: "center" }}>
-									Limpiar selección
-								</Text>
-							</Pressable>
-						</View>
-					</View>
-				</Pressable>
-			</Modal>
-		</View>
+					</Pressable>
+				</Modal>
+			</View>
+		</ScreenContainer>
 	);
 }
 

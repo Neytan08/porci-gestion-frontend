@@ -19,6 +19,7 @@ import { BreedDropdown } from "../../components/BreedDropdown";
 import DatePickerField from "../../components/DatePickerField";
 import { StatusDropdown } from "../../components/StatusDropdown";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
+import ScreenContainer from "../../components/uiControls/ScreenContainer";
 
 // This ensures that the `sowId` parameter is correctly typed and available when navigating to this screen.
 type EditRouteProp = RouteProp<RootStackParamList, "EditSow">;
@@ -157,176 +158,178 @@ export default function EditSow() {
 	}
 
 	return (
-		<ScrollView contentContainerStyle={styles.scrollContent}>
-			{/* Formulario editable */}
-			<View style={styles.header}>
-				<View style={styles.imagePlaceholder} />
-				{/* Sow Tag Number Editable */}
-				<Pressable onPress={() => setBannerTagNumberVisible(true)}>
-					<Text style={styles.name}>{sow.sow_tag_number}</Text>
-				</Pressable>
-				<Modal
-					visible={isBannerTagNumberVisible}
-					transparent
-					animationType="slide"
-				>
-					<View style={[styles.center, { backgroundColor: "rgba(0,0,0,0.4)" }]}>
-						<View style={styles.banner}>
-							<Text style={styles.bannerTitle}>Ingrese el nombre</Text>
-							<TextInput
-								style={styles.bannerInput}
-								value={sow.sow_tag_number}
-								onChangeText={(text) => {
-									setSowDetails({ ...sow, sow_tag_number: text });
-								}}
-							/>
-							<View style={styles.bannerButtons}>
-								<Pressable
-									style={({ pressed }) => [
-										styles.bannerButton,
-										pressed && { opacity: 0.8 },
-									]}
-									onPress={() => {
-										/* Checking if the input is empty */
-										const trimmed = sow.sow_tag_number.trim();
-										if (!trimmed) {
-											Alert.alert("Error", "El nombre no puede estar vacío.");
-											return;
-										}
-										setSowDetails({ ...sow, sow_tag_number: trimmed });
-										setBannerTagNumberVisible(false);
+		<ScreenContainer>
+			<View style={styles.mainContainer}>
+				{/* Formulario editable */}
+				<View style={styles.header}>
+					<View style={styles.imagePlaceholder} />
+					{/* Sow Tag Number Editable */}
+					<Pressable onPress={() => setBannerTagNumberVisible(true)}>
+						<Text style={styles.name}>{sow.sow_tag_number}</Text>
+					</Pressable>
+					<Modal
+						visible={isBannerTagNumberVisible}
+						transparent
+						animationType="slide"
+					>
+						<View style={[styles.center, { backgroundColor: "rgba(0,0,0,0.4)" }]}>
+							<View style={styles.banner}>
+								<Text style={styles.bannerTitle}>Ingrese el nombre</Text>
+								<TextInput
+									style={styles.bannerInput}
+									value={sow.sow_tag_number}
+									onChangeText={(text) => {
+										setSowDetails({ ...sow, sow_tag_number: text });
 									}}
-								>
-									<Text style={styles.bannerButtonText}>Aceptar</Text>
-								</Pressable>
-								<Pressable
-									style={({ pressed }) => [
-										styles.bannerButton,
-										pressed && { opacity: 0.8 },
-									]}
-									onPress={() => setBannerTagNumberVisible(false)}
-								>
-									<Text style={styles.bannerButtonText}>Cancelar</Text>
-								</Pressable>
+								/>
+								<View style={styles.bannerButtons}>
+									<Pressable
+										style={({ pressed }) => [
+											styles.bannerButton,
+											pressed && { opacity: 0.8 },
+										]}
+										onPress={() => {
+											/* Checking if the input is empty */
+											const trimmed = sow.sow_tag_number.trim();
+											if (!trimmed) {
+												Alert.alert("Error", "El nombre no puede estar vacío.");
+												return;
+											}
+											setSowDetails({ ...sow, sow_tag_number: trimmed });
+											setBannerTagNumberVisible(false);
+										}}
+									>
+										<Text style={styles.bannerButtonText}>Aceptar</Text>
+									</Pressable>
+									<Pressable
+										style={({ pressed }) => [
+											styles.bannerButton,
+											pressed && { opacity: 0.8 },
+										]}
+										onPress={() => setBannerTagNumberVisible(false)}
+									>
+										<Text style={styles.bannerButtonText}>Cancelar</Text>
+									</Pressable>
+								</View>
 							</View>
 						</View>
-					</View>
-				</Modal>
-			</View>
-			{/* Dropdowns and Date Picker */}
-			<View>
-				<StatusDropdown
-					value={sow.status_id || null}
-					onChange={(newStatusId: number) => {
-						const selectedStatus = statusOptions.find(
-							(status) => status.value === newStatusId,
-						);
-						setSowDetails({
-							...sow,
-							status_id: newStatusId,
-							// Update status details in the state to keep it consistent
-							status: {
+					</Modal>
+				</View>
+				{/* Dropdowns and Date Picker */}
+				<View>
+					<StatusDropdown
+						value={sow.status_id || null}
+						onChange={(newStatusId: number) => {
+							const selectedStatus = statusOptions.find(
+								(status) => status.value === newStatusId,
+							);
+							setSowDetails({
+								...sow,
 								status_id: newStatusId,
-								status_name: selectedStatus?.label || "",
-							},
-						});
-					}}
-				/>
-			</View>
-			<View>
-				<BreedDropdown
-					value={sow.breed_id || null}
-					onChange={(newBreedId: number) => {
-						const selectedBreed = breedsOptions.find(
-							(breed) => breed.value === newBreedId,
-						);
-						setSowDetails({
-							...sow,
-							breed_id: newBreedId,
-							// Update breed details in the state to keep it consistent
-							breed: {
+								// Update status details in the state to keep it consistent
+								status: {
+									status_id: newStatusId,
+									status_name: selectedStatus?.label || "",
+								},
+							});
+						}}
+					/>
+				</View>
+				<View>
+					<BreedDropdown
+						value={sow.breed_id || null}
+						onChange={(newBreedId: number) => {
+							const selectedBreed = breedsOptions.find(
+								(breed) => breed.value === newBreedId,
+							);
+							setSowDetails({
+								...sow,
 								breed_id: newBreedId,
-								breed_name: selectedBreed?.label || "",
-							},
-						});
-					}}
-				/>
+								// Update breed details in the state to keep it consistent
+								breed: {
+									breed_id: newBreedId,
+									breed_name: selectedBreed?.label || "",
+								},
+							});
+						}}
+					/>
+				</View>
+				<View>
+					<DatePickerField
+						label="Fecha de Ingreso *"
+						value={sow.entry_date ? new Date(sow.entry_date) : new Date()}
+						onChange={(newDate: Date) => {
+							setSowDetails({ ...sow, entry_date: newDate.toISOString() });
+						}}
+					/>
+				</View>
+				{/* Additional Fields */}
+				<View style={styles.table}>
+					{[
+						{
+							label: "Cantidad de pezones *",
+							value: sow.mammary_glands,
+							key: "mammary_glands",
+							keyboardType: "numeric" as const,
+						},
+						{
+							label: "Peso(cm)",
+							value: sow.weight,
+							key: "weight",
+							keyboardType: "numeric" as const,
+						},
+						{
+							label: "Largo(cm)",
+							value: sow.length,
+							key: "length",
+							keyboardType: "numeric" as const,
+						},
+						{
+							label: "Cantidad de partos",
+							value: sow.farrowing_number,
+							key: "farrowing_number",
+							keyboardType: "numeric" as const,
+						},
+						{
+							label: "Descripción",
+							value: sow.description,
+							key: "description",
+							multiline: true,
+						},
+					].map((item) => (
+						<View key={item.key} style={styles.row}>
+							<Text style={styles.label}>{item.label}</Text>
+							<TextInput
+								accessibilityLabel={`Editar ${item.label}`}
+								style={styles.input}
+								value={item.value?.toString() ?? ""}
+								keyboardType={item.keyboardType || "default"}
+								multiline={item.multiline}
+								numberOfLines={item.multiline ? 4 : 1}
+								onChangeText={(text) =>
+									setSowDetails({
+										...sow,
+										[item.key]:
+											item.keyboardType === "numeric" ? Number(text) || 0 : text,
+									})
+								}
+							/>
+						</View>
+					))}
+				</View>
+				<Pressable
+					style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
+					onPress={handleUpdateSow}
+				>
+					<Text style={styles.buttonText}>Actualizar</Text>
+				</Pressable>
 			</View>
-			<View>
-				<DatePickerField
-					label="Fecha de Ingreso *"
-					value={sow.entry_date ? new Date(sow.entry_date) : new Date()}
-					onChange={(newDate: Date) => {
-						setSowDetails({ ...sow, entry_date: newDate.toISOString() });
-					}}
-				/>
-			</View>
-			{/* Additional Fields */}
-			<View style={styles.table}>
-				{[
-					{
-						label: "Cantidad de pezones *",
-						value: sow.mammary_glands,
-						key: "mammary_glands",
-						keyboardType: "numeric" as const,
-					},
-					{
-						label: "Peso(cm)",
-						value: sow.weight,
-						key: "weight",
-						keyboardType: "numeric" as const,
-					},
-					{
-						label: "Largo(cm)",
-						value: sow.length,
-						key: "length",
-						keyboardType: "numeric" as const,
-					},
-					{
-						label: "Cantidad de partos",
-						value: sow.farrowing_number,
-						key: "farrowing_number",
-						keyboardType: "numeric" as const,
-					},
-					{
-						label: "Descripción",
-						value: sow.description,
-						key: "description",
-						multiline: true,
-					},
-				].map((item) => (
-					<View key={item.key} style={styles.row}>
-						<Text style={styles.label}>{item.label}</Text>
-						<TextInput
-							accessibilityLabel={`Editar ${item.label}`}
-							style={styles.input}
-							value={item.value?.toString() ?? ""}
-							keyboardType={item.keyboardType || "default"}
-							multiline={item.multiline}
-							numberOfLines={item.multiline ? 4 : 1}
-							onChangeText={(text) =>
-								setSowDetails({
-									...sow,
-									[item.key]:
-										item.keyboardType === "numeric" ? Number(text) || 0 : text,
-								})
-							}
-						/>
-					</View>
-				))}
-			</View>
-			<Pressable
-				style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
-				onPress={handleUpdateSow}
-			>
-				<Text style={styles.buttonText}>Actualizar</Text>
-			</Pressable>
-		</ScrollView>
+		</ScreenContainer>
 	);
 }
 
 const styles = StyleSheet.create({
-	scrollContent: {
+	mainContainer: {
 		flex: 1,
 		padding: 20,
 		backgroundColor: "#F9FAFB",
@@ -346,6 +349,7 @@ const styles = StyleSheet.create({
 		backgroundColor: "#ccc",
 		borderRadius: 10,
 		marginBottom: 10,
+		alignSelf: "center",
 	},
 	name: {
 		fontSize: 20,

@@ -10,7 +10,7 @@ export type Boar = {
 	removal_date?: string | null;
 	removal_reason?: string | null;
 	description?: string | null;
-	breed: { breed_id: number; breed_name: string } | null; // Added to include breed details
+	breeds: { breed_id: number; breed_name: string } | null; // Added to include breed details
 	age: { years: number; months: number } | null;
 };
 

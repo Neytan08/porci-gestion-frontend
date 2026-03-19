@@ -12,6 +12,7 @@ import {
 import { type Boar, createBoar } from "../../api/boarsApi";
 import { BreedDropdown } from "../../components/BreedDropdown";
 import DatePickerField from "../../components/DatePickerField";
+import ScreenContainer from "../../components/uiControls/ScreenContainer";
 
 export default function AddBoar() {
 	const navigation = useNavigation();
@@ -99,59 +100,61 @@ export default function AddBoar() {
 	};
 
 	return (
-		<ScrollView style={styles.container}>
-			<Text style={styles.title}>Agregar Nuevo Verraco</Text>
-			<Text style={styles.label}>Indentificador Animal *</Text>
-			<TextInput
-				style={styles.input}
-				value={form?.boar_tag_number}
-				onChangeText={(text) => setForm({ ...form, boar_tag_number: text })}
-				placeholder="Ej: 12345 o nombre"
-			/>
-			<BreedDropdown
-				value={breedId}
-				onChange={(value: number) => setBreedId(Number(value))}
-			/>
-			<DatePickerField
-				label="Fecha de Nacimiento *"
-				value={birthDate}
-				onChange={(date) => setBirthDate(date)}
-			/>
-			<Text style={styles.label}>Peso (kg)</Text>
-			<TextInput
-				style={styles.input}
-				value={form.weight}
-				onChangeText={(text) => setForm({ ...form, weight: text })}
-				placeholder="Ej: 120.5"
-				keyboardType="numeric"
-			/>
-			<Text style={styles.label}>Largo (cm)</Text>
-			<TextInput
-				style={styles.input}
-				value={form.length}
-				onChangeText={(text) => setForm({ ...form, length: text })}
-				placeholder="Ej: 150.0"
-				keyboardType="numeric"
-			/>
-			<Text style={styles.label}>Descripción</Text>
-			<TextInput
-				style={[styles.input, { height: 100, textAlignVertical: "top" }]}
-				multiline
-				value={form.description}
-				onChangeText={(text) => setForm({ ...form, description: text })}
-			/>
-			<TouchableOpacity style={styles.button} onPress={handleSubmit}>
-				<Text style={styles.buttonText}>Guardar</Text>
-			</TouchableOpacity>
-		</ScrollView>
+		<ScreenContainer>
+			<ScrollView style={styles.mainContainer}>
+				<Text style={styles.title}>Agregar Nuevo Verraco</Text>
+				<Text style={styles.label}>Indentificador Animal *</Text>
+				<TextInput
+					style={styles.input}
+					value={form?.boar_tag_number}
+					onChangeText={(text) => setForm({ ...form, boar_tag_number: text })}
+					placeholder="Ej: 12345 o nombre"
+				/>
+				<BreedDropdown
+					value={breedId}
+					onChange={(value: number) => setBreedId(Number(value))}
+				/>
+				<DatePickerField
+					label="Fecha de Nacimiento *"
+					value={birthDate}
+					onChange={(date) => setBirthDate(date)}
+				/>
+				<Text style={styles.label}>Peso (kg)</Text>
+				<TextInput
+					style={styles.input}
+					value={form.weight}
+					onChangeText={(text) => setForm({ ...form, weight: text })}
+					placeholder="Ej: 120.5"
+					keyboardType="numeric"
+				/>
+				<Text style={styles.label}>Largo (cm)</Text>
+				<TextInput
+					style={styles.input}
+					value={form.length}
+					onChangeText={(text) => setForm({ ...form, length: text })}
+					placeholder="Ej: 150.0"
+					keyboardType="numeric"
+				/>
+				<Text style={styles.label}>Descripción</Text>
+				<TextInput
+					style={[styles.input, { height: 100, textAlignVertical: "top" }]}
+					multiline
+					value={form.description}
+					onChangeText={(text) => setForm({ ...form, description: text })}
+				/>
+				<TouchableOpacity style={styles.button} onPress={handleSubmit}>
+					<Text style={styles.buttonText}>Guardar</Text>
+				</TouchableOpacity>
+			</ScrollView>
+		</ScreenContainer>
 	);
 }
 
 const styles = StyleSheet.create({
-	container: {
+	mainContainer: {
 		flex: 1,
-		padding: 20,
 		backgroundColor: "#F9FAFB",
+		padding: 20,
 	},
 	title: {
 		fontSize: 20,

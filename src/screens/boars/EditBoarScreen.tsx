@@ -17,6 +17,7 @@ import { getBreed } from "../../api/breedApi";
 import { BreedDropdown } from "../../components/BreedDropdown";
 import DatePickerField from "../../components/DatePickerField";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
+import ScreenContainer from "../../components/uiControls/ScreenContainer";
 
 type EditBoarRouteProp = RouteProp<RootStackParamList, "EditBoar">;
 
@@ -133,129 +134,131 @@ export default function EditBoar() {
 	}
 
 	return (
-		<ScrollView contentContainerStyle={styles.scrollContainer}>
-			<View style={styles.imagePlaceholder} />
-			{/* Boar Tag Number Editable */}
-			<TouchableOpacity onPress={() => setModalEditTagNumberVisible(true)}>
-				<Text style={styles.boarTagNumber}>{boar.boar_tag_number}</Text>
-			</TouchableOpacity>
-			{/* Boar Tag Number Edit Modal */}
-			<Modal
-				visible={modalEditTagNumberVisible}
-				transparent
-				animationType="slide"
-			>
-				<View style={[styles.center, { backgroundColor: "rgba(0,0,0,0.4)" }]}>
-					<View style={styles.editTagNumberContainer}>
-						<Text style={styles.editTagNumberTitle}>Editar Identificador</Text>
-						<TextInput
-							style={styles.editTagNumberInput}
-							value={boar.boar_tag_number}
-							onChangeText={(text) =>
-								setBoarInfo({ ...boar, boar_tag_number: text })
-							}
-						/>
-						<View style={styles.editTagNumberButtonsContainer}>
-							<TouchableOpacity
-								style={styles.editTagNumberButton}
-								onPress={() => {
-									/* Checking if the input is empty */
-									const trimmed = boar.boar_tag_number.trim();
-									if (!trimmed) {
-										Alert.alert(
-											"Error",
-											"El identificador no puede estar vacío.",
-										);
-										return;
-									}
-									setBoarInfo({ ...boar, boar_tag_number: trimmed });
-									setModalEditTagNumberVisible(false);
-								}}
-							>
-								<Text style={styles.editTagNumberButtonText}>Aceptar</Text>
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={styles.editTagNumberButton}
-								onPress={() => setModalEditTagNumberVisible(false)}
-							>
-								<Text style={styles.editTagNumberButtonText}>Cancelar</Text>
-							</TouchableOpacity>
+		<ScreenContainer>
+			<ScrollView contentContainerStyle={styles.scrollContainer}>
+				<View style={styles.imagePlaceholder} />
+				{/* Boar Tag Number Editable */}
+				<TouchableOpacity onPress={() => setModalEditTagNumberVisible(true)}>
+					<Text style={styles.boarTagNumber}>{boar.boar_tag_number}</Text>
+				</TouchableOpacity>
+				{/* Boar Tag Number Edit Modal */}
+				<Modal
+					visible={modalEditTagNumberVisible}
+					transparent
+					animationType="slide"
+				>
+					<View style={[styles.center, { backgroundColor: "rgba(0,0,0,0.4)" }]}>
+						<View style={styles.editTagNumberContainer}>
+							<Text style={styles.editTagNumberTitle}>Editar Identificador</Text>
+							<TextInput
+								style={styles.editTagNumberInput}
+								value={boar.boar_tag_number}
+								onChangeText={(text) =>
+									setBoarInfo({ ...boar, boar_tag_number: text })
+								}
+							/>
+							<View style={styles.editTagNumberButtonsContainer}>
+								<TouchableOpacity
+									style={styles.editTagNumberButton}
+									onPress={() => {
+										/* Checking if the input is empty */
+										const trimmed = boar.boar_tag_number.trim();
+										if (!trimmed) {
+											Alert.alert(
+												"Error",
+												"El identificador no puede estar vacío.",
+											);
+											return;
+										}
+										setBoarInfo({ ...boar, boar_tag_number: trimmed });
+										setModalEditTagNumberVisible(false);
+									}}
+								>
+									<Text style={styles.editTagNumberButtonText}>Aceptar</Text>
+								</TouchableOpacity>
+								<TouchableOpacity
+									style={styles.editTagNumberButton}
+									onPress={() => setModalEditTagNumberVisible(false)}
+								>
+									<Text style={styles.editTagNumberButtonText}>Cancelar</Text>
+								</TouchableOpacity>
+							</View>
 						</View>
 					</View>
-				</View>
-			</Modal>
-			<View>
-				{/* Breed Dropdown */}
-				<BreedDropdown
-					value={boar.breed?.breed_id || null}
-					onChange={(newBreedId: number) => {
-						const selectedBreed = breedOptions.find(
-							(breed) => breed.value === newBreedId,
-						);
-						setBoarInfo({
-							...boar,
-							breed_id: newBreedId,
-							// Update breed details in the state to keep it consistent
-							breed: {
+				</Modal>
+				<View>
+					{/* Breed Dropdown */}
+					<BreedDropdown
+						value={boar.breeds?.breed_id || null}
+						onChange={(newBreedId: number) => {
+							const selectedBreed = breedOptions.find(
+								(breed) => breed.value === newBreedId,
+							);
+							setBoarInfo({
+								...boar,
 								breed_id: newBreedId,
-								breed_name: selectedBreed?.label || "",
-							},
-						});
-					}}
-				/>
-			</View>
-			<View>
-				{/* Birth Date Picker */}
-				<DatePickerField
-					label="Fecha de Nacimiento *"
-					value={boar.birth_date ? new Date(boar.birth_date) : new Date()}
-					onChange={(newDate: Date) => {
-						setBoarInfo({ ...boar, birth_date: newDate.toISOString() });
-					}}
-				/>
-			</View>
-			{/* Additional Fields */}
-			<View style={styles.detailsContainer}>
-				{[
-					{
-						label: "Peso(kg)",
-						value: boar?.weight,
-						key: "weight",
-						keyboardType: "numeric" as const,
-					},
-					{
-						label: "Largo(cm)",
-						value: boar?.length,
-						key: "length",
-						keyboardType: "numeric" as const,
-					},
-					{
-						label: "Descripción",
-						value: boar?.description,
-						key: "description",
-						multiline: true,
-					},
-				].map((item) => (
-					<View key={item.key} style={styles.row}>
-						<Text style={styles.label}>{item.label}</Text>
-						<TextInput
-							style={styles.input}
-							accessibilityLabel={`Editar ${item.label}`}
-							value={item.value?.toString() || ""}
-							keyboardType={item.keyboardType || "default"}
-							multiline={item.multiline || false}
-							numberOfLines={item.multiline ? 4 : 1}
-							onChangeText={(text) => {
-								setBoarInfo({ ...boar, [item.key]: text });
-							}}
-						/>
-					</View>
-				))}
-			</View>
-			<TouchableOpacity style={styles.button} onPress={handleUpdateBoar}>
-				<Text style={styles.buttonText}>Actualizar</Text>
-			</TouchableOpacity>
-		</ScrollView>
+								// Update breed details in the state to keep it consistent
+								breeds: {
+									breed_id: newBreedId,
+									breed_name: selectedBreed?.label || "",
+								},
+							});
+						}}
+					/>
+				</View>
+				<View>
+					{/* Birth Date Picker */}
+					<DatePickerField
+						label="Fecha de Nacimiento *"
+						value={boar.birth_date ? new Date(boar.birth_date) : new Date()}
+						onChange={(newDate: Date) => {
+							setBoarInfo({ ...boar, birth_date: newDate.toISOString() });
+						}}
+					/>
+				</View>
+				{/* Additional Fields */}
+				<View style={styles.detailsContainer}>
+					{[
+						{
+							label: "Peso(kg)",
+							value: boar?.weight,
+							key: "weight",
+							keyboardType: "numeric" as const,
+						},
+						{
+							label: "Largo(cm)",
+							value: boar?.length,
+							key: "length",
+							keyboardType: "numeric" as const,
+						},
+						{
+							label: "Descripción",
+							value: boar?.description,
+							key: "description",
+							multiline: true,
+						},
+					].map((item) => (
+						<View key={item.key} style={styles.row}>
+							<Text style={styles.label}>{item.label}</Text>
+							<TextInput
+								style={styles.input}
+								accessibilityLabel={`Editar ${item.label}`}
+								value={item.value?.toString() || ""}
+								keyboardType={item.keyboardType || "default"}
+								multiline={item.multiline || false}
+								numberOfLines={item.multiline ? 4 : 1}
+								onChangeText={(text) => {
+									setBoarInfo({ ...boar, [item.key]: text });
+								}}
+							/>
+						</View>
+					))}
+				</View>
+				<TouchableOpacity style={styles.button} onPress={handleUpdateBoar}>
+					<Text style={styles.buttonText}>Actualizar</Text>
+				</TouchableOpacity>
+			</ScrollView>
+		</ScreenContainer>
 	);
 }
 
@@ -264,6 +267,10 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: "center",
 		alignItems: "center",
+	},
+	container: {
+		flex: 1,
+		backgroundColor: "#F9FAFB",
 	},
 	scrollContainer: {
 		flex: 1,

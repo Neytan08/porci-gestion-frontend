@@ -13,7 +13,6 @@ import {
 	Text,
 	View,
 } from "react-native";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { deleteSowbyId, getSows, type Sow } from "../../api/sowsApi";
 import BreedFilter from "../../components/filters/BreedFilter";
 import SearchFilter from "../../components/filters/SearchFilter";
@@ -26,7 +25,7 @@ import ListAction from "../../components/uiControls/ListAction";
 import RowCheckbox from "../../components/uiControls/RowCheckbox";
 import { useDeleteEntity } from "../../hooks/useDeleteEntity";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
-import { get } from "http";
+import ScreenContainer from "../../components/uiControls/ScreenContainer";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Sows">;
 
@@ -59,8 +58,8 @@ export default function SowsScreen() {
 		const map = new Map<number, string>();
 		// Go through all sows to extract breeds
 		sows.forEach((b) => {
-			const id = b.breed?.breed_id ?? (b as any).breed_id;
-			const name = b.breed?.breed_name ?? (b as any).breed_name;
+			const id = b.breeds?.breed_id ?? (b as any).breed_id;
+			const name = b.breeds?.breed_name ?? (b as any).breed_name;
 			if (id != null && typeof name === "string" && name.trim())
 				map.set(id, name);
 		});
@@ -84,7 +83,7 @@ export default function SowsScreen() {
 	const filterSows = useMemo(() => {
 		return sows.filter((s) => {
 			// Match breeds with selected breed filter
-			const breedId = s.breed?.breed_id ?? (s as any).breed_id ?? null;
+			const breedId = s.breeds?.breed_id ?? (s as any).breed_id ?? null;
 			const matchBreed =
 				filterSelectedBreedId == null || breedId === filterSelectedBreedId;
 
@@ -235,8 +234,8 @@ export default function SowsScreen() {
 	}
 
 	return (
-		<SafeAreaProvider>
-			<SafeAreaView style={styles.mainContainer}>
+		<ScreenContainer>
+			<View style={styles.mainContainer}>
 				{/* Filter Section */}
 				<Modal
 					visible={filterSheetVisible}
@@ -329,19 +328,19 @@ export default function SowsScreen() {
 										color={"#eee"}
 										style={styles.checkBox}
 									/>
-									<Text style={[styles.textCell, { flex: 1.3 }]}>
+									<Text style={[styles.textCell, { flexBasis: "55%" }]}>
 										<Text style={{ fontWeight: "700" }}>Identificador: </Text>
 										{item.sow_tag_number ?? "-"}
 									</Text>
-									<Text style={[styles.textCell, { flex: 1 }]}>
+									<Text style={[styles.textCell, { flexBasis: "45%" }]}>
 										<Text style={{ fontWeight: "700" }}>Estado: </Text>
 										{item.status?.status_name ?? "Sin estado"}
 									</Text>
-									<Text style={[styles.textCell, { width: "101%" }]}>
+									<Text style={[styles.textCell, { flexBasis: "55%" }]}>
 										<Text style={{ fontWeight: "700" }}>Ingreso: </Text>
 										{item.entry_date ? item.entry_date.split("T")[0] : "-"}
 									</Text>
-									<Text style={[styles.textCell, { width: "101%" }]}>
+									<Text style={[styles.textCell, { flexBasis: "40%" }]}>
 										<Text style={{ fontWeight: "700" }}>Partos: </Text>
 										{item.farrowing_number ?? "-"}
 									</Text>
@@ -547,18 +546,21 @@ export default function SowsScreen() {
 						</View>
 					</Pressable>
 				</Modal>
-			</SafeAreaView>
-		</SafeAreaProvider>
+			</View>
+		</ScreenContainer>
 	);
 }
 
 const styles = StyleSheet.create({
 	icon: { width: 42, height: 42 },
+	safeAreaContainer: {
+		flex: 1,
+	},
 	mainContainer: {
 		flex: 1,
 		backgroundColor: "#F9FAFB",
 		paddingHorizontal: 4,
-		paddingTop: 10,
+		// paddingTop: 10,
 	},
 	messagesAlignment: {
 		flex: 1,
@@ -611,6 +613,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "space-between",
+		paddingHorizontal: 4,
 	},
 	filterLinkText: {
 		fontSize: 14,
@@ -620,7 +623,7 @@ const styles = StyleSheet.create({
 		minHeight: 40,
 		minWidth: 150,
 		alignContent: "center",
-		padding: 8,
+		justifyContent: "center",
 		borderRadius: 6,
 	},
 	// FlatList Rows

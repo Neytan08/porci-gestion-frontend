@@ -17,6 +17,7 @@ import {
 import { type Boar, getBoarById } from "../../api/boarsApi";
 import EditAction from "../../components/uiControls/EditAction";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
+import ScreenContainer from "../../components/uiControls/ScreenContainer";
 
 // Route prop for receiving boarId from navigation
 type DetailsRouteProp = RouteProp<RootStackParamList, "DetailsBoar">;
@@ -57,9 +58,11 @@ export default function DetailsBoarScreen() {
 	);
 
 	return (
-		<View style={styles.container}>
-			<Text>Detalles del verraco</Text>
-		</View>
+		<ScreenContainer>
+			<View>
+				<Text>Detalles del verraco</Text>
+			</View>
+		</ScreenContainer>
 	);
 }
 

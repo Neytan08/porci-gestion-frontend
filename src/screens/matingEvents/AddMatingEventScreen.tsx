@@ -18,6 +18,7 @@ import InseminationTypePicker, {
 import PregnancyResultPicker, {
 	type PregnancyResult,
 } from "../../components/PregnancyResultDropdown";
+import ScreenContainer from "../../components/uiControls/ScreenContainer";
 
 export default function AddMatingEventScreen() {
 	const navigation = useNavigation();
@@ -86,52 +87,54 @@ export default function AddMatingEventScreen() {
 		}
 	};
 	return (
-		<ScrollView style={styles.container}>
-			<Text style={styles.title}>Agregar Evento de Inseminación o Monta</Text>
-			<DatePickerField
-				label="Fecha de Inseminación*"
-				value={inseminationDate}
-				onChange={setInseminationDate}
-			/>
-			<BreedingSowPicker
-				label="Identificador Cerda*"
-				value={sowId}
-				onChange={(value: number | null) => setSowId(value)}
-			/>
-			<InseminationTypePicker
-				label="Tipo de Inseminación o Monta*"
-				value={form.insemination_type}
-				onChange={(val) => {
-					setForm({ ...form, insemination_type: val });
-					if (val !== "Monta Natural") {
-						setBoarId(null); // limpia si cambia a Artificial
-					}
-				}}
-			/>
-			{isNatural && (
-				<BoarPicker
-					label="Identificador Verraco*"
-					value={boarId}
-					onChange={(value: number | null) => setBoarId(value)}
+		<ScreenContainer>
+			<ScrollView style={styles.container}>
+				<Text style={styles.title}>Agregar Evento de Inseminación o Monta</Text>
+				<DatePickerField
+					label="Fecha de Inseminación*"
+					value={inseminationDate}
+					onChange={setInseminationDate}
 				/>
-			)}
+				<BreedingSowPicker
+					label="Identificador Cerda*"
+					value={sowId}
+					onChange={(value: number | null) => setSowId(value)}
+				/>
+				<InseminationTypePicker
+					label="Tipo de Inseminación o Monta*"
+					value={form.insemination_type}
+					onChange={(val) => {
+						setForm({ ...form, insemination_type: val });
+						if (val !== "Monta Natural") {
+							setBoarId(null); // limpia si cambia a Artificial
+						}
+					}}
+				/>
+				{isNatural && (
+					<BoarPicker
+						label="Identificador Verraco*"
+						value={boarId}
+						onChange={(value: number | null) => setBoarId(value)}
+					/>
+				)}
 
-			<PregnancyResultPicker
-				label="Resultado*"
-				value={form.pregnancy_result}
-				onChange={(val) => setForm({ ...form, pregnancy_result: val })}
-			/>
-			<Text style={styles.label}>Notas</Text>
-			<TextInput
-				style={[styles.input, { height: 100, textAlignVertical: "top" }]}
-				value={form.notes}
-				onChangeText={(text) => setForm({ ...form, notes: text })}
-				multiline
-			/>
-			<TouchableOpacity style={styles.button} onPress={handleSubmit}>
-				<Text style={styles.buttonText}>Guardar</Text>
-			</TouchableOpacity>
-		</ScrollView>
+				<PregnancyResultPicker
+					label="Resultado*"
+					value={form.pregnancy_result}
+					onChange={(val) => setForm({ ...form, pregnancy_result: val })}
+				/>
+				<Text style={styles.label}>Notas</Text>
+				<TextInput
+					style={[styles.input, { height: 100, textAlignVertical: "top" }]}
+					value={form.notes}
+					onChangeText={(text) => setForm({ ...form, notes: text })}
+					multiline
+				/>
+				<TouchableOpacity style={styles.button} onPress={handleSubmit}>
+					<Text style={styles.buttonText}>Guardar</Text>
+				</TouchableOpacity>
+			</ScrollView>
+		</ScreenContainer>
 	);
 }
 

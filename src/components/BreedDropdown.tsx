@@ -134,7 +134,7 @@ export const BreedDropdown: React.FC<BreedDropdownProps> = ({
 				</TouchableOpacity>
 				{/* Adding breed button ➕ */}
 				<TouchableOpacity onPress={() => setAddingModalVisible(true)}>
-					<Text style={{ fontSize: 22, marginLeft: 10, color: "#FFA000" }}>
+					<Text style={{ fontSize: 22, color: "#FFA000" }}>
 						➕
 					</Text>
 				</TouchableOpacity>

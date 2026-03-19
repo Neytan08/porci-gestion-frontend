@@ -17,6 +17,7 @@ import {
 import { getSowbyId, type Sow } from "../../api/sowsApi";
 import EditAction from "../../components/uiControls/EditAction";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
+import ScreenContainer from "../../components/uiControls/ScreenContainer";
 
 // Route prop for receiving sowId from navigation
 type DetailsRouteProp = RouteProp<RootStackParamList, "DetailsSow">;
@@ -40,6 +41,7 @@ export default function DetailsSowScreen() {
 			setLoading(true);
 			setError(null);
 			const data = await getSowbyId(sowId);
+			console.log("Sow details loaded:", data);
 			setSowDetails(data);
 		} catch (err: any) {
 			console.error("Error loading sow:", err);
@@ -84,7 +86,7 @@ export default function DetailsSowScreen() {
 
 	const datos = [
 		{ label: "Estado", value: sow.status?.status_name ?? "Sin estado" },
-		{ label: "Raza", value: sow.breed?.breed_name ?? "Sin raza" },
+		{ label: "Raza", value: sow.breeds?.breed_name?.trim() ?? "Sin raza" },
 		{ label: "Fecha de entrada", value: sow.entry_date.split("T")[0] },
 		{ label: "Cantidad de pezones", value: sow.mammary_glands ?? "-" },
 		{ label: "Peso(cm)", value: sow.weight ?? "-" },
@@ -92,12 +94,12 @@ export default function DetailsSowScreen() {
 		{ label: "Cantidad de partos", value: sow.farrowing_number ?? "-" },
 		{ label: "Descripción", value: sow.description?.trim() || "-" },
 	];
-
+	console.log("Datos para mostrar en tabla:", sow.breeds?.breed_name);
 	return (
-		<View style={styles.container}>
-			<ScrollView contentContainerStyle={styles.scrollContent}>
+		<ScreenContainer>
+			<View style={styles.scrollContent}>
 				{/* Image and Name */}
-				<View style={styles.header}>
+				<View style={styles.imageAndNameContainer}>
 					<View style={styles.imagePlaceholder} />
 					<Text style={styles.name}>{sow.sow_tag_number}</Text>
 				</View>
@@ -140,8 +142,7 @@ export default function DetailsSowScreen() {
 						))}
 					</View>
 				</Pressable>
-			</ScrollView>
-
+			</View>
 			{/* Botones al final */}
 			<View style={styles.bottomButtons}>
 				{["Historial", "Vacunas", "Eventos", "Editar"].map((title) => (
@@ -150,7 +151,7 @@ export default function DetailsSowScreen() {
 					</TouchableOpacity>
 				))}
 			</View>
-		</View>
+		</ScreenContainer>
 	);
 }
 
@@ -165,12 +166,13 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	scrollContent: {
+		flex: 1,
 		padding: 5,
 		// paddingBottom: 100, // espacio para los botones
 	},
-	header: {
+	imageAndNameContainer: {
 		alignItems: "center",
-		marginBottom: 20,
+		margin: 20,
 	},
 	imagePlaceholder: {
 		width: 120,
