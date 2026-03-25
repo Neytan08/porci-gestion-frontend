@@ -246,7 +246,7 @@ export default function EditSow() {
 								...sow,
 								breed_id: newBreedId,
 								// Update breed details in the state to keep it consistent
-								breed: {
+								breeds: {
 									breed_id: newBreedId,
 									breed_name: selectedBreed?.label || "",
 								},

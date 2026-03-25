@@ -30,13 +30,13 @@ export default function DatePickerField({
 	// Handler when a date is confirmed in the picker
 	const handleConfirm = (selectedDate: Date) => {
 		hidePicker();
-
+		
 		// Convert the selected local date to UTC midnight before passing it back
 		const utcDate = localDateToUtcMidnight(selectedDate);
 		onChange(utcDate);
 	};
 
-	// Convert the incoming UTC ISO/date to local for display
+	// Convert the adjusted UTC date to a local Date for display and picker input
 	const localForDisplay = utcIsoOrDateToLocalForDisplay(value);
 
 	// Format the date for display

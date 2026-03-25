@@ -12,11 +12,12 @@ import {
 import { type Boar, createBoar } from "../../api/boarsApi";
 import { BreedDropdown } from "../../components/BreedDropdown";
 import DatePickerField from "../../components/DatePickerField";
+import { localDateToUtcMidnight } from "../../utils/dateHelpers";
 import ScreenContainer from "../../components/uiControls/ScreenContainer";
 
 export default function AddBoar() {
 	const navigation = useNavigation();
-	const [birthDate, setBirthDate] = useState(new Date()); // DatePicker state and handlers
+	const [birthDate, setBirthDate] = useState(localDateToUtcMidnight(new Date())); // DatePicker state and handlers
 	const [breedId, setBreedId] = useState<number | null>(null); // Breed call
 	const [form, setForm] = useState({
 		// In case of need to add more fields, extend this form state (needs to match the API)
@@ -26,7 +27,7 @@ export default function AddBoar() {
 		length: "",
 		description: "",
 	});
-
+	
 	const validateBoar = (boar: Partial<Boar>): boolean => {
 		if (!boar.boar_tag_number || !boar.birth_date || !boar.breed_id) {
 			Alert.alert(

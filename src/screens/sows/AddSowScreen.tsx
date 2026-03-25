@@ -14,10 +14,11 @@ import { BreedDropdown } from "../../components/BreedDropdown";
 import DatePickerField from "../../components/DatePickerField";
 import { StatusDropdown } from "../../components/StatusDropdown";
 import ScreenContainer from "../../components/uiControls/ScreenContainer";
+import { localDateToUtcMidnight } from "../../utils/dateHelpers";
 
 export default function AddSow() {
 	const navigation = useNavigation();
-	const [entryDate, setEntryDate] = useState(new Date()); // DatePicker state and handlers
+	const [entryDate, setEntryDate] = useState(localDateToUtcMidnight(new Date())); // DatePicker state and handlers
 	const [statusId, setStatusId] = useState<number | null>(null); // Status call
 	const [breedId, setBreedId] = useState<number | null>(null); // Breed call
 	const [form, setForm] = useState({
