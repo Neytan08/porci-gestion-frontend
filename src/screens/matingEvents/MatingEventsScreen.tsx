@@ -28,6 +28,7 @@ import RowCheckbox from "../../components/uiControls/RowCheckbox";
 import { useDeleteEntity } from "../../hooks/useDeleteEntity";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
 import ScreenContainer from "../../components/uiControls/ScreenContainer";
+import UpdatePregnancyResultModal from "../../components/modals/UpdatePregnancyResultModal";
 
 type NavigationProp = NativeStackNavigationProp<
 	RootStackParamList,
@@ -213,7 +214,10 @@ export default function MattingEventsScreen() {
 							<Pressable
 								key={h.key}
 								style={[styles.tabItem, isSelected && styles.tabItemSelected]}
-								onPress={() => setSelectedTab(h.key)}
+								onPress={() => {
+									setSelectedTab(h.key);
+									setSelectedIds(new Set());
+								}}
 								disabled={loadingAll}
 							>
 								<Text
@@ -265,19 +269,29 @@ export default function MattingEventsScreen() {
 											color={"#eee"}
 											style={styles.checkBox}
 										/>
-										<Text style={[styles.textCell, { flex: 0.9 }]}>
-											Cerda: {item.breedingsows?.sow_tag_number ?? item.sow_id}
+										<Text style={[styles.textCell, { flexBasis: "50%" }]}>
+											<Text style={{ fontWeight: "700" }}>Cerda: </Text>
+											{item.breedingsows?.sow_tag_number ?? item.sow_id}
 										</Text>
-										<Text style={[styles.textCell, { flex: 0.8 }]}>
-											Fecha:{" "}
+										<Text style={[styles.textCell, { flexBasis: "50%" }]}>
+											<Text style={{ fontWeight: "700" }}>Verraco: </Text>
+											{item.boars?.boar_tag_number ?? 'N/A'}
+										</Text>
+										<Text style={[styles.textCell, { flexBasis: "50%" }]}>
+											<Text style={{ fontWeight: "700" }}>Fecha: </Text>
 											{item.insemination_date
 												? item.insemination_date.split("T")[0]
 												: "-"}
 										</Text>
+										<Text style={[styles.textCell, { flexBasis: "50%" }]}>
+											<Text style={{ fontWeight: "700" }}>Tipo: </Text>
+											{item.insemination_type ?? "-"}
+										</Text>
 										<Text
-											style={[styles.textCell, { width: "101%", marginBlock: 8 }]}
+											style={[styles.textCell, { flexBasis: "100%" }]}
 										>
-											Notas: {item.notes ?? "-"}
+											<Text style={{ fontWeight: "700" }}>Notas: </Text>
+											{item.notes ?? "-"}
 										</Text>
 										<View style={styles.detailsButton}>
 											{/* List Action: pop up a small view with actions for the item */}
@@ -328,18 +342,18 @@ export default function MattingEventsScreen() {
 							<View
 								style={{ flexDirection: "row", justifyContent: "space-between" }}
 							>
-								<EditAction
+								{/* <EditAction
 									onPress={() => {
-										setActionModalVisible(false); /* luego navega/edit */
+										setActionModalVisible(false);
 										handleSelectedMatingAction("edit", actionForEvent!);
 									}}
-								/>
-								<DetailsAction
+								/>  */}
+								{/**<DetailsAction
 									onPress={() => {
 										setActionModalVisible(false);
 										handleSelectedMatingAction("moreDetails", actionForEvent!);
 									}}
-								/>
+								/> */}
 								<DeleteAction
 									onPress={() => {
 										setActionModalVisible(false);
@@ -422,20 +436,16 @@ export default function MattingEventsScreen() {
 								style={styles.filterOverlayTitle}
 							>{`Inseminaciones Seleccionadas (${selectedIds.size})`}</Text>
 							<View style={styles.filterBtnRow}>
-								{/* Change status */}
-								<Pressable
-									style={styles.filterBtn}
-									onPress={() => Alert.alert("Funcion no implementada")}
-								>
-									<Image
-										source={require("../../../assets/icons/change-status.png")}
-										style={styles.icon}
-										resizeMode="contain"
-									/>
-									<Text style={{ fontWeight: "700", textAlign: "center" }}>
-										Cambiar estado de inseminación
-									</Text>
-								</Pressable>
+								{/* Update Pregnancy Result Modal */}
+								<UpdatePregnancyResultModal
+									onConfirm={() => {
+										loadAll(); // Reload the data after update
+										setSelectedIds(new Set()); // Clear selection
+									}}
+									selectedIds={Array.from(selectedIds)}
+									size={42}
+									label="Actualizar estado"
+								/>
 								{/* PDF Extraction */}
 								<Pressable
 									style={styles.filterBtn}
@@ -525,8 +535,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 15,
 		backgroundColor: "#fff",
 		borderRadius: 10,
-		marginHorizontal: 5,
-		marginBottom: 8,
+		margin: 5,
 		borderWidth: 1,
 		borderColor: "#eee",
 	},
@@ -535,6 +544,8 @@ const styles = StyleSheet.create({
 	},
 	textCell: {
 		color: "#333",
+		fontSize: 14,
+		marginBottom: 2,
 	},
 	center: {
 		flex: 1,

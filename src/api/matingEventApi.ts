@@ -3,7 +3,7 @@ import client from "./client";
 export type MatingEvent = {
 	mating_id: number;
 	sow_id: number;
-	boar_id?: number;
+	boar_id: number | null;
 	insemination_date: string | null;
 	insemination_type: "Monta Natural" | "Artificial" | undefined;
 	pregnancy_result: "Pendiente" | "Positivo" | "Negativo" | undefined;
@@ -11,16 +11,9 @@ export type MatingEvent = {
 
 	// Including related sow details
 	breedingsows?: { sow_tag_number: string } | null;
-};
+	// Including related boar details
+	boars?: { boar_tag_number: string } | null;
 
-// Payload para crear/actualizar (lo que espera tu API, sin relaciones)
-export type MatingEventPayload = {
-	sow_id: number;
-	boar_id?: number;
-	insemination_date: string | null;
-	insemination_type?: "Monta Natural" | "Artificial";
-	pregnancy_result?: "Pendiente" | "Positivo" | "Negativo";
-	notes?: string | null;
 };
 
 // Mating Events grouped by pregnancy result matching API response
@@ -62,5 +55,18 @@ export const getAllGroupedByPregnancyResult = async (): Promise<
 	const response = await client.get<MatingEventsGroup<MatingEvent>[]>(
 		"/api/matingevents/grouped/pregnancy-result",
 	);
+	return response.data;
+};
+
+export const updatePregnancyResults = async (
+	mating_ids: number | number[],
+	pregnancy_result: "Pendiente" | "Positivo" | "Negativo",
+) => {
+	const idList = Array.isArray(mating_ids) ? mating_ids : [mating_ids];
+	console.log("Updating pregnancy results for IDs:", idList, "to:", pregnancy_result);
+	const response = await client.put(`/api/matingevents/update/pregnancy-result`, {
+		mating_ids: idList,
+		pregnancy_result,
+	});
 	return response.data;
 };
