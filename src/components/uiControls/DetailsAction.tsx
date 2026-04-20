@@ -1,16 +1,25 @@
-import React from "react";
+import type { ImageStyle, StyleProp, ViewStyle } from "react-native";
 import {
 	Image,
-	type ImageStyle,
-	type StyleProp,
+	Pressable,
 	StyleSheet,
-	TouchableOpacity,
 } from "react-native";
-
+/**
+ * DetailsAction is a reusable component that renders an eye icon button,
+ * commonly used to trigger view details actions in the UI.
+ * Props:
+ * - onPress: Function to call when the button is pressed.
+ * - size: Optional size for the icon (default: 25).
+ * - containerStyle: Optional style for the button container.
+ * - imageStyle: Optional style for the image/icon.
+ * - hitSlop: Optional number to increase the touchable area around the button (default: 10).
+ * - accessibilityLabel: Optional label for accessibility (default: "Detalles").
+ */
 type DetailsActionProps = {
 	onPress: () => void;
 	size?: number;
-	style?: StyleProp<ImageStyle>;
+	containerStyle?: StyleProp<ViewStyle>;
+	imageStyle?: StyleProp<ImageStyle>;
 	hitSlop?: number;
 	accessibilityLabel?: string;
 };
@@ -18,24 +27,25 @@ type DetailsActionProps = {
 export default function DetailsAction({
 	onPress,
 	size = 25,
-	style,
+	containerStyle,
+	imageStyle,
 	hitSlop = 10,
 	accessibilityLabel = "Detalles",
 }: DetailsActionProps) {
 	return (
-		<TouchableOpacity
+		<Pressable
 			onPress={onPress}
-			style={[styles.button, style]}
+			style={({ pressed }) => [styles.button, containerStyle, pressed && { opacity: 0.8 }]}
 			hitSlop={hitSlop}
 			accessibilityRole="button"
 			accessibilityLabel={accessibilityLabel}
 		>
 			<Image
 				source={require("../../../assets/icons/eye.png")}
-				style={[{ width: size, height: size, tintColor: "#616161" }, style]}
+				style={[{ width: size, height: size, tintColor: "#616161" }, imageStyle]}
 				resizeMode="contain"
 			/>
-		</TouchableOpacity>
+		</Pressable>
 	);
 }
 

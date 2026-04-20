@@ -1,15 +1,23 @@
 import type React from "react";
 import { memo } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 
-type Props = {
+/**
+ * SearchFilter is a reusable component that provides a labeled text input for filtering items by name or other text criteria.
+ * Props:
+ * - value: The current text value of the filter.
+ * - onChange: A callback function that is called when the text changes. It receives the new text as a parameter.
+ * - placeholder: Optional placeholder text for the input field.
+ * - label: Optional label to display before the input field.
+ */
+type SearchProps = {
 	value: string;
 	onChange: (text: string) => void;
 	placeholder?: string;
 	label?: string;
 };
 
-const SearchFilter: React.FC<Props> = ({
+const SearchFilter: React.FC<SearchProps> = ({
 	value,
 	onChange,
 	placeholder = "Ingresar nombre",

@@ -1,16 +1,26 @@
-import React from "react";
+import type { ImageStyle, StyleProp, ViewStyle } from "react-native";
 import {
 	Image,
-	type ImageStyle,
 	Pressable,
-	type StyleProp,
 	StyleSheet,
 } from "react-native";
 
+/**
+ * ListAction is a reusable component that renders a three-dots icon button,
+ * commonly used to trigger a list of actions (e.g., edit, delete, view details) in the UI.
+ * Props:
+ * - onPress: Function to call when the button is pressed.
+ * - size: Optional size for the icon (default: 20).
+ * - containerStyle: Optional style for the button container.
+ * - imageStyle: Optional style for the image/icon.
+ * - hitSlop: Optional number to increase the touchable area around the button (default: 10).
+ * - accessibilityLabel: Optional label for accessibility (default: "Lista").
+ */
 type ListActionProps = {
 	onPress: () => void;
 	size?: number;
-	style?: StyleProp<ImageStyle>;
+	containerStyle?: StyleProp<ViewStyle>;
+	imageStyle?: StyleProp<ImageStyle>;
 	hitSlop?: number;
 	accessibilityLabel?: string;
 };
@@ -18,27 +28,22 @@ type ListActionProps = {
 export default function ListAction({
 	onPress,
 	size = 20,
-	style,
+	containerStyle,
+	imageStyle,
 	hitSlop = 10,
 	accessibilityLabel = "Lista",
 }: ListActionProps) {
 	return (
 		<Pressable
 			onPress={onPress}
-			// android_ripple={{
-			//   // color: 'rgba(233, 11, 11, 0.08)',
-			//   borderless: false,
-			//   radius: 24,
-			// }}
-			// Use the pressable style callback to apply a color while pressed
-			style={({ pressed }) => [styles.button, pressed && styles.pressed, style]}
+			style={({ pressed }) => [styles.button, pressed && styles.pressed, containerStyle]}
 			hitSlop={hitSlop}
 			accessibilityRole="button"
 			accessibilityLabel={accessibilityLabel}
 		>
 			<Image
 				source={require("../../../assets/icons/dots.png")}
-				style={[{ width: size, height: size, tintColor: "#616161" }, style]}
+				style={[{ width: size, height: size, tintColor: "#616161" }, imageStyle]}
 				resizeMode="contain"
 			/>
 		</Pressable>

@@ -6,7 +6,6 @@ import {
 	Alert,
 	Modal,
 	Pressable,
-	ScrollView,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -37,8 +36,8 @@ export default function EditSow() {
 			setLoading(true);
 			const data = await getSowbyId(sowId);
 			setSowDetails(data);
-		} catch (error: any) {
-			Alert.alert("Error", error.message);
+		} catch (error) {
+			Alert.alert("Error", (error as Error).message);
 		} finally {
 			setLoading(false);
 		}
@@ -87,10 +86,10 @@ export default function EditSow() {
 				"La cerda fue actualizada correctamente.",
 			);
 			navigation.goBack();
-		} catch (error: any) {
+		} catch (error) {
 			Alert.alert(
 				"Error",
-				"No se pudo actualizar la cerda. Intente nuevamente.",
+				(error as Error).message,
 			);
 		} finally {
 			setLoading(false);

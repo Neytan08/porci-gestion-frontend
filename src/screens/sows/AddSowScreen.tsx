@@ -72,7 +72,7 @@ export default function AddSow() {
 			await createSow(payload); // API Call
 			Alert.alert("Éxito", "Cerda agregada correctamente.");
 			navigation.goBack();
-		} catch (error: any) {
+		} catch (error) {
 			if (error instanceof AxiosError) {
 				if (error.response) {
 					if (error.response.status === 409) {

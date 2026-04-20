@@ -1,13 +1,24 @@
 import type React from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
-// Props for ConfirmDeleteModal component
+/**
+ * ConfirmDeleteModal is a reusable component that displays a confirmation dialog when the user attempts to delete an entity.
+ * Props:
+ * - visible: Controls the visibility of the modal.
+ * - name: Optional name of the entity being deleted, used in the default message.
+ * - title: Optional custom title for the modal.
+ * - message: Optional custom message. If not provided, a default message using the name will be shown.
+ * - confirmText: Text for the confirm button (default: "Eliminar").
+ * - cancelText: Text for the cancel button (default: "Cancelar").
+ * - loading: If true, disables the confirm button and shows a loading state.
+ * - onConfirm: Callback function called when the user confirms deletion. Can return a promise for async actions.
+ * - onCancel: Callback function called when the user cancels deletion.
+ */
 interface ConfirmDeleteModalProps {
 	visible: boolean;
 	name?: string | number | null;
-	title?: string; // Optional custom title
-	// message can be a string or any React node (allow bold parts, links, etc.)
-	message?: string | React.ReactNode; // Optional custom message. If omitted, a default using name is used
+	title?: string;
+	message?: string | React.ReactNode; // Message can be a string or any React node (allow bold parts, links, etc.)
 	confirmText?: string;
 	cancelText?: string;
 	loading?: boolean;
@@ -45,11 +56,12 @@ export default function ConfirmDeleteModal({
 						<View style={styles.messageContainer}>{resolvedMessage}</View>
 					)}
 					<View style={styles.row}>
-						<TouchableOpacity
-							style={[
+						<Pressable
+							style={({ pressed }) => [
 								styles.button,
 								{ backgroundColor: "#ac0202ff" },
 								loading && styles.disabled,
+								pressed && styles.pressed,
 							]}
 							onPress={onConfirm}
 							disabled={loading}
@@ -57,15 +69,19 @@ export default function ConfirmDeleteModal({
 							accessibilityLabel={`${confirmText} ${name ?? "registro"}`}
 						>
 							<Text style={styles.buttonText}>{confirmText}</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={[styles.button, { backgroundColor: "#007AFF" }]}
+						</Pressable>
+						<Pressable
+							style={({ pressed }) => [
+								styles.button,
+								{ backgroundColor: "#007AFF" },
+								pressed && styles.pressed,
+							]}
 							onPress={onCancel}
 							accessibilityRole="button"
 							accessibilityLabel={cancelText}
 						>
 							<Text style={styles.buttonText}>{cancelText}</Text>
-						</TouchableOpacity>
+						</Pressable>
 					</View>
 				</View>
 			</View>
@@ -107,6 +123,9 @@ const styles = StyleSheet.create({
 	},
 	disabled: {
 		opacity: 0.7,
+	},
+	pressed: {
+		opacity: 0.8,
 	},
 	buttonText: {
 		color: "#fff",
