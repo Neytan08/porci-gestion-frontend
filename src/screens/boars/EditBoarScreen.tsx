@@ -1,6 +1,6 @@
 import type { RouteProp } from "@react-navigation/native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
@@ -13,7 +13,6 @@ import {
 	View,
 } from "react-native";
 import { type Boar, getBoarById, updateBoar } from "../../api/boarsApi";
-import { getBreed } from "../../api/breedApi";
 import { BreedDropdown } from "../../components/BreedDropdown";
 import DatePickerField from "../../components/DatePickerField";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
@@ -24,9 +23,6 @@ type EditBoarRouteProp = RouteProp<RootStackParamList, "EditBoar">;
 export default function EditBoar() {
 	const [boar, setBoarInfo] = useState<Boar | null>(null);
 	const [loading, setLoading] = useState(true);
-	const [breedOptions, setBreedOptions] = useState<
-		{ label: string; value: number }[]
-	>([]);
 	const [modalEditTagNumberVisible, setModalEditTagNumberVisible] =
 		useState(false);
 	const route = useRoute<EditBoarRouteProp>();
@@ -35,7 +31,7 @@ export default function EditBoar() {
 	// const [error, setError] = useState<string | null>(null);
 
 	// Load boar details by ID
-	const loadBoarInfo = async () => {
+	const loadBoarInfo = useCallback(async () => {
 		try {
 			setLoading(true);
 			const boarData = await getBoarById(boarId);
@@ -48,24 +44,7 @@ export default function EditBoar() {
 		} finally {
 			setLoading(false);
 		}
-	};
-
-	// Load breed options for dropdown
-	const loadBreedOptions = async () => {
-		try {
-			const breedData = await getBreed();
-			const options = breedData.map((breed) => ({
-				label: breed.breed_name,
-				value: breed.breed_id,
-			}));
-			setBreedOptions(options);
-		} catch (error: any) {
-			Alert.alert(
-				"Error",
-				"No se pudieron cargar las opciones de raza. Intente nuevamente.",
-			);
-		}
-	};
+	}, [boarId]);
 
 	// Validation function to ensure required fields are filled before submitting
 	const validateBoar = (boar: Partial<Boar>): boolean => {
@@ -111,8 +90,7 @@ export default function EditBoar() {
 
 	useEffect(() => {
 		loadBoarInfo();
-		loadBreedOptions();
-	}, [boarId]);
+	}, [loadBoarInfo]);
 
 	if (loading) {
 		return (
@@ -190,17 +168,14 @@ export default function EditBoar() {
 					{/* Breed Dropdown */}
 					<BreedDropdown
 						value={boar.breeds?.breed_id || null}
-						onChange={(newBreedId: number) => {
-							const selectedBreed = breedOptions.find(
-								(breed) => breed.value === newBreedId,
-							);
+						onChange={(newBreedId: number, label: string) => {
 							setBoarInfo({
 								...boar,
 								breed_id: newBreedId,
 								// Update breed details in the state to keep it consistent
 								breeds: {
 									breed_id: newBreedId,
-									breed_name: selectedBreed?.label || "",
+									breed_name: label,
 								},
 							});
 						}}

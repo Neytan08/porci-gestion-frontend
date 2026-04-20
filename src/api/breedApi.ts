@@ -7,7 +7,7 @@ export type Breed = {
 };
 
 export const getBreed = async (): Promise<Breed[]> => {
-	const res = await client.get("/api/breeds/"); // Adjust it according to your API
+	const res = await client.get("/api/breeds/"); // Adjust it according to the API
 	return res.data;
 };
 

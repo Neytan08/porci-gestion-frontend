@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
@@ -9,7 +9,6 @@ import {
 	StyleSheet,
 	Text,
 	TextInput,
-	TouchableOpacity,
 	View,
 } from "react-native";
 import type { Breed } from "../api/breedApi";
@@ -19,10 +18,16 @@ import {
 	containsSpecialCharacters,
 } from "../utils/stringHelpers";
 
-// What BreedDropdown expects as props
+/**
+ * BreedDropdown is a reusable component that allows users to select a breed from a list or add a new breed.
+ * Props:
+ * - value: The currently selected breed ID.
+ * - onChange: A callback function that is called when a new breed is selected or created. 
+ *   It receives the selected breed ID and label as parameters.
+ */
 type BreedDropdownProps = {
 	value: number | null;
-	onChange: (value: number) => void;
+	onChange: (value: number, label: string) => void;
 };
 
 export const BreedDropdown: React.FC<BreedDropdownProps> = ({
@@ -43,12 +48,8 @@ export const BreedDropdown: React.FC<BreedDropdownProps> = ({
 		description: "",
 	});
 
-	useEffect(() => {
-		fetchBreeds();
-	}, []);
-
 	// Fetch breeds from API
-	const fetchBreeds = async () => {
+	const fetchBreeds = useCallback(async () => {
 		try {
 			const data = await getBreed();
 			const mapped = data.map((item: Breed) => ({
@@ -61,7 +62,11 @@ export const BreedDropdown: React.FC<BreedDropdownProps> = ({
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, []);
+
+	useEffect(() => {
+		fetchBreeds();
+	}, [fetchBreeds]);
 
 	// Show loading indicator while fetching data
 	if (loading) {
@@ -104,7 +109,7 @@ export const BreedDropdown: React.FC<BreedDropdownProps> = ({
 				{ label: createdBreed.breed_name, value: createdBreed.breed_id },
 			];
 			setBreeds(updatedBreeds);
-			onChange(createdBreed.breed_id); // Set the newly created breed as the selected breed
+			onChange(createdBreed.breed_id, createdBreed.breed_name); // Set the newly created breed as the selected breed
 			setAddingModalVisible(false);
 			setNewBreed({ breed_id: 0, breed_name: "", description: "" }); // Clear new breed input fields
 		} catch (error) {
@@ -112,9 +117,10 @@ export const BreedDropdown: React.FC<BreedDropdownProps> = ({
 		}
 	};
 
-	// Update selected breed
+	// Handle breed selection: find the label for the selected value and notify the parent
 	const handleSelection = (itemValue: number) => {
-		onChange(itemValue);
+		const selected = breedsOptions.find((b) => b.value === itemValue);
+		onChange(itemValue, selected?.label ?? "");
 		setBreedOptionsModalVisible(false);
 	};
 	return (
@@ -123,21 +129,21 @@ export const BreedDropdown: React.FC<BreedDropdownProps> = ({
 			{/* Dropdown and adding breed */}
 			<View style={styles.breedRow}>
 				{/* Dropdown to open modal and show breed options */}
-				<TouchableOpacity
+				<Pressable
 					onPress={() => setBreedOptionsModalVisible(true)}
-					style={styles.breedDropdown}
+					style={({ pressed }) => [styles.breedDropdown, pressed && { opacity: 0.3 }]}
 				>
 					<Text style={styles.selectedBreed}>
 						{breedsOptions.find((item) => item.value === value)?.label ||
 							"Seleccionar raza..."}
 					</Text>
-				</TouchableOpacity>
+				</Pressable>
 				{/* Adding breed button ➕ */}
-				<TouchableOpacity onPress={() => setAddingModalVisible(true)}>
+				<Pressable onPress={() => setAddingModalVisible(true)} style={({ pressed }) => pressed && { opacity: 0.3 }}>
 					<Text style={{ fontSize: 22, color: "#FFA000" }}>
 						➕
 					</Text>
-				</TouchableOpacity>
+				</Pressable>
 			</View>
 			{/* Modal for selecting breed */}
 			<Modal
@@ -165,11 +171,12 @@ export const BreedDropdown: React.FC<BreedDropdownProps> = ({
 								keyExtractor={(item) => item.value.toString()}
 								renderItem={({ item }) => (
 									// Each breed item
-									<TouchableOpacity
+									<Pressable
 										onPress={() => handleSelection(item.value)}
-										style={[
+										style={({ pressed }) => [
 											styles.itemRow,
-											item.value === value && styles.selectedRow, // Apply styles for selected item row
+											item.value === value && styles.selectedRow,  // Apply styles for selected item row
+											pressed && { opacity: 0.5 },  // Apply opacity when pressed
 										]}
 									>
 										<Text
@@ -180,7 +187,7 @@ export const BreedDropdown: React.FC<BreedDropdownProps> = ({
 										>
 											{item.label}
 										</Text>
-									</TouchableOpacity>
+									</Pressable>
 								)}
 							/>
 						</View>
@@ -215,21 +222,21 @@ export const BreedDropdown: React.FC<BreedDropdownProps> = ({
 							style={styles.addingModalInputs}
 						/>
 						<View style={styles.addingModalViewButtons}>
-							<TouchableOpacity
-								style={styles.addingModalButtons}
-								onPress={() => handleCreateBreed()}
-							>
-								<Text style={styles.addingModalButtonText}>Guardar</Text>
-							</TouchableOpacity>
-							<TouchableOpacity
-								style={styles.addingModalButtons}
-								onPress={() => {
-									setAddingModalVisible(false);
-									setNewBreed({ breed_id: 0, breed_name: "", description: "" }); // Clear new breed input
-								}}
-							>
-								<Text style={styles.addingModalButtonText}>Cancelar</Text>
-							</TouchableOpacity>
+						<Pressable
+							style={({ pressed }) => [styles.addingModalButtons, pressed && { opacity: 0.5 }]}
+							onPress={() => handleCreateBreed()}
+						>
+							<Text style={styles.addingModalButtonText}>Guardar</Text>
+						</Pressable>
+						<Pressable
+							style={({ pressed }) => [styles.addingModalButtons, pressed && { opacity: 0.5 }]}
+							onPress={() => {
+								setAddingModalVisible(false);
+								setNewBreed({ breed_id: 0, breed_name: "", description: "" }); // Clear new breed input
+							}}
+						>
+							<Text style={styles.addingModalButtonText}>Cancelar</Text>
+						</Pressable>
 						</View>
 					</View>
 				</View>

@@ -1,33 +1,49 @@
-import React, { useState } from "react";
+import type { FC } from "react";
+import { useState } from "react";
+import type { ImageStyle, StyleProp } from "react-native";
 import {
+    Image,
     Modal,
-    View,
-    Text,
     Pressable,
     StyleSheet,
-    Image,
+    Text,
+    View,
 } from "react-native";
+
 import { updatePregnancyResults } from "../../api/matingEventApi";
 
-// Props for the modal
-interface UpdatePregnancyResultModalProps {
+/**
+ * UpdatePregnancyResultModal is a reusable component that allows users to update 
+ * the pregnancy result of one or more mating events.
+ * Props:
+ * - onConfirm: A callback function that is called when the update is successful. 
+ *   It allows the parent component to refresh data or perform other actions after the update.
+ * - selectedIds: The ID or IDs of the mating event(s) to update.
+ * - size: Optional prop to specify the size of the update icon. Default is 42.
+ * - label: Optional prop to display a label below the update icon.
+ * - imageStyle: Optional additional styles for the update icon image.
+ */
+type UpdatePregnancyResultModalProps = {
     onConfirm: () => void;
     selectedIds: number | number[];
     size?: number;
     label?: string;
+    imageStyle?: StyleProp<ImageStyle>;
 }
 
-const UpdatePregnancyResultModal: React.FC<UpdatePregnancyResultModalProps> = ({
+const UpdatePregnancyResultModal: FC<UpdatePregnancyResultModalProps> = ({
     onConfirm,
     selectedIds,
     size = 42,
     label,
+    imageStyle,
 }) => {
     const [updateModalVisible, setUpdateModalVisible] = useState(false);
     const [selectedResult, setSelectedResult] = useState<
         "Pendiente" | "Positivo" | "Negativo" | null
     >(null);
-console.log("Selected IDs for update:", selectedIds);
+
+    // Handle confirming the update
     const handleConfirm = async () => {
         if (!selectedResult) return;
         try {
@@ -46,7 +62,7 @@ console.log("Selected IDs for update:", selectedIds);
             <Pressable style={styles.updateBtn} onPress={() => setUpdateModalVisible(true)}>
                 <Image
                     source={require("../../../assets/icons/change-status.png")}
-                    style={{ width: size, height: size }}
+                    style={[{ width: size, height: size }, imageStyle]}
                     resizeMode="contain"
                 />
                 {label && <Text style={styles.updateBtnLabel}>{label}</Text>}
@@ -102,7 +118,7 @@ console.log("Selected IDs for update:", selectedIds);
 const styles = StyleSheet.create({
     updateBtn: {
         flex: 1,
-		paddingVertical: 10,
+		// paddingVertical: 10,
 		alignItems: "center",
 	},
     updateBtnLabel: {

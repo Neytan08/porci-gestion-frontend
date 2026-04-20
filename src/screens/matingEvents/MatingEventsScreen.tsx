@@ -105,8 +105,7 @@ export default function MattingEventsScreen() {
 				setDeleteModalVisible(true);
 				setMatingToDelete({ event });
 			}
-		},
-		[],
+		},[],
 	);
 
 	/* Load all mating events grouped by pregnancy result
@@ -178,7 +177,7 @@ export default function MattingEventsScreen() {
 	useFocusEffect(
 		useCallback(() => {
 			loadAll();
-		}, []),
+		}, [loadAll]),
 	);
 
 	// Handle pull-to-refresh action
@@ -340,7 +339,7 @@ export default function MattingEventsScreen() {
 								{/* para: {actionForEvent?.breedingsows?.sow_tag_number ?? actionForEvent?.sow_id} */}
 							</Text>
 							<View
-								style={{ flexDirection: "row", justifyContent: "space-between" }}
+								style={{ flexDirection: "row", justifyContent: "space-between"}}
 							>
 								{/* <EditAction
 									onPress={() => {
@@ -354,6 +353,14 @@ export default function MattingEventsScreen() {
 										handleSelectedMatingAction("moreDetails", actionForEvent!);
 									}}
 								/> */}
+								<UpdatePregnancyResultModal
+									onConfirm={() => {
+										loadAll(); // Reload the data after update
+										setActionModalVisible(false);
+									}}
+									selectedIds={actionForEvent ? [actionForEvent.mating_id] : []}
+									size={25}
+								/>
 								<DeleteAction
 									onPress={() => {
 										setActionModalVisible(false);
@@ -646,7 +653,7 @@ const styles = StyleSheet.create({
 	},
 	filterBtn: {
 		flex: 1,
-		paddingVertical: 10,
+		// paddingVertical: 10,
 		borderRadius: 10,
 		alignItems: "center",
 	},

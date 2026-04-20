@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	FlatList,
@@ -7,15 +7,23 @@ import {
 	Pressable,
 	StyleSheet,
 	Text,
-	TouchableOpacity,
 	View,
 } from "react-native";
 import { getStatus, type Status } from "../api/statusApi";
 
-// What StatusDropdown expects as props
+/**
+ * StatusDropdown is a reusable component that allows users to select a status
+ * from a list of options fetched from the API. It displays the currently selected status
+ * and opens a modal with all available statuses when pressed. 
+ * The component handles loading states and provides feedback while fetching data.
+ * Props:
+ * - value: The currently selected status ID (number) or null if no status is selected.
+ * - onChange: A callback function that is called when a new status is selected. 
+ *   It receives the selected status ID and label as parameters.
+ */
 type StatusDropdownProps = {
 	value: number | null;
-	onChange: (value: number) => void;
+	onChange: (value: number, label: string) => void;
 };
 
 export const StatusDropdown: React.FC<StatusDropdownProps> = ({
@@ -28,12 +36,7 @@ export const StatusDropdown: React.FC<StatusDropdownProps> = ({
 	const [loading, setLoading] = useState(true);
 	const [statusModalVisible, setStatusModalVisible] = useState(false);
 
-	useEffect(() => {
-		fetchStatus();
-	}, []);
-
-	// Fetch status from API
-	const fetchStatus = async () => {
+	const fetchStatus = useCallback(async () => {
 		try {
 			const data = await getStatus();
 			const mapped = data.map((item: Status) => ({
@@ -46,7 +49,11 @@ export const StatusDropdown: React.FC<StatusDropdownProps> = ({
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, []);
+
+	useEffect(() => {
+		fetchStatus();
+	}, [fetchStatus]);
 
 	// Show loading indicator while fetching data
 	if (loading) {
@@ -58,9 +65,10 @@ export const StatusDropdown: React.FC<StatusDropdownProps> = ({
 		);
 	}
 
-	// Handle selection of a status
+	// Handle status selection: find the label for the selected value and notify the parent
 	const handleSelection = (itemValue: number) => {
-		onChange(itemValue);
+		const selected = statusOptions.find((s) => s.value === itemValue);
+		onChange(itemValue, selected?.label ?? "");
 		setStatusModalVisible(false);
 	};
 
@@ -68,15 +76,15 @@ export const StatusDropdown: React.FC<StatusDropdownProps> = ({
 		<View style={styles.container}>
 			<Text style={styles.label}>{"Estado *"}</Text>
 			{/* Dropdown to open modal and show selected status */}
-			<TouchableOpacity
+			<Pressable
 				onPress={() => setStatusModalVisible(true)}
-				style={styles.dropdown}
+				style={({ pressed }) => [styles.dropdown, pressed && { opacity: 0.3 }]}
 			>
 				<Text style={styles.selectedStatus}>
 					{statusOptions.find((item) => item.value === value)?.label ||
 						"Seleccionar estado..."}
 				</Text>
-			</TouchableOpacity>
+			</Pressable>
 			{/* Modal for selecting status */}
 			<Modal
 				visible={statusModalVisible}
@@ -97,11 +105,12 @@ export const StatusDropdown: React.FC<StatusDropdownProps> = ({
 							keyExtractor={(item) => item.value.toString()}
 							renderItem={({ item }) => (
 								// Each status item
-								<TouchableOpacity
+								<Pressable
 									onPress={() => handleSelection(item.value)}
-									style={[
+									style={({ pressed }) => [
 										styles.itemRow,
 										item.value === value && styles.selectedRow, // Apply styles for selected item row
+										pressed && { opacity: 0.5 },
 									]}
 								>
 									<Text
@@ -112,7 +121,7 @@ export const StatusDropdown: React.FC<StatusDropdownProps> = ({
 									>
 										{item.label}
 									</Text>
-								</TouchableOpacity>
+								</Pressable>
 							)}
 						/>
 					</View>

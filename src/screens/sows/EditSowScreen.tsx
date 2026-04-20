@@ -1,6 +1,6 @@
 import type { RouteProp } from "@react-navigation/native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
@@ -12,9 +12,7 @@ import {
 	TextInput,
 	View,
 } from "react-native";
-import { getBreed } from "../../api/breedApi";
 import { getSowbyId, type Sow, updateSow } from "../../api/sowsApi";
-import { getStatus } from "../../api/statusApi";
 import { BreedDropdown } from "../../components/BreedDropdown";
 import DatePickerField from "../../components/DatePickerField";
 import { StatusDropdown } from "../../components/StatusDropdown";
@@ -27,12 +25,6 @@ type EditRouteProp = RouteProp<RootStackParamList, "EditSow">;
 export default function EditSow() {
 	const [sow, setSowDetails] = useState<Sow | null>(null);
 	const [loading, setLoading] = useState(true);
-	const [statusOptions, setStatusOptions] = useState<
-		{ label: string; value: number }[]
-	>([]);
-	const [breedsOptions, setBreedsOptions] = useState<
-		{ label: string; value: number }[]
-	>([]);
 	const [isBannerTagNumberVisible, setBannerTagNumberVisible] = useState(false);
 	const route = useRoute<EditRouteProp>();
 	const { sowId } = route.params;
@@ -40,17 +32,17 @@ export default function EditSow() {
 	// const [error, setError] = useState<string | null>(null);
 
 	// Load sow details by ID
-	const loadSowDetails = async () => {
+	const loadSowDetails = useCallback(async () => {
 		try {
 			setLoading(true);
 			const data = await getSowbyId(sowId);
 			setSowDetails(data);
 		} catch (error: any) {
-			Alert.alert("Error", "No se pudo cargar la cerda. Intente nuevamente.");
+			Alert.alert("Error", error.message);
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [sowId]);
 
 	// Validation of required fields
 	const validateSow = (sow: Partial<Sow>): boolean => {
@@ -105,37 +97,11 @@ export default function EditSow() {
 		}
 	};
 
-	// Load status and breed options for dropdowns
-	const loadDropdownOptions = async () => {
-		try {
-			const statuses = await getStatus();
-			const breeds = await getBreed();
-			setStatusOptions(
-				statuses.map((status: { status_name: string; status_id: number }) => ({
-					label: status.status_name,
-					value: status.status_id,
-				})),
-			);
-			setBreedsOptions(
-				breeds.map((breed: { breed_name: string; breed_id: number }) => ({
-					label: breed.breed_name,
-					value: breed.breed_id,
-				})),
-			);
-		} catch (error: any) {
-			Alert.alert(
-				"Error",
-				"No se pudieron cargar las opciones del desplegable. Intente nuevamente.",
-			);
-		}
-	};
-
-	// Load data once the component is mounted
-	useEffect(() => {
-		loadSowDetails();
-		loadDropdownOptions();
-	}, [sowId]);
-
+// Load data once the component is mounted
+useEffect(() => {
+	loadSowDetails();
+}, [loadSowDetails]);
+	
 	if (loading) {
 		console.log("Loading sow in edit view...");
 		return (
@@ -219,17 +185,14 @@ export default function EditSow() {
 				<View>
 					<StatusDropdown
 						value={sow.status_id || null}
-						onChange={(newStatusId: number) => {
-							const selectedStatus = statusOptions.find(
-								(status) => status.value === newStatusId,
-							);
+						onChange={(newStatusId: number, label: string) => {
 							setSowDetails({
 								...sow,
 								status_id: newStatusId,
 								// Update status details in the state to keep it consistent
 								status: {
 									status_id: newStatusId,
-									status_name: selectedStatus?.label || "",
+									status_name: label,
 								},
 							});
 						}}
@@ -238,17 +201,14 @@ export default function EditSow() {
 				<View>
 					<BreedDropdown
 						value={sow.breed_id || null}
-						onChange={(newBreedId: number) => {
-							const selectedBreed = breedsOptions.find(
-								(breed) => breed.value === newBreedId,
-							);
+						onChange={(newBreedId: number, label: string) => {
 							setSowDetails({
 								...sow,
 								breed_id: newBreedId,
 								// Update breed details in the state to keep it consistent
 								breeds: {
 									breed_id: newBreedId,
-									breed_name: selectedBreed?.label || "",
+									breed_name: label,
 								},
 							});
 						}}

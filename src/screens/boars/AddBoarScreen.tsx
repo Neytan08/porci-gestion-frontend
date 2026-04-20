@@ -113,7 +113,7 @@ export default function AddBoar() {
 				/>
 				<BreedDropdown
 					value={breedId}
-					onChange={(value: number) => setBreedId(Number(value))}
+					onChange={(value: number, _label: string) => setBreedId(Number(value))}
 				/>
 				<DatePickerField
 					label="Fecha de Nacimiento *"

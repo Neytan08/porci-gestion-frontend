@@ -124,11 +124,11 @@ export default function AddSow() {
 				/>
 				<StatusDropdown
 					value={statusId}
-					onChange={(value: number) => setStatusId(Number(value))}
+					onChange={(value: number, _label: string) => setStatusId(Number(value))}
 				/>
 				<BreedDropdown
 					value={breedId}
-					onChange={(value: number) => setBreedId(Number(value))}
+					onChange={(value: number, _label: string) => setBreedId(Number(value))}
 				/>
 				<DatePickerField
 					label="Fecha de Ingreso *"
