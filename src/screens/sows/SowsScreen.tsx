@@ -1,6 +1,6 @@
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
@@ -16,7 +16,7 @@ import {
 import { deleteSowbyId, getSows, type Sow } from "../../api/sowsApi";
 import BreedFilter from "../../components/filters/BreedFilter";
 import SearchFilter from "../../components/filters/SearchFilter";
-import StatusFilter from "../../components/filters/StatusFilter";
+import OptionsFilter from "../../components/filters/OptionsFilter";
 import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 import DeleteAction from "../../components/uiControls/DeleteAction";
 import DetailsAction from "../../components/uiControls/DetailsAction";
@@ -148,7 +148,7 @@ export default function SowsScreen() {
 		} finally {
 			setLoading(false);
 		}
-	}, [getSows]);
+	}, []);
 
 	// Handle pull-to-refresh action
 	const onRefresh = useCallback(async () => {
@@ -201,12 +201,7 @@ export default function SowsScreen() {
 		setDeleteSelectedSow(null);
 	};
 
-	// Initial load
-	useEffect(() => {
-		loadSows();
-	}, [loadSows]);
-
-	// Reload the screen when coming back to it
+	// Load sows on mount and every time the screen regains focus
 	useFocusEffect(
 		useCallback(() => {
 			loadSows();
@@ -249,19 +244,21 @@ export default function SowsScreen() {
 					>
 						<View style={styles.filterOverlayView}>
 							<Text style={styles.filterOverlayTitle}>Filtros</Text>
-							{/* Status Section */}
-							<StatusFilter
+							{/* Status Filter */}
+							<OptionsFilter
 								options={statusOptions} // [{label, value}]
 								selectedId={filterSelectedStatusId} // number | null
 								onChange={setFilterSelectedStatusId} // (id) => void
+								title="Estado"
 							/>
 							{/* Divider */}
 							<View style={styles.sectionDivider} />
-							{/* Breed Section */}
-							<BreedFilter
+							{/* Breed Filter */}
+							<OptionsFilter
 								options={breedOptions} // [{label, value}]
 								selectedId={filterSelectedBreedId} // number | null
 								onChange={setFilterSelectedBreedId} // (id) => void
+								title="Raza"
 							/>
 							{/* Filter Buttons */}
 							<View style={styles.filterBtnRow}>

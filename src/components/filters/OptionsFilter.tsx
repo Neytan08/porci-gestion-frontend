@@ -2,28 +2,32 @@ import type React from "react";
 import { memo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-type Option = { value: number; label: string };
+type FilteringOptionsFormat = { value: number; label: string };
 
-type Props = {
-	options: Option[];
+type FilteringProps = {
+	options: FilteringOptionsFormat[];
 	selectedId: number | null;
 	onChange: (id: number | null) => void;
 	title?: string;
 	allLabel?: string;
 };
 
-const BreedFilter: React.FC<Props> = ({
+const OptionsFilter: React.FC<FilteringProps> = ({
 	options,
 	selectedId,
 	onChange,
-	title = "Raza",
-	allLabel = "Todas",
+	title = "Opciones",
+	allLabel = "Todos",
 }) => {
 	return (
 		<View>
 			<Text style={styles.sectionTitle}>{title}</Text>
-
-			<Pressable style={styles.optionRow} onPress={() => onChange(null)}>
+			<Pressable
+				style={styles.optionRow}
+				onPress={() => onChange(null)}
+				accessibilityRole="button"
+				accessibilityLabel={`Seleccionar ${allLabel}`}
+			>
 				<Text style={[styles.optionText, styles.optionAll]}>{allLabel}</Text>
 			</Pressable>
 
@@ -65,4 +69,4 @@ const styles = StyleSheet.create({
 	optionAll: { color: "#555" },
 });
 
-export default memo(BreedFilter);
+export default memo(OptionsFilter);

@@ -2,17 +2,26 @@ import type React from "react";
 import { memo } from "react";
 import {
 	Image,
-	ImageStyle,
 	Pressable,
 	StyleSheet,
 	View,
 	type ViewStyle,
 } from "react-native";
 
-/** A customizable checkbox component for use in rows or lists
- *  Props: Type of what the component accepts
+/** 
+ * RowCheckbox is a reusable component that renders a checkbox for use in list rows or similar contexts.
+ * Props:
+ * - selected: boolean indicating if the checkbox is selected
+ * - onPress: function to call when the checkbox is pressed
+ * - size: optional number for the size of the checkbox
+ * - selectedColor: optional string for the color when selected
+ * - radius: optional number for the border radius
+ * - width: optional number for the border width
+ * - color: optional string for the border color
+ * - style: optional ViewStyle for custom styling
+ * - disabled: optional boolean to disable the checkbox
  */
-type Props = {
+type RowCheckBoxProps = {
 	selected: boolean;
 	onPress: () => void;
 	size?: number;
@@ -24,8 +33,7 @@ type Props = {
 	disabled?: boolean;
 };
 
-// RowCheckbox component definition
-const RowCheckbox: React.FC<Props> = ({
+const RowCheckbox: React.FC<RowCheckBoxProps> = ({
 	selected,
 	onPress,
 	size = 15,
@@ -68,7 +76,6 @@ const RowCheckbox: React.FC<Props> = ({
 					]}
 					resizeMode="contain"
 				/>
-				{/* {selected && (<View style={{ backgroundColor: "#fff" }} />)} */}
 			</View>
 		</Pressable>
 	);

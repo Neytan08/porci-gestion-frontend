@@ -1,6 +1,6 @@
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
@@ -15,7 +15,6 @@ import {
 	View,
 } from "react-native";
 import { type Boar, deleteBoar, getBoars } from "../../api/boarsApi";
-import BreedFilter from "../../components/filters/BreedFilter";
 import SearchFilter from "../../components/filters/SearchFilter";
 import ConfirmDeleteModal from "../../components/modals/ConfirmDeleteModal";
 import DeleteAction from "../../components/uiControls/DeleteAction";
@@ -26,6 +25,7 @@ import RowCheckbox from "../../components/uiControls/RowCheckbox";
 import { useDeleteEntity } from "../../hooks/useDeleteEntity";
 import type { RootStackParamList } from "../../navigation/AppNavigator";
 import ScreenContainer from "../../components/uiControls/ScreenContainer";
+import OptionsFilter from "../../components/filters/OptionsFilter";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Boars">;
 
@@ -177,12 +177,7 @@ export default function BoarsScreen() {
 		setDeleteSelectedBoar(null);
 	};
 
-	// Initial load
-	useEffect(() => {
-		loadBoars();
-	}, [loadBoars]);
-
-	//Reload the screen when coming back to it
+	// Load boars on mount and every time the screen regains focus
 	useFocusEffect(
 		useCallback(() => {
 			loadBoars();
@@ -224,11 +219,12 @@ export default function BoarsScreen() {
 					>
 						<View style={styles.filterOverlayView}>
 							<Text style={styles.filterOverlayTitle}>Filtros</Text>
-							{/* Breed Section */}
-							<BreedFilter
+							{/* Breed Filter */}
+							<OptionsFilter
 								options={breedOptions} // [{label, value}]
 								selectedId={filterSelectedBreedId} // number | null
 								onChange={setFilterSelectedBreedId} // (id) => void
+								title="Raza"
 							/>
 							{/* Filter Actions */}
 							<View style={styles.filterBtnRow}>
