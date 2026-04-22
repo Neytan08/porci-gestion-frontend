@@ -1,10 +1,10 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { Text, View } from "react-native";
 
 export default function DetailsMatingEventScreen() {
-  return (
-    <View>
-        <Text> Detalles del evento de apareamiento</Text>
-    </View>
-  );
+	return (
+		<View>
+			<Text> Detalles del evento de apareamiento</Text>
+		</View>
+	);
 }

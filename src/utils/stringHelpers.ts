@@ -12,10 +12,10 @@
  * @returns The sanitized string.
  */
 export const sanitizeString = (input: string): string => {
-  return input
-    .normalize("NFD") // Normalize to decompose diacritics (e.g., á -> a + ́)
-    .replace(/[^a-zA-Z0-9]/g, "") // Remove all non-alphanumeric characters
-    .toLowerCase(); // Convert to lowercase for case-insensitive comparison
+	return input
+		.normalize("NFD") // Normalize to decompose diacritics (e.g., á -> a + ́)
+		.replace(/[^a-zA-Z0-9]/g, "") // Remove all non-alphanumeric characters
+		.toLowerCase(); // Convert to lowercase for case-insensitive comparison
 };
 
 /**
@@ -26,7 +26,7 @@ export const sanitizeString = (input: string): string => {
  * @returns True if the sanitized strings are equal, false otherwise.
  */
 export const areStringsEqual = (str1: string, str2: string): boolean => {
-  return sanitizeString(str1) === sanitizeString(str2);
+	return sanitizeString(str1) === sanitizeString(str2);
 };
 
 /**
@@ -36,13 +36,13 @@ export const areStringsEqual = (str1: string, str2: string): boolean => {
  * @returns True if the string contains special characters, false otherwise.
  */
 export const containsSpecialCharacters = (input: string): boolean => {
-  // Regular expression to match special characters (excluding spaces and alphanumerics)
-  const specialCharacterRegex = /[^a-zA-Z0-9\s]/;
-  return specialCharacterRegex.test(input);
+	// Regular expression to match special characters (excluding spaces and alphanumerics)
+	const specialCharacterRegex = /[^a-zA-Z0-9\s]/;
+	return specialCharacterRegex.test(input);
 };
 
 export default {
-  sanitizeString,
-  areStringsEqual,
-  containsSpecialCharacters,
+	sanitizeString,
+	areStringsEqual,
+	containsSpecialCharacters,
 };
