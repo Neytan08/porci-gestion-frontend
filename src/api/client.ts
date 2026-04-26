@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_URL } from "../config/env";
+import { API_URL } from "../app/config/env";
 
 console.log("API_URL:", API_URL);
 
