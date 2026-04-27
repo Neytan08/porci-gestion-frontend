@@ -1,17 +1,17 @@
-import { NavigationContainer } from "@react-navigation/native";
+﻿import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import AddBoarScreen from "../../screens/boars/AddBoarScreen";
-import BoarsScreen from "../../screens/boars/BoarsScreen";
-import DetailsBoarScreen from "../../screens/boars/DetailsBoarScreen";
-import EditBoarScreen from "../../screens/boars/EditBoarScreen";
-import AddMatingEventScreen from "../../screens/matingEvents/AddMatingEventScreen";
-import DetailsMatingEventScreen from "../../screens/matingEvents/DetailsMatingEventScreen";
-import EditMatingEventScreen from "../../screens/matingEvents/EditMatingEventScreen";
-import MatingEventsScreen from "../../screens/matingEvents/MatingEventsScreen";
-import AddSowScreen from "../../screens/sows/AddSowScreen";
-import DetailsSowScreen from "../../screens/sows/DetailsSowScreen";
-import EditSowScreen from "../../screens/sows/EditSowScreen";
-import SowsScreen from "../../screens/sows/SowsScreen";
+import AddBoarScreen from "../../features/boars/screens/AddBoarScreen";
+import BoarsScreen from "../../features/boars/screens/BoarsScreen";
+import DetailsBoarScreen from "../../features/boars/screens/DetailsBoarScreen";
+import EditBoarScreen from "../../features/boars/screens/EditBoarScreen";
+import AddMatingEventScreen from "../../features/mating-events/screens/AddMatingEventScreen";
+import DetailsMatingEventScreen from "../../features/mating-events/screens/DetailsMatingEventScreen";
+import EditMatingEventScreen from "../../features/mating-events/screens/EditMatingEventScreen";
+import MatingEventsScreen from "../../features/mating-events/screens/MatingEventsScreen";
+import AddSowScreen from "../../features/sows/screens/AddSowScreen";
+import DetailsSowScreen from "../../features/sows/screens/DetailsSowScreen";
+import EditSowScreen from "../../features/sows/screens/EditSowScreen";
+import SowsScreen from "../../features/sows/screens/SowsScreen";
 import HomeScreen from "../screens/HomeScreen";
 import type { RootStackParamList } from "./rootStack.types";
 import { defaultStackScreenOptions, rootStackScreenOptions } from "./screenOptions";
@@ -39,3 +39,4 @@ export default function AppNavigator() {
     </NavigationContainer>
   );
 }
+
