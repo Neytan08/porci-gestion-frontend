@@ -1,22 +1,13 @@
 ﻿import type { RouteProp } from "@react-navigation/native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useState } from "react";
-import {
-	ActivityIndicator,
-	Alert,
-	Modal,
-	Pressable,
-	StyleSheet,
-	Text,
-	TextInput,
-	View,
-} from "react-native";
-import { getSowbyId, type Sow, updateSow } from "../api/sowsApi";
-import { BreedDropdown } from "../../reference-data/breeds/components/BreedDropdown";
-import DatePickerField from "../../../shared/components/selection/datePicker";
-import { StatusDropdown } from "../../reference-data/statuses/components/StatusDropdown";
+import { ActivityIndicator, Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
+import DatePickerField from "../../../shared/components/selection/datePicker";
+import { BreedDropdown } from "../../reference-data/breeds/components/BreedDropdown";
+import { StatusDropdown } from "../../reference-data/statuses/components/StatusDropdown";
+import { getSowbyId, type Sow, updateSow } from "../api/sowsApi";
 
 // This ensures that the `sowId` parameter is correctly typed and available when navigating to this screen.
 type EditRouteProp = RouteProp<RootStackParamList, "EditSow">;

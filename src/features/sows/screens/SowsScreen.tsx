@@ -1,34 +1,23 @@
 ﻿import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useCallback } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Image,
-  Modal,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { deleteSowbyId, type Sow } from "../api/sowsApi";
-import OptionsFilter from "../../../shared/components/filters/optionsFilter";
-import SearchFilter from "../../../shared/components/filters/searchFilter";
-import ConfirmDeleteModal from "../../../shared/components/modals/confirmDeleteModal";
+import { ActivityIndicator, Alert, FlatList, Image, Modal, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
+import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 import DeleteAction from "../../../shared/components/actions/deleteAction";
 import DetailsAction from "../../../shared/components/actions/detailsAction";
 import EditAction from "../../../shared/components/actions/editAction";
 import ListAction from "../../../shared/components/actions/listAction";
-import RowCheckbox from "../../../shared/components/selection/rowCheckBox";
+import OptionsFilter from "../../../shared/components/filters/optionsFilter";
+import SearchFilter from "../../../shared/components/filters/searchFilter";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
+import ConfirmDeleteModal from "../../../shared/components/modals/confirmDeleteModal";
+import RowCheckbox from "../../../shared/components/selection/rowCheckBox";
+import { useDeleteEntity } from "../../../shared/hooks/useDeleteEntity";
+import { useMultiSelection } from "../../../shared/hooks/useMultiSelection";
+import { deleteSowbyId, type Sow } from "../api/sowsApi";
 import { useSowsAPI } from "../hooks/useSowsAPI";
 import { useSowsFiltering } from "../hooks/useSowsFiltering";
 import { useSowsModals } from "../hooks/useSowsModals";
-import { useDeleteEntity } from "../../../shared/hooks/useDeleteEntity";
-import { useMultiSelection } from "../../../shared/hooks/useMultiSelection";
-import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "Sows">;
 

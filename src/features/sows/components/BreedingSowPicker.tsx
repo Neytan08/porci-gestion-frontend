@@ -1,6 +1,6 @@
-﻿import type React from "react";
-import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useEffect, useMemo, useState } from "react";
+﻿import { useFocusEffect } from "@react-navigation/native";
+import type React from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
 	ActivityIndicator,
 	Modal,

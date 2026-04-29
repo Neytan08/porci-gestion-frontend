@@ -1,7 +1,7 @@
 ﻿import { useCallback, useState } from 'react';
-import { getSows, type Sow } from '../api/sowsApi';
 import { useLoadingAction } from '../../../shared/hooks/useLoadingAction';
 import { useRefreshingAction } from '../../../shared/hooks/useRefreshingAction';
+import { getSows, type Sow } from '../api/sowsApi';
 
 interface UseSowsAPIReturn {
   sows: Sow[];
