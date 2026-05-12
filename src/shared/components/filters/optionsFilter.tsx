@@ -1,5 +1,4 @@
-﻿import type React from "react";
-import { memo } from "react";
+﻿import { memo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type FilteringOptionsFormat = { value: number; label: string };
@@ -12,15 +11,15 @@ type FilteringProps = {
 	allLabel?: string;
 };
 
-const OptionsFilter: React.FC<FilteringProps> = ({
+function OptionsFilter({
 	options,
 	selectedId,
 	onChange,
 	title = "Opciones",
 	allLabel = "Todos",
-}) => {
+}: FilteringProps) {
 	return (
-		<View>
+		<View style={styles.container}>
 			<Text style={styles.sectionTitle}>{title}</Text>
 			<Pressable
 				style={styles.optionRow}
@@ -34,8 +33,12 @@ const OptionsFilter: React.FC<FilteringProps> = ({
 			{options.map((opt) => (
 				<Pressable
 					key={opt.value}
-					style={styles.optionRow}
 					onPress={() => onChange(opt.value)}
+					style={({ pressed }) => [
+						styles.optionRow,
+						selectedId === opt.value && styles.optionRowSelected,
+						pressed && { opacity: 0.5 },
+					]}
 				>
 					<Text
 						style={[
@@ -49,9 +52,10 @@ const OptionsFilter: React.FC<FilteringProps> = ({
 			))}
 		</View>
 	);
-};
+}
 
 const styles = StyleSheet.create({
+	container: { paddingHorizontal: 0 },
 	sectionTitle: {
 		fontSize: 17,
 		fontWeight: "700",
@@ -64,7 +68,8 @@ const styles = StyleSheet.create({
 		borderBottomWidth: StyleSheet.hairlineWidth,
 		borderBottomColor: "#eee",
 	},
-	optionText: { fontSize: 16, color: "#333" },
+	optionText: { fontSize: 16, color: "#333", paddingLeft: 10 },
+	optionRowSelected: { backgroundColor: "#e0f2f1" },
 	optionSelected: { color: "#2E7D32", fontWeight: "700" },
 	optionAll: { color: "#555" },
 });

@@ -1,58 +1,37 @@
 ﻿import type { RouteProp } from "@react-navigation/native";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 import EditAction from "../../../shared/components/actions/editAction";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
-import { getSowbyId, type Sow } from "../api/sowsApi";
+import SowInfoTable from "../components/SowInfoTable";
+import SowProfileHeader from "../components/SowProfileHeader";
+import { useSowLoader } from "../hooks/useSowLoader";
 
 // Route prop for receiving sowId from navigation
 type DetailsRouteProp = RouteProp<RootStackParamList, "DetailsSow">;
 // Navigation prop for navigating to EditSow
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "DetailsSow">;
 
+/**
+ * Read-only detail screen for a single Sow.
+ * Reloads data every time the screen gains focus via useFocusEffect.
+ * Delegates data fetching to useSowLoader and rendering to SowProfileHeader and SowInfoTable.
+ */
 export default function DetailsSowScreen() {
-  const [sow, setSowDetails] = useState<Sow | null>(null);
-  const [loading, setLoading] = useState(true);
   const navigation = useNavigation<NavigationProp>();
-  const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const route = useRoute<DetailsRouteProp>();
   const { sowId } = route.params;
 
-  const loadSowsDetails = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getSowbyId(sowId);
-      console.log("Sow details loaded:", data);
-      setSowDetails(data);
-    } catch (err: any) {
-      console.error("Error loading sow:", err);
-      setError("No se pudo cargar la cerda.");
-    } finally {
-      setLoading(false);
-    }
-  }, [sowId]);
+  const { sow, loading, error, loadSow } = useSowLoader(sowId);
 
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadSowsDetails();
-    setRefreshing(false);
-  };
-
-  const handleLongPress = (sowId: number) => {
-    console.log("Ir a edicion de cerda:", sowId);
-    navigation.navigate("EditSow", { sowId });
-  };
-
-  // Fetch latest data whenever screen focuses or ID changes
+  // Reload whenever the screen regains focus (e.g. after navigating back from Edit)
   useFocusEffect(
     useCallback(() => {
-      loadSowsDetails();
-    }, [loadSowsDetails]),
+      loadSow();
+    }, [loadSow]),
   );
 
   if (loading) {
@@ -64,10 +43,10 @@ export default function DetailsSowScreen() {
     );
   }
 
-  if (!sow) {
+  if (error || !sow) {
     return (
       <View style={styles.center}>
-        <Text style={{ color: "red" }}>No se pudo cargar la cerda.</Text>
+        <Text style={{ color: "red" }}>{error ?? "No se pudo cargar la cerda."}</Text>
       </View>
     );
   }
@@ -82,56 +61,37 @@ export default function DetailsSowScreen() {
     { label: "Cantidad de partos", value: sow.farrowing_number ?? "-" },
     { label: "Descripción", value: sow.description?.trim() || "-" },
   ];
-  console.log("Datos para mostrar en tabla:", sow.breeds?.breed_name);
+
   return (
     <ScreenContainer>
       <View style={styles.scrollContent}>
-        {/* Image and Name */}
+        {/* Profile header — read-only in Details (no onEditTag) */}
         <View style={styles.imageAndNameContainer}>
-          <View style={styles.imagePlaceholder} />
-          <Text style={styles.name}>{sow.sow_tag_number}</Text>
+          <SowProfileHeader tagNumber={sow.sow_tag_number} />
         </View>
-        {/* Data Table */}
+
+        {/* Data table with edit shortcut in the header */}
         <Pressable
           style={({ pressed }) => [
             styles.editDetails,
             pressed && { backgroundColor: "#e0e0e0", opacity: 0.6 },
           ]}
-          // onLongPress={() => handleLongPress(sow.sow_id)}
         >
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              backgroundColor: "#2E7D32",
-              padding: 8,
-            }}
-          >
+          <View style={styles.detailsView}>
             <Text style={{ fontWeight: "bold", fontSize: 16, color: "#fff" }}>
               Detalles de la cerda
             </Text>
             <EditAction
-              // style={styles.editAction}
-              onPress={() => {
-                console.log("Ir a edicion de cerda:", sow);
-                navigation.navigate("EditSow", { sowId });
-              }}
+              onPress={() => navigation.navigate("EditSow", { sowId })}
               size={24}
               color="#fff"
             />
           </View>
-          <View style={styles.table}>
-            {datos.map((item) => (
-              <View key={item.label} style={styles.row}>
-                <Text style={styles.label}>{item.label}</Text>
-                <Text style={styles.value}>{item.value}</Text>
-              </View>
-            ))}
-          </View>
+          <SowInfoTable datos={datos} />
         </Pressable>
       </View>
-      {/* Botones al final */}
+
+      {/* Navigation buttons */}
       <View style={styles.bottomButtons}>
         {["Historial", "Vacunas", "Eventos", "Editar"].map((title) => (
           <TouchableOpacity key={title} style={styles.button}>
@@ -144,10 +104,6 @@ export default function DetailsSowScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
   center: {
     flex: 1,
     justifyContent: "center",
@@ -156,45 +112,22 @@ const styles = StyleSheet.create({
   scrollContent: {
     flex: 1,
     padding: 5,
-    // paddingBottom: 100, // espacio para los botones
   },
   imageAndNameContainer: {
     alignItems: "center",
     margin: 20,
   },
-  imagePlaceholder: {
-    width: 120,
-    height: 120,
-    backgroundColor: "#ccc",
-    borderRadius: 10,
-    marginBottom: 10,
+  editDetails: {
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    borderRadius: 5,
   },
-  name: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  table: {
-    // borderTopWidth: 3,
-    // borderColor: "#ddd",
-    backgroundColor: "#fff",
-  },
-  row: {
+  detailsView:{
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 5,
-    borderBottomWidth: 1,
-    borderColor: "#eee",
-    marginHorizontal: 5,
-  },
-  label: {
-    fontWeight: "500",
-    color: "#555",
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  value: {
-    fontSize: 15,
-    color: "#333",
+    alignItems: "center",
+    backgroundColor: "#2E7D32",
+    padding: 8,
   },
   bottomButtons: {
     position: "absolute",
@@ -217,16 +150,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontWeight: "bold",
     color: "#007AFF",
-  },
-  editDetails: {
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    borderRadius: 5,
-  },
-  editAction: {
-    position: "absolute",
-    // top: 10,
-    right: 3,
   },
 });
 

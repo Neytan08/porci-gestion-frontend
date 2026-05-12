@@ -23,6 +23,11 @@ interface UseSowsModalsReturn {
   selectedActionsVisible: boolean;
   openSelectedActionsModal: () => void;
   closeSelectedActionsModal: () => void;
+
+  // Edit Sow Tag modal
+  editSowTagVisible: boolean;
+  openEditSowTag: () => void;
+  closeEditSowTag: () => void;
 }
 
 /**
@@ -39,7 +44,8 @@ export function useSowsModals(): UseSowsModalsReturn {
     sow_tag_number: string;
   } | null>(null);
   const [selectedActionsVisible, setSelectedActionsVisible] = useState(false);
-
+  const [editSowTagVisible, setEditSowTagVisible] = useState(false);
+  
   // Filter sheet modal
   const openFilterSheet = useCallback(() => {
     setFilterSheetVisible(true);
@@ -80,6 +86,15 @@ export function useSowsModals(): UseSowsModalsReturn {
     setSelectedActionsVisible(false);
   }, []);
 
+  // Edit Sow Tag modal
+  const openEditSowTag = useCallback(() => {
+    setEditSowTagVisible(true);
+  }, []);
+
+  const closeEditSowTag = useCallback(() => {
+    setEditSowTagVisible(false);
+  }, []);
+
   return {
     filterSheetVisible,
     openFilterSheet,
@@ -95,6 +110,9 @@ export function useSowsModals(): UseSowsModalsReturn {
     selectedActionsVisible,
     openSelectedActionsModal,
     closeSelectedActionsModal,
+    editSowTagVisible,
+    openEditSowTag,
+    closeEditSowTag,
   };
 }
 

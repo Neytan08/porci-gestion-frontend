@@ -11,12 +11,9 @@ import {
 	TextInput,
 	View,
 } from "react-native";
+import { areStringsEqual, containsSpecialCharacters } from "../../../../shared/utils/stringHelpers";
 import type { Breed } from "../api/breedApi";
 import { createBreed, getBreed } from "../api/breedApi";
-import {
-	areStringsEqual,
-	containsSpecialCharacters,
-} from "../../../../shared/utils/stringHelpers";
 
 /**
  * BreedDropdown is a reusable component that allows users to select a breed from a list or add a new breed.
