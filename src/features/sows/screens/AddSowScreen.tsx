@@ -1,14 +1,16 @@
 ﻿import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity } from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput } from "react-native";
 import { getApiErrorMessage, hasApiStatus } from "../../../shared/api/apiError";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import DatePickerField from "../../../shared/components/selection/datePicker";
-import { localDateToUtcMidnight , utcIsoStringFromLocalDate } from "../../../shared/utils/dateHelpers";
+import { localDateToUtcMidnight } from "../../../shared/utils/dateHelpers";
 import { BreedDropdown } from "../../reference-data/breeds/components/BreedDropdown";
 import { StatusDropdown } from "../../reference-data/statuses/components/StatusDropdown";
-import { createSow, type Sow } from "../api/sowsApi";
+import { checkSowTagNumberExists, createSow } from "../api/sowsApi";
 import SowFormFields, { type SowFormFieldValues  }  from "../components/SowFormFields";
+import { buildSowApiPayload } from "../utils/sowTransforms";
+import { validateSowRequiredFields, validateSowTagNumberFormat } from "../utils/sowValidation";
 
 /**
  * Screen for creating a new sow record.
@@ -30,34 +32,27 @@ export default function AddSow() {
     description: "",
   });
 
-  // TODO: Add server-side validation for duplicate sow_tag_number before submission
   const handleSubmit = async () => {
+    if (!validateSowRequiredFields({ tagNumber, statusId, breedId, mammaryGlands: fields.mammary_glands })) return;
+    if (!validateSowTagNumberFormat(tagNumber)) return;
+
     try {
-      const finalData = {
-        sow_tag_number: tagNumber,
-        entry_date: utcIsoStringFromLocalDate(entryDate),
-        status_id: Number(statusId),
-        breed_id: Number(breedId),
-      };
-      // Validate required fields
-      if (
-        !finalData.sow_tag_number ||
-        !finalData.entry_date ||
-        !finalData.breed_id ||
-        !fields.mammary_glands ||
-        !finalData.status_id
-      ) {
-        Alert.alert("Error", "Por favor, complete todos los campos obligatorios.");
+      const isDuplicate = await checkSowTagNumberExists(tagNumber);
+      if (isDuplicate) {
+        Alert.alert("Error", "Ya existe un registro con este identificador. Por favor, use un identificador único.");
         return;
       }
-      const payload: Partial<Sow> = {
-        ...finalData,
-        weight: fields.weight ? parseFloat(fields.weight) : null,
-        length: fields.length ? parseFloat(fields.length) : null,
-        mammary_glands: fields.mammary_glands ? parseFloat(fields.mammary_glands) : 0,
-        farrowing_number: fields.farrowing_number ? parseFloat(fields.farrowing_number) : 0,
+      const payload = buildSowApiPayload({
+        sow_tag_number: tagNumber,
+        entry_date: entryDate.toISOString(),
+        status_id: Number(statusId),
+        breed_id: Number(breedId),
+        weight: fields.weight,
+        length: fields.length,
+        mammary_glands: fields.mammary_glands,
+        farrowing_number: fields.farrowing_number,
         description: fields.description || null,
-      };
+      });
       await createSow(payload);
       Alert.alert("Éxito", "Cerda agregada correctamente.");
       navigation.goBack();
@@ -75,7 +70,7 @@ export default function AddSow() {
       <ScrollView style={styles.mainContainer}>
         <Text style={styles.title}>Agregar Nueva Cerda</Text>
 
-        <Text style={styles.label}>Indentificador Animal *</Text>
+        <Text style={styles.label}>Identificador Animal *</Text>
         <TextInput
           style={styles.input}
           value={tagNumber}
@@ -102,9 +97,12 @@ export default function AddSow() {
           onChange={(key, value) => setFields((prev) => ({ ...prev, [key]: value }))}
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+        <Pressable
+          style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
+          onPress={handleSubmit}
+        >
           <Text style={styles.buttonText}>Guardar</Text>
-        </TouchableOpacity>
+        </Pressable>
       </ScrollView>
     </ScreenContainer>
   );
@@ -142,4 +140,3 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-

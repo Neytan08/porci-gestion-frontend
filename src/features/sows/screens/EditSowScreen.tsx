@@ -9,22 +9,29 @@ import DatePickerField from "../../../shared/components/selection/datePicker";
 import { BreedDropdown } from "../../reference-data/breeds/components/BreedDropdown";
 import { StatusDropdown } from "../../reference-data/statuses/components/StatusDropdown";
 import { updateSow } from "../api/sowsApi";
-import SowFormFields, { EDIT_SOW_FIELDS, type SowFormFieldValues } from "../components/SowFormFields";
+import EditSowTagModal from "../components/EditSowTagModal";
+import SowFormFields, { type SowFormFieldValues } from "../components/SowFormFields";
 import SowProfileHeader from "../components/SowProfileHeader";
-import SowTagNumberBanner from "../components/SowTagNumberBanner";
 import { useSowLoader } from "../hooks/useSowLoader";
 import { useSowsModals } from "../hooks/useSowsModals";
+import { buildSowApiPayload } from "../utils/sowTransforms";
+import { validateSowRequiredFields, validateSowTagNumberFormat } from "../utils/sowValidation";
 
 type EditRouteProp = RouteProp<RootStackParamList, "EditSow">;
+
+// Keys from SowFormFieldValues that represent numeric inputs
+const NUMERIC_SOW_KEYS: ReadonlyArray<keyof SowFormFieldValues> = [
+  'mammary_glands', 'weight', 'length', 'farrowing_number',
+] as const;
 
 /**
  * Edit screen for an existing sow.
  * Loads sow data via useSowLoader, delegates field rendering to SowFormFields,
- * tag-number editing to SowTagNumberBanner, and uses getApiErrorMessage for
+ * tag-number editing to EditSowTagModal, and uses getApiErrorMessage for
  * consistent error feedback across the app.
  */
 export default function EditSow() {
-	
+
 	const route = useRoute<EditRouteProp>();
 	const { sowId } = route.params;
 	const navigation = useNavigation();
@@ -37,29 +44,18 @@ export default function EditSow() {
 		loadSow();
 	}, [loadSow]);
 
-	// Validate required fields before submitting
-	const validateSow = (): boolean => {
-		if (!sow?.sow_tag_number || !sow.entry_date || !sow.breed_id || !sow.mammary_glands || !sow.status_id) {
-			Alert.alert("Error", "Por favor, complete todos los campos obligatorios.");
-			return false;
-		}
-		return true;
-	};
-
-	// Normalise numeric fields that arrive as numbers but may be edited as strings
-	const formatForAPI = (s: typeof sow & {}) => ({
-		...s,
-		weight: s.weight ? parseFloat(s.weight.toString()) : null,
-		length: s.length ? parseFloat(s.length.toString()) : null,
-		mammary_glands: s.mammary_glands ? parseFloat(s.mammary_glands.toString()) : 0,
-		farrowing_number: s.farrowing_number ? parseFloat(s.farrowing_number.toString()) : 0,
-	});
-
 	const handleUpdateSow = async () => {
 		if (!sow) return;
 		try {
-			if (!validateSow()) return;
-			await updateSow(sowId, formatForAPI(sow));
+			if (!validateSowRequiredFields({
+				tagNumber: sow.sow_tag_number,
+				statusId: sow.status_id,
+				breedId: sow.breed_id,
+				mammaryGlands: sow.mammary_glands,
+				entryDate: sow.entry_date,
+			})) return;
+			if (!validateSowTagNumberFormat(sow.sow_tag_number)) return;
+			await updateSow(sowId, buildSowApiPayload(sow));
 			Alert.alert("Actualización completada", "La cerda fue actualizada correctamente.");
 			navigation.goBack();
 		} catch (error) {
@@ -80,7 +76,7 @@ export default function EditSow() {
 	const handleFormChange = useCallback(
 		(key: keyof SowFormFieldValues, value: string) => {
 			if (!sow) return;
-			const numericKeys = ['mammary_glands', 'weight', 'length', 'farrowing_number'];
+			const numericKeys = NUMERIC_SOW_KEYS;
 			setSow({ ...sow, [key]: numericKeys.includes(key) ? (Number(value) || 0) : value });
 		},
 		[sow, setSow],
@@ -115,11 +111,10 @@ export default function EditSow() {
 					onEditTag={openEditSowTag}
 				/>
 
-				{/* Inline modal for editing the tag number */}
-				<SowTagNumberBanner
+				{/* Modal for editing the sow tag number */}
+				<EditSowTagModal
 					visible={editSowTagVisible}
-					value={sow.sow_tag_number}
-					onChange={(text) => setSow({ ...sow, sow_tag_number: text })}
+					initialValue={sow.sow_tag_number}
 					onConfirm={(trimmed) => {
 						setSow({ ...sow, sow_tag_number: trimmed });
 						closeEditSowTag();
@@ -136,7 +131,7 @@ export default function EditSow() {
 				<BreedDropdown
 					value={sow.breed_id || null}
 					onChange={(newBreedId: number, label: string) => {
-						setSow({ ...sow, breed_id: newBreedId, breeds: { breed_id: newBreedId, breed_name: label } });
+						setSow({ ...sow, breed_id: newBreedId, breed: { breed_id: newBreedId, breed_name: label } });
 					}}
 				/>
 				<DatePickerField
@@ -149,7 +144,6 @@ export default function EditSow() {
 				<SowFormFields
 					values={formValues}
 					onChange={handleFormChange}
-					fields={EDIT_SOW_FIELDS}
 				/>
 
 				<Pressable

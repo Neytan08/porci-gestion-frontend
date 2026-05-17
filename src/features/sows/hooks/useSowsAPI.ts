@@ -1,4 +1,5 @@
 ﻿import { useCallback, useState } from 'react';
+import { getApiErrorMessage } from '../../../shared/api/apiError';
 import { useLoadingAction } from '../../../shared/hooks/useLoadingAction';
 import { useRefreshingAction } from '../../../shared/hooks/useRefreshingAction';
 import { getSows, type Sow } from '../api/sowsApi';
@@ -26,15 +27,8 @@ export function useSowsAPI(): UseSowsAPIReturn {
       const data = await getSows();
       setSows(data);
     } catch (err: unknown) {
-      const error = err as { code?: string; isAxiosError?: boolean };
-      if (error?.code === 'ECONNABORTED') {
-        setError('La solicitud tardÃ³ demasiado. Intente nuevamente.');
-      } else if (error?.isAxiosError) {
-        setError('Error de red o servidor. Verifique su conexiÃ³n.');
-      } else {
-        setError('No se pudo cargar la lista de cerdas.');
-      }
-      console.error('Error loading sows:', err);
+      // Delegate to shared error handler for consistent messages across the app
+      setError(getApiErrorMessage(err, { fallback: 'No se pudo cargar la lista de cerdas.' }));
     }
   }, []);
 

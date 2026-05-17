@@ -53,7 +53,7 @@ export default function DetailsSowScreen() {
 
   const datos = [
     { label: "Estado", value: sow.status?.status_name ?? "Sin estado" },
-    { label: "Raza", value: sow.breeds?.breed_name?.trim() ?? "Sin raza" },
+    { label: "Raza", value: sow.breed?.breed_name?.trim() ?? "Sin raza" },
     { label: "Fecha de entrada", value: sow.entry_date.split("T")[0] },
     { label: "Cantidad de pezones", value: sow.mammary_glands ?? "-" },
     { label: "Peso(cm)", value: sow.weight ?? "-" },
@@ -87,7 +87,7 @@ export default function DetailsSowScreen() {
               color="#fff"
             />
           </View>
-          <SowInfoTable datos={datos} />
+          <SowInfoTable rows={datos} />
         </Pressable>
       </View>
 

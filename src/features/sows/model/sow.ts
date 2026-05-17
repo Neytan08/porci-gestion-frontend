@@ -13,5 +13,5 @@ export type Sow = {
 	removal_date?: string | null;
 	removal_reason?: string | null;
 	status: { status_id: number; status_name: string };
-	breeds: { breed_id: number; breed_name: string } | null;
+	breed: { breed_id: number; breed_name: string } | null;
 };

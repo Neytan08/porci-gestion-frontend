@@ -8,7 +8,7 @@ export type SowInfoRow = {
 
 type SowInfoTableProps = {
   /** Array of label-value pairs to render as a read-only data table. */
-  datos: SowInfoRow[];
+  rows: SowInfoRow[];
 };
 
 /**
@@ -17,10 +17,10 @@ type SowInfoTableProps = {
  *
  * Used by: DetailsSowScreen.
  */
-function SowInfoTable({ datos }: SowInfoTableProps) {
+function SowInfoTable({ rows }: SowInfoTableProps) {
   return (
     <View style={styles.table}>
-      {datos.map((item) => (
+      {rows.map((item) => (
         <View key={item.label} style={styles.row}>
           <Text style={styles.label}>{item.label}</Text>
           <Text style={styles.value}>{item.value}</Text>

@@ -19,8 +19,9 @@ export type SowFormFieldConfig = {
 };
 
 /**
- * Default field configuration used by AddSowScreen.
- * Exported so consuming screens can extend or override as needed.
+ * Shared field configuration used by AddSowScreen and EditSowScreen.
+ * Placeholders are intentionally kept for edit mode — they guide the user
+ * when a numeric field has been cleared before re-entering a value.
  */
 export const DEFAULT_SOW_FIELDS: SowFormFieldConfig[] = [
   {
@@ -52,19 +53,6 @@ export const DEFAULT_SOW_FIELDS: SowFormFieldConfig[] = [
     label: 'Descripción',
     multiline: true,
   },
-];
-
-/**
- * Field configuration used by EditSowScreen (preserves the original labels).
- * Exported alongside DEFAULT_SOW_FIELDS to keep both screens' label definitions
- * co-located with the shared component.
- */
-export const EDIT_SOW_FIELDS: SowFormFieldConfig[] = [
-  { key: 'mammary_glands', label: 'Cantidad de pezones *', keyboardType: 'numeric' },
-  { key: 'weight', label: 'Peso(cm)', keyboardType: 'numeric' },
-  { key: 'length', label: 'Largo(cm)', keyboardType: 'numeric' },
-  { key: 'farrowing_number', label: 'Cantidad de partos', keyboardType: 'numeric' },
-  { key: 'description', label: 'Descripción', multiline: true },
 ];
 
 type SowFormFieldsProps = {

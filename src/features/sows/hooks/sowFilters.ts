@@ -10,8 +10,9 @@ export function filterSowsByBreed(
   breedId: number | null
 ): Sow[] {
   if (breedId === null) return sows;
+  // Prefer the nested relation; fall back to the root field for flat API responses
   return sows.filter((sow) => {
-    const id = sow.breeds?.breed_id ?? (sow as unknown as { breed_id?: number }).breed_id;
+    const id = sow.breed?.breed_id ?? sow.breed_id;
     return id === breedId;
   });
 }
@@ -21,8 +22,9 @@ export function filterSowsByStatus(
   statusId: number | null
 ): Sow[] {
   if (statusId === null) return sows;
+  // Prefer the nested relation; fall back to the root field for flat API responses
   return sows.filter((sow) => {
-    const id = sow.status?.status_id ?? (sow as unknown as { status_id?: number }).status_id;
+    const id = sow.status?.status_id ?? sow.status_id;
     return id === statusId;
   });
 }
@@ -58,4 +60,3 @@ export function applyAllFilters(
   result = filterSowsBySearch(result, criteria.searchQuery);
   return result;
 }
-

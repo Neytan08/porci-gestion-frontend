@@ -1,39 +1,45 @@
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
-type SowTagNumberBannerProps = {
+type EditSowTagModalProps = {
   visible: boolean;
-  /** Current value of the tag number input (controlled). */
-  value: string;
-  /** Called on every keystroke to update the controlled value in the parent. */
-  onChange: (text: string) => void;
+  /** Value used to initialize the input when the modal opens. The parent state is not mutated until the user confirms. */
+  initialValue: string;
   /**
    * Called when the user confirms the edit.
    * Receives the trimmed, validated value — the parent should apply it to its state.
    */
   onConfirm: (trimmedValue: string) => void;
-  /** Called when the user dismisses without saving. */
+  /** Called when the user dismisses without saving. Parent state is left unchanged. */
   onCancel: () => void;
 };
 
 /**
- * Inline modal for editing the sow tag number (identifier) in EditSowScreen.
+ * Modal for editing the sow tag number (identifier) in EditSowScreen.
+ * Manages its own internal draft state so that cancelling never mutates the parent.
  * Validates that the value is not empty before confirming.
- * Extracted from EditSowScreen to isolate the modal JSX and validation logic.
  *
  * Used by: EditSowScreen.
  */
-function SowTagNumberBanner({
+function EditSowTagModal({
   visible,
-  value,
-  onChange,
+  initialValue,
   onConfirm,
   onCancel,
-}: SowTagNumberBannerProps) {
+}: EditSowTagModalProps) {
+  const [draft, setDraft] = useState(initialValue);
+
+  // Reset draft to the current saved value every time the modal opens
+  useEffect(() => {
+    if (visible) {
+      setDraft(initialValue);
+    }
+  }, [visible, initialValue]);
+
   const handleConfirm = () => {
-    const trimmed = value.trim();
+    const trimmed = draft.trim();
     if (!trimmed) {
-      Alert.alert('Error', 'El nombre no puede estar vacío.');
+      Alert.alert('Error', 'El identificador no puede estar vacío.');
       return;
     }
     onConfirm(trimmed);
@@ -42,12 +48,13 @@ function SowTagNumberBanner({
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
-        <View style={styles.banner}>
-          <Text style={styles.title}>Ingrese el nombre</Text>
+        <View style={styles.panel}>
+          <Text style={styles.title}>Editar identificador</Text>
           <TextInput
             style={styles.input}
-            value={value}
-            onChangeText={onChange}
+            value={draft}
+            onChangeText={setDraft}
+            accessibilityLabel="Editar identificador de la cerda"
           />
           <View style={styles.buttons}>
             <Pressable
@@ -76,7 +83,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.4)',
   },
-  banner: {
+  panel: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 20,
@@ -112,4 +119,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(SowTagNumberBanner);
+export default memo(EditSowTagModal);

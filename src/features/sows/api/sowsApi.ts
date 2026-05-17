@@ -27,3 +27,12 @@ export const deleteSowbyId = async (id: number) => {
 	const res = await client.delete(`/api/breedingsows/${id}`);
 	return res.data;
 };
+
+/**
+ * Checks whether a sow with the given tag number already exists.
+ * Used for client-side duplicate prevention before calling createSow.
+ */
+export const checkSowTagNumberExists = async (sowTagNumber: string): Promise<boolean> => {
+	const res = await client.get(`/api/breedingsows/check-sow-tag-number-exists/${sowTagNumber}`);
+	return res.data;
+};
