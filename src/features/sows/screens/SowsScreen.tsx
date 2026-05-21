@@ -73,13 +73,19 @@ export default function SowsScreen() {
   } = useSowsModals();
 
   // Navigation and delete actions
-  const { handleAdd, handleDetails, handleDeletePress, handleSowAction, confirmDelete, deleting } =
-    useSowActions({
-      navigation,
-      loadSows,
-      modals: { openDeleteModal, closeActionsModal, closeDeleteModal },
-      deleteSelectedSow,
-    });
+  const { 
+    handleAdd, 
+    handleDetails, 
+    handleDeletePress, 
+    handleSowAction, 
+    confirmDelete, 
+    deleting 
+  } = useSowActions({
+    navigation,
+    loadSows,
+    modals: { openDeleteModal, closeActionsModal, closeDeleteModal },
+    deleteSelectedSow,
+  });
 
   // Reload the list every time this screen gains focus
   useFocusEffect(

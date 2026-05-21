@@ -2,7 +2,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback } from 'react';
 import type { RootStackParamList } from '../../../app/navigation/rootStack.types';
 import { useDeleteEntity } from '../../../shared/hooks/useDeleteEntity';
-import { deleteSowbyId, type Sow } from '../api/sowsApi';
+import { deleteSowById, type Sow } from '../api/sowsApi';
 
 type SowsNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Sows'>;
 
@@ -56,7 +56,7 @@ export function useSowActions({
   const { openDeleteModal, closeActionsModal, closeDeleteModal } = modals;
 
   const { deleting, deleteById } = useDeleteEntity<number>({
-    deleteFn: deleteSowbyId,
+    deleteFn: deleteSowById,
     onDeleted: loadSows,
     messages: {
       successTitle: 'Eliminación completada',

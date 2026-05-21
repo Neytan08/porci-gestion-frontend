@@ -1,8 +1,8 @@
-import type { Dispatch, SetStateAction } from 'react';
-import { useCallback, useState } from 'react';
-import { getApiErrorMessage } from '../../../shared/api/apiError';
-import { useLoadingAction } from '../../../shared/hooks/useLoadingAction';
-import { getSowbyId, type Sow } from '../api/sowsApi';
+import type { Dispatch, SetStateAction } from "react";
+import { useCallback, useState } from "react";
+import { getApiErrorMessage } from "../../../shared/api/apiError";
+import { useLoadingAction } from "../../../shared/hooks/useLoadingAction";
+import { getSowById, type Sow } from "../api/sowsApi";
 
 interface UseSowLoaderReturn {
   sow: Sow | null;
@@ -28,12 +28,10 @@ export function useSowLoader(sowId: number): UseSowLoaderReturn {
   const fetchSow = useCallback(async () => {
     try {
       setError(null);
-      const data = await getSowbyId(sowId);
+      const data = await getSowById(sowId);
       setSow(data);
     } catch (err) {
-      setError(
-        getApiErrorMessage(err, { fallback: 'No se pudo cargar la cerda.' }),
-      );
+      setError(getApiErrorMessage(err, { fallback: "No se pudo cargar la cerda." }));
     }
   }, [sowId]);
 

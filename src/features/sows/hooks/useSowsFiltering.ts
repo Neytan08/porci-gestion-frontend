@@ -1,11 +1,11 @@
 ﻿import { useCallback, useMemo, useState } from 'react';
 import type { Sow } from '../api/sowsApi';
-import { applyAllFilters, type FilterCriteria } from './sowFilters';
+import { applyAllFilters, type FilterCriteria } from '../utils/sowFilters';
 import {
   extractBreedOptions,
   extractStatusOptions,
   type OptionItem,
-} from './sowOptionsBuilder';
+} from '../utils/sowOptionsBuilder';
 
 export interface SowFilterCriteria extends FilterCriteria {}
 

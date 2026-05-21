@@ -8,7 +8,7 @@ export const getSows = async (): Promise<Sow[]> => {
 	return res.data;
 };
 
-export const getSowbyId = async (id: number): Promise<Sow> => {
+export const getSowById = async (id: number): Promise<Sow> => {
 	const res = await client.get(`/api/breedingsows/${id}`);
 	return res.data;
 };
@@ -23,7 +23,7 @@ export const updateSow = async (id: number, payload: Partial<Sow>) => {
 	return res.data;
 };
 
-export const deleteSowbyId = async (id: number) => {
+export const deleteSowById = async (id: number) => {
 	const res = await client.delete(`/api/breedingsows/${id}`);
 	return res.data;
 };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Alert } from "react-native";
 
 import type { UseDeleteEntityParams } from "../types";
@@ -14,7 +14,7 @@ export function useDeleteEntity<TId = number>({
 }: UseDeleteEntityParams<TId>) {
 	const [deleting, setDeleting] = useState(false);
 
-	const deleteById = async (id: TId) => {
+	const deleteById = useCallback(async (id: TId) => {
 		try {
 			setDeleting(true);
 			await deleteFn(id);
@@ -37,7 +37,7 @@ export function useDeleteEntity<TId = number>({
 		} finally {
 			setDeleting(false);
 		}
-	};
+	}, [deleteFn, messages, onDeleted]);
 
 	return { deleting, deleteById } as const;
 }

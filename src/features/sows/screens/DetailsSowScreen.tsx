@@ -1,7 +1,7 @@
 ﻿import type { RouteProp } from "@react-navigation/native";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 import EditAction from "../../../shared/components/actions/editAction";
@@ -27,6 +27,23 @@ export default function DetailsSowScreen() {
 
   const { sow, loading, error, loadSow } = useSowLoader(sowId);
 
+  const datos = useMemo(
+    () =>
+      sow
+        ? [
+            { label: "Estado", value: sow.status?.status_name ?? "Sin estado" },
+            { label: "Raza", value: sow.breed?.breed_name?.trim() ?? "Sin raza" },
+            { label: "Fecha de entrada", value: sow.entry_date.split("T")[0] },
+            { label: "Cantidad de pezones", value: sow.mammary_glands ?? "-" },
+            { label: "Peso(kg)", value: sow.weight ?? "-" },
+            { label: "Largo(cm)", value: sow.length ?? "-" },
+            { label: "Cantidad de partos", value: sow.farrowing_number ?? "-" },
+            { label: "Descripción", value: sow.description?.trim() || "-" },
+          ]
+        : [],
+    [sow],
+  );
+
   // Reload whenever the screen regains focus (e.g. after navigating back from Edit)
   useFocusEffect(
     useCallback(() => {
@@ -50,17 +67,6 @@ export default function DetailsSowScreen() {
       </View>
     );
   }
-
-  const datos = [
-    { label: "Estado", value: sow.status?.status_name ?? "Sin estado" },
-    { label: "Raza", value: sow.breed?.breed_name?.trim() ?? "Sin raza" },
-    { label: "Fecha de entrada", value: sow.entry_date.split("T")[0] },
-    { label: "Cantidad de pezones", value: sow.mammary_glands ?? "-" },
-    { label: "Peso(cm)", value: sow.weight ?? "-" },
-    { label: "Largo(cm)", value: sow.length ?? "-" },
-    { label: "Cantidad de partos", value: sow.farrowing_number ?? "-" },
-    { label: "Descripción", value: sow.description?.trim() || "-" },
-  ];
 
   return (
     <ScreenContainer>
