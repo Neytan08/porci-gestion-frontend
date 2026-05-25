@@ -1,5 +1,4 @@
-﻿import type React from "react";
-import { memo, useState } from "react";
+﻿import { memo, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 export type PregnancyResult = "Pendiente" | "Positivo" | "Negativo";
@@ -12,12 +11,12 @@ type Props = {
 	placeholder?: string;
 };
 
-const PregnancyResultPicker: React.FC<Props> = ({
+const PregnancyResultPicker = ({
 	label = "Resultado Inseminación",
 	value,
 	onChange,
 	placeholder = "Seleccionar resultado",
-}) => {
+}: Props) => {
 	const [visible, setVisible] = useState(false);
 
 	return (

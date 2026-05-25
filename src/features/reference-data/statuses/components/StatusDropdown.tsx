@@ -1,5 +1,4 @@
-﻿import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	FlatList,
@@ -26,10 +25,10 @@ type StatusDropdownProps = {
 	onChange: (value: number, label: string) => void;
 };
 
-export const StatusDropdown: React.FC<StatusDropdownProps> = ({
+export const StatusDropdown = ({
 	value,
 	onChange,
-}) => {
+}: StatusDropdownProps) => {
 	const [statusOptions, setStatusOptions] = useState<
 		{ label: string; value: number }[]
 	>([]);

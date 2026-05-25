@@ -1,5 +1,4 @@
-﻿import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+﻿import { useCallback, useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
@@ -27,10 +26,10 @@ type BreedDropdownProps = {
 	onChange: (value: number, label: string) => void;
 };
 
-export const BreedDropdown: React.FC<BreedDropdownProps> = ({
+export const BreedDropdown = ({
 	value,
 	onChange,
-}) => {
+}: BreedDropdownProps) => {
 	const [loading, setLoading] = useState(true);
 	const [breedsOptions, setBreeds] = useState<
 		{ label: string; value: number }[]

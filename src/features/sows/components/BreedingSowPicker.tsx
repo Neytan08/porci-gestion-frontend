@@ -1,15 +1,6 @@
 ﻿import { useFocusEffect } from "@react-navigation/native";
-import type React from "react";
 import { useCallback, useMemo, useState } from "react";
-import {
-	ActivityIndicator,
-	Modal,
-	Pressable,
-	StyleSheet,
-	Text,
-	TextInput,
-	View,
-} from "react-native";
+import {ActivityIndicator, Modal, Pressable, StyleSheet, Text, TextInput, View} from "react-native";
 import { getSows, type Sow } from "../api/sowsApi";
 
 type BreedingSowPickerProps = {
@@ -19,12 +10,12 @@ type BreedingSowPickerProps = {
 	placeholder?: string;
 };
 
-export const BreedingSowPicker: React.FC<BreedingSowPickerProps> = ({
+export const BreedingSowPicker = ({
 	label = "Identificador Cerda",
 	value,
 	onChange,
 	placeholder = "Seleccionar cerda...",
-}) => {
+}: BreedingSowPickerProps) => {
 	const [sowOptions, setSowOptions] = useState<
 		{ label: string; value: number }[]
 	>([]);
@@ -32,7 +23,7 @@ export const BreedingSowPicker: React.FC<BreedingSowPickerProps> = ({
 	const [visible, setVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState<string>("");
 
-	// Fetch status from API
+	// Fetch sows from API
 	const fetchSows = useCallback(async () => {
 		try {
 			const data = await getSows();
