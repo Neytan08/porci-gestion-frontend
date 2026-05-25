@@ -5,8 +5,7 @@ import type { Sow } from '../model/sow';
  * Mirrors Partial<Sow> but relaxes the numeric fields to also accept strings,
  * covering both the Add flow (form state is string) and the Edit flow (state is number).
  */
-export type SowPayloadInput = Omit<
-  Partial<Sow>,
+export type SowPayloadInput = Omit<Partial<Sow>,
   'weight' | 'length' | 'mammary_glands' | 'farrowing_number'
 > & {
   weight?: number | string | null;

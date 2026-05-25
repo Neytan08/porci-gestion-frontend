@@ -15,7 +15,7 @@ interface UseSowsAPIReturn {
 
 /**
  * Hook for managing Sows API data fetching and state
- * Handles loading, refreshing, and error states
+ * Handles loading, refreshing, and error states using shared infrastructure.
  */
 export function useSowsAPI(): UseSowsAPIReturn {
   const [sows, setSows] = useState<Sow[]>([]);

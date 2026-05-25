@@ -20,9 +20,9 @@ export interface OptionItem {
  * Extracts unique breed options from a sow collection.
  *
  * @param sows Full sow collection from API.
- * @returns Sorted unique breed options ready for dropdown rendering.
+ * @returns Unique breed options ready for dropdown rendering.
  */
-export function extractBreedOptions(sows: Sow[]): OptionItem[] {
+export function extractSowBreedOptions(sows: Sow[]): OptionItem[] {
   // Accumulate unique breeds using a Map to prevent duplicate ids.
   const map = new Map<number, string>();
   sows.forEach((sow) => {
@@ -41,9 +41,9 @@ export function extractBreedOptions(sows: Sow[]): OptionItem[] {
  * Extracts unique status options from a sow collection.
  *
  * @param sows Full sow collection from API.
- * @returns Sorted unique status options ready for dropdown rendering.
+ * @returns Unique status options ready for dropdown rendering.
  */
-export function extractStatusOptions(sows: Sow[]): OptionItem[] {
+export function extractSowStatusOptions(sows: Sow[]): OptionItem[] {
   // Accumulate unique statuses using a Map to prevent duplicate ids.
   const map = new Map<number, string>();
   sows.forEach((sow) => {
@@ -66,7 +66,7 @@ export function extractStatusOptions(sows: Sow[]): OptionItem[] {
  */
 export function extractAllOptions(sows: Sow[]) {
   return {
-    breeds: extractBreedOptions(sows),
-    statuses: extractStatusOptions(sows),
+    breeds: extractSowBreedOptions(sows),
+    statuses: extractSowStatusOptions(sows),
   };
 }

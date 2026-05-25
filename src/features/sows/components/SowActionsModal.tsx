@@ -25,8 +25,6 @@ type SowActionsModalProps = {
  * Contextual actions modal for a single sow row in SowsScreen.
  * Renders Edit, Details, and Delete action buttons for the selected sow.
  * The parent is responsible for closing the modal before performing navigation.
- *
- * Used by: SowsScreen.
  */
 function SowActionsModal({
   visible,

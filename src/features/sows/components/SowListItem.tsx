@@ -22,10 +22,7 @@ type SowListItemProps = {
 
 /**
  * List row component for a single Sow entry in SowsScreen.
- * Displays identifier, status, entry date, and farrowing count.
  * Supports multi-selection, detail navigation, and contextual actions.
- *
- * Used by: SowsScreen (FlatList renderItem).
  */
 function SowListItem({
   item,

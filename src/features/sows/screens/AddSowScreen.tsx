@@ -33,9 +33,8 @@ export default function AddSow() {
   });
 
   const handleSubmit = async () => {
-    if (!validateSowRequiredFields({ tagNumber, statusId, breedId, mammaryGlands: fields.mammary_glands })) return;
+    if (!validateSowRequiredFields({ tagNumber, statusId, breedId, mammaryGlands: fields.mammary_glands, entryDate: entryDate.toISOString() })) return;
     if (!validateSowTagNumberFormat(tagNumber)) return;
-
     try {
       const isDuplicate = await checkSowTagNumberExists(tagNumber);
       if (isDuplicate) {

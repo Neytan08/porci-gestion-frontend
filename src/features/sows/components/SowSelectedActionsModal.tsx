@@ -14,9 +14,6 @@ type SowSelectedActionsModalProps = {
 /**
  * Bottom-sheet modal for batch operations on a selection of sows in SowsScreen.
  * Currently exposes PDF export, retire, and clear-selection actions.
- * PDF export and retire are placeholders (not yet implemented).
- *
- * Used by: SowsScreen.
  */
 function SowSelectedActionsModal({
   visible,

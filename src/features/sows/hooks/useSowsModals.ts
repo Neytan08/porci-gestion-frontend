@@ -25,8 +25,6 @@ type SowsModalsState = {
 
 /**
  * All allowed state transitions for Sows modals.
- * - Each action has a known shape
- * - Payloads are required only when needed
  */
 type SowsModalsAction =
     { type: 'OPEN_FILTER_SHEET' }

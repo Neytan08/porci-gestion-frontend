@@ -76,9 +76,10 @@ export interface FilterCriteria {
 
 /**
  * Applies all filters in a stable sequence: breed -> status -> search.
+ * 
  * @param sows Full input collection.
  * @param criteria Active filter values.
- * @returns Final filtered collection.
+ * @returns Filtered list of boars matching all active criteria.
  */
 export function applyAllFilters(sows: Sow[], criteria: FilterCriteria): Sow[] {
   let result = sows;

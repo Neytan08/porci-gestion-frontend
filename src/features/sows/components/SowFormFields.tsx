@@ -1,7 +1,7 @@
-import { memo } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { memo } from "react";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 
-/** String-typed form values shared by AddSowScreen and EditSowScreen. */
+/** String-typed form values */
 export type SowFormFieldValues = {
   mammary_glands: string;
   weight: string;
@@ -13,44 +13,43 @@ export type SowFormFieldValues = {
 export type SowFormFieldConfig = {
   key: keyof SowFormFieldValues;
   label: string;
-  keyboardType?: 'numeric' | 'default';
+  keyboardType?: "numeric" | "default";
   multiline?: boolean;
   placeholder?: string;
 };
 
 /**
- * Shared field configuration used by AddSowScreen and EditSowScreen.
  * Placeholders are intentionally kept for edit mode — they guide the user
  * when a numeric field has been cleared before re-entering a value.
  */
 export const DEFAULT_SOW_FIELDS: SowFormFieldConfig[] = [
   {
-    key: 'mammary_glands',
-    label: 'Número de Glándulas Mamarias *',
-    keyboardType: 'numeric',
-    placeholder: 'Ej: 14',
+    key: "mammary_glands",
+    label: "Número de Glándulas Mamarias *",
+    keyboardType: "numeric",
+    placeholder: "Ej: 14",
   },
   {
-    key: 'weight',
-    label: 'Peso (kg)',
-    keyboardType: 'numeric',
-    placeholder: 'Ej: 120.5',
+    key: "weight",
+    label: "Peso (kg)",
+    keyboardType: "numeric",
+    placeholder: "Ej: 120.5",
   },
   {
-    key: 'length',
-    label: 'Largo (cm)',
-    keyboardType: 'numeric',
-    placeholder: 'Ej: 150.0',
+    key: "length",
+    label: "Largo (cm)",
+    keyboardType: "numeric",
+    placeholder: "Ej: 150.0",
   },
   {
-    key: 'farrowing_number',
-    label: 'Número de Partos',
-    keyboardType: 'numeric',
-    placeholder: '0',
+    key: "farrowing_number",
+    label: "Número de Partos",
+    keyboardType: "numeric",
+    placeholder: "0",
   },
   {
-    key: 'description',
-    label: 'Descripción',
+    key: "description",
+    label: "Descripción",
     multiline: true,
   },
 ];
@@ -66,19 +65,10 @@ type SowFormFieldsProps = {
 
 /**
  * Reusable form fields for the common sow numeric and text inputs.
- * Eliminates field duplication between AddSowScreen and EditSowScreen.
  * Accepts a field config array so each screen can supply its own labels
  * while sharing the rendering and style logic.
- *
- * Usage:
- *   AddSowScreen — passes DEFAULT_SOW_FIELDS (implicit) and string form state.
- *   EditSowScreen — passes EDIT_SOW_FIELDS and sow values converted to strings.
  */
-function SowFormFields({
-  values,
-  onChange,
-  fields = DEFAULT_SOW_FIELDS,
-}: SowFormFieldsProps) {
+function SowFormFields({ values, onChange, fields = DEFAULT_SOW_FIELDS }: SowFormFieldsProps) {
   return (
     <>
       {fields.map((field) => (
@@ -86,13 +76,10 @@ function SowFormFields({
           <Text style={styles.label}>{field.label}</Text>
           <TextInput
             accessibilityLabel={`Editar ${field.label}`}
-            style={[
-              styles.input,
-              field.multiline && { height: 100, textAlignVertical: 'top' },
-            ]}
+            style={[styles.input, field.multiline && { height: 100, textAlignVertical: "top" }]}
             value={values[field.key]}
             onChangeText={(text) => onChange(field.key, text)}
-            keyboardType={field.keyboardType === 'numeric' ? 'numeric' : 'default'}
+            keyboardType={field.keyboardType === "numeric" ? "numeric" : "default"}
             multiline={field.multiline}
             numberOfLines={field.multiline ? 4 : 1}
             placeholder={field.placeholder}
@@ -109,7 +96,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: '#37474F',
+    borderColor: "#37474F",
     borderRadius: 10,
     padding: 10,
     marginBottom: 15,

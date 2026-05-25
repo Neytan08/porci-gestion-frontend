@@ -1,6 +1,7 @@
 ﻿import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useMemo, useState } from "react";
 import {ActivityIndicator, Modal, Pressable, StyleSheet, Text, TextInput, View} from "react-native";
+import { useLoadingAction } from "../../../shared/hooks/useLoadingAction";
 import { getSows, type Sow } from "../api/sowsApi";
 
 type BreedingSowPickerProps = {
@@ -19,10 +20,10 @@ export const BreedingSowPicker = ({
 	const [sowOptions, setSowOptions] = useState<
 		{ label: string; value: number }[]
 	>([]);
-	const [loading, setLoading] = useState(true);
+	// const [loading, setLoading] = useState(true);
 	const [visible, setVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState<string>("");
-
+	
 	// Fetch sows from API
 	const fetchSows = useCallback(async () => {
 		try {
@@ -34,15 +35,14 @@ export const BreedingSowPicker = ({
 			setSowOptions(mapped);
 		} catch (error) {
 			console.error("Error cargando cerdas:", error);
-		} finally {
-			setLoading(false);
 		}
 	}, []);
+	const { loading, runWithLoading: loadSows } = useLoadingAction(fetchSows, { initialLoading: true });
 
 	useFocusEffect(
 		useCallback(() => {
-			fetchSows();
-		}, [fetchSows]),
+			loadSows();
+		}, [loadSows]),
 	);
 
 	// Filtered list

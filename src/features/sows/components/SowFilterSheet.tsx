@@ -23,8 +23,6 @@ type SowFilterSheetProps = {
  * Bottom-sheet modal for filtering sows by status and breed in SowsScreen.
  * Filters are applied reactively; "Aplicar" simply closes the sheet.
  * Receives all filter options and change callbacks from useSowsFiltering.
- *
- * Used by: SowsScreen.
  */
 function SowFilterSheet({
   visible,

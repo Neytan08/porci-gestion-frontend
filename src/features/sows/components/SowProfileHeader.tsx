@@ -6,8 +6,6 @@ type SowProfileHeaderProps = {
   tagNumber: string;
   /**
    * If provided, the tag number becomes tappable and this callback is invoked.
-   * Used in EditSowScreen to open the tag number editing modal.
-   * Omit in DetailsSowScreen for a read-only display.
    */
   onEditTag?: () => void;
 };
@@ -16,8 +14,6 @@ type SowProfileHeaderProps = {
  * Profile header component shared by EditSowScreen and DetailsSowScreen.
  * Displays an image placeholder and the sow's tag number.
  * When onEditTag is provided, the tag number is rendered as a Pressable.
- *
- * Used by: EditSowScreen, DetailsSowScreen.
  */
 function SowProfileHeader({ tagNumber, onEditTag }: SowProfileHeaderProps) {
   return (

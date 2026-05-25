@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+/** Single row of data in the sow info table. */
 export type SowInfoRow = {
   label: string;
   value: string | number;
@@ -12,16 +13,14 @@ type SowInfoTableProps = {
 };
 
 /**
- * Read-only data table for displaying sow attributes in DetailsSowScreen.
- * Renders each row as a label-value pair with a bottom border separator.
- *
- * Used by: DetailsSowScreen.
+ * Read-only data table for displaying sow attributes.
+ * Each row alternates background color for readability.
  */
 function SowInfoTable({ rows }: SowInfoTableProps) {
   return (
     <View style={styles.table}>
-      {rows.map((item) => (
-        <View key={item.label} style={styles.row}>
+      {rows.map((item, index) => (
+        <View key={item.label} style={[styles.row, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}>
           <Text style={styles.label}>{item.label}</Text>
           <Text style={styles.value}>{item.value}</Text>
         </View>
@@ -41,6 +40,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#eee',
     marginHorizontal: 5,
+  },
+  rowEven: {
+    backgroundColor: '#f9f9f9',
+  },
+  rowOdd: {
+    backgroundColor: '#fff',
   },
   label: {
     fontWeight: '500',

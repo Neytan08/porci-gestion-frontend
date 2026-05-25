@@ -1,5 +1,5 @@
-import { memo, useEffect, useState } from 'react';
-import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { memo, useEffect, useState } from "react";
+import { Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 type EditSowTagModalProps = {
   visible: boolean;
@@ -16,20 +16,12 @@ type EditSowTagModalProps = {
 
 /**
  * Modal for editing the sow tag number (identifier) in EditSowScreen.
- * Manages its own internal draft state so that cancelling never mutates the parent.
- * Validates that the value is not empty before confirming.
- *
- * Used by: EditSowScreen.
+ * Maintains an internal draft state so the original value is preserved until confirmed.
  */
-function EditSowTagModal({
-  visible,
-  initialValue,
-  onConfirm,
-  onCancel,
-}: EditSowTagModalProps) {
+function EditSowTagModal({ visible, initialValue, onConfirm, onCancel }: EditSowTagModalProps) {
   const [draft, setDraft] = useState(initialValue);
 
-  // Reset draft to the current saved value every time the modal opens
+  // Reset draft to the current saved value every time the modal opens.
   useEffect(() => {
     if (visible) {
       setDraft(initialValue);
@@ -39,7 +31,7 @@ function EditSowTagModal({
   const handleConfirm = () => {
     const trimmed = draft.trim();
     if (!trimmed) {
-      Alert.alert('Error', 'El identificador no puede estar vacío.');
+      Alert.alert("Error", "El identificador no puede estar vacío.");
       return;
     }
     onConfirm(trimmed);
@@ -79,43 +71,43 @@ function EditSowTagModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.4)",
   },
   panel: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 20,
-    width: '90%',
+    width: "90%",
   },
   title: {
-    fontWeight: '700',
+    fontWeight: "700",
     fontSize: 18,
     marginBottom: 10,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: "#ccc",
     borderRadius: 8,
     padding: 10,
     marginBottom: 16,
   },
   buttons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   button: {
     flex: 1,
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: '#2E7D32',
-    alignItems: 'center',
+    backgroundColor: "#2E7D32",
+    alignItems: "center",
     marginHorizontal: 4,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
   },
 });
 
