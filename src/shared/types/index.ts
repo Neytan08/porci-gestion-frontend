@@ -18,7 +18,7 @@ export type DeleteEntityMessages = {
 };
 
 export interface UseDeleteEntityParams<TId> {
-	deleteFn: (id: TId) => Promise<any>;
+	deleteFn: (id: TId) => Promise<unknown>;
 	onDeleted?: () => Promise<void> | void;
 	messages?: DeleteEntityMessages;
 }

@@ -27,3 +27,12 @@ export const deleteBoar = async (id: number) => {
 	const response = await client.delete(`/api/boars/${id}`);
 	return response.data;
 };
+
+/**
+ * Checks whether a boar with the given tag number already exists (case-insensitive).
+ * Used for client-side duplicate prevention before calling createBoar or updateBoar.
+ */
+export const checkBoarTagNumberExists = async (boarTagNumber: string): Promise<boolean> => {
+	const response = await client.get(`/api/boars/check-boar-tag-number-exists/${boarTagNumber}`);
+	return response.data;
+};

@@ -1,16 +1,8 @@
-﻿import { useFocusEffect } from "@react-navigation/native";
-import type React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-	ActivityIndicator,
-	Modal,
-	Pressable,
-	StyleSheet,
-	Text,
-	TextInput,
-	View,
-} from "react-native";
-import { type Boar, getBoars } from "../api/boarsApi";
+﻿import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useMemo, useState } from 'react';
+import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useLoadingAction } from '../../../shared/hooks/useLoadingAction';
+import { type Boar, getBoars } from '../api/boarsApi';
 
 type BoarPickerProps = {
 	label?: string;
@@ -19,20 +11,19 @@ type BoarPickerProps = {
 	placeholder?: string;
 };
 
-export const BoarPicker: React.FC<BoarPickerProps> = ({
+export const BoarPicker = ({
 	label = "Identificador Verraco",
 	value,
 	onChange,
 	placeholder = "Seleccionar verraco...",
-}) => {
+}: BoarPickerProps) => {
 	const [boarOptions, setBoarOptions] = useState<
 		{ label: string; value: number }[]
 	>([]);
-	const [loading, setLoading] = useState(true);
 	const [visible, setVisible] = useState(false);
-	const [searchQuery, setSearchQuery] = useState<string>("");
+	const [searchQuery, setSearchQuery] = useState<string>('');
 
-	// Fetch status from API
+	// Fetch boars from API
 	const fetchBoars = useCallback(async () => {
 		try {
 			const data = await getBoars();
@@ -43,14 +34,15 @@ export const BoarPicker: React.FC<BoarPickerProps> = ({
 			setBoarOptions(mapped);
 		} catch (error) {
 			console.error("Error cargando verracos:", error);
-		} finally {
-			setLoading(false);
 		}
 	}, []);
+
+	const { loading, runWithLoading: loadBoars } = useLoadingAction(fetchBoars, { initialLoading: true });
+
 	useFocusEffect(
 		useCallback(() => {
-			fetchBoars();
-		}, [fetchBoars]),
+			loadBoars();
+		}, [loadBoars]),
 	);
 
 	// Filtered list
