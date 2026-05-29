@@ -31,7 +31,8 @@ function SowInfoTable({ rows }: SowInfoTableProps) {
 
 const styles = StyleSheet.create({
   table: {
-    backgroundColor: '#fff',
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
   },
   row: {
     flexDirection: 'row',
@@ -39,7 +40,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderBottomWidth: 1,
     borderColor: '#eee',
-    marginHorizontal: 5,
+    // marginHorizontal: 5,
   },
   rowEven: {
     backgroundColor: '#f9f9f9',
@@ -48,7 +49,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   label: {
-    fontWeight: '500',
+    fontWeight: '700',
     color: '#555',
     fontSize: 16,
     marginBottom: 5,

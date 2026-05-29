@@ -9,6 +9,7 @@ import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import SowInfoTable from "../components/SowInfoTable";
 import SowProfileHeader from "../components/SowProfileHeader";
 import { useSowLoader } from "../hooks/useSowLoader";
+import { buildSowRows } from "../utils/sowDetailsRows";
 
 // Route prop for receiving sowId from navigation
 type DetailsRouteProp = RouteProp<RootStackParamList, "DetailsSow">;
@@ -27,22 +28,7 @@ export default function DetailsSowScreen() {
 
   const { sow, loading, error, loadSow } = useSowLoader(sowId);
 
-  const datos = useMemo(
-    () =>
-      sow
-        ? [
-            { label: "Estado", value: sow.status?.status_name ?? "Sin estado" },
-            { label: "Raza", value: sow.breed?.breed_name?.trim() ?? "Sin raza" },
-            { label: "Fecha de entrada", value: sow.entry_date.split("T")[0] },
-            { label: "Cantidad de pezones", value: sow.mammary_glands ?? "-" },
-            { label: "Peso(kg)", value: sow.weight ?? "-" },
-            { label: "Largo(cm)", value: sow.length ?? "-" },
-            { label: "Cantidad de partos", value: sow.farrowing_number ?? "-" },
-            { label: "Descripción", value: sow.description?.trim() || "-" },
-          ]
-        : [],
-    [sow],
-  );
+  const datos = useMemo(() => (sow ? buildSowRows(sow) : []), [sow]);
 
   // Reload whenever the screen regains focus (e.g. after navigating back from Edit)
   useFocusEffect(

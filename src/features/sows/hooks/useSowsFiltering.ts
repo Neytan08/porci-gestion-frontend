@@ -2,8 +2,8 @@
 import type { Sow } from '../api/sowsApi';
 import { applyAllFilters, type FilterCriteria } from '../utils/sowFilters';
 import {
-  extractBreedOptions,
-  extractStatusOptions,
+  extractSowBreedOptions,
+  extractSowStatusOptions,
   type OptionItem,
 } from '../utils/sowOptionsBuilder';
 
@@ -34,11 +34,11 @@ export function useSowsFiltering(sows: Sow[]): UseSowsFilteringReturn {
   });
 
   const breedOptions = useMemo<FilterOption[]>(() => {
-    return extractBreedOptions(sows);
+    return extractSowBreedOptions(sows);
   }, [sows]);
 
   const statusOptions = useMemo<FilterOption[]>(() => {
-    return extractStatusOptions(sows);
+    return extractSowStatusOptions(sows);
   }, [sows]);
 
   const filteredSows = useMemo(() => {
