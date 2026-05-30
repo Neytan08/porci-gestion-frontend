@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from "react";
+﻿import { useState } from "react";
 import {
 	ActivityIndicator,
 	FlatList,
@@ -8,7 +8,7 @@ import {
 	Text,
 	View,
 } from "react-native";
-import { getStatus, type Status } from "../api/statusApi";
+import { useStatusOptions } from "../hooks/useStatusOptions";
 
 /**
  * StatusDropdown is a reusable component that allows users to select a status
@@ -29,32 +29,9 @@ export const StatusDropdown = ({
 	value,
 	onChange,
 }: StatusDropdownProps) => {
-	const [statusOptions, setStatusOptions] = useState<
-		{ label: string; value: number }[]
-	>([]);
-	const [loading, setLoading] = useState(true);
+	const { options: statusOptions, loading } = useStatusOptions();
 	const [statusModalVisible, setStatusModalVisible] = useState(false);
 
-	const fetchStatus = useCallback(async () => {
-		try {
-			const data = await getStatus();
-			const mapped = data.map((item: Status) => ({
-				label: item.status_name,
-				value: item.status_id,
-			}));
-			setStatusOptions(mapped);
-		} catch (error) {
-			console.error("Error cargando estados:", error);
-		} finally {
-			setLoading(false);
-		}
-	}, []);
-
-	useEffect(() => {
-		fetchStatus();
-	}, [fetchStatus]);
-
-	// Show loading indicator while fetching data
 	if (loading) {
 		return (
 			<View style={styles.loadingContainer}>
@@ -64,7 +41,6 @@ export const StatusDropdown = ({
 		);
 	}
 
-	// Handle status selection: find the label for the selected value and notify the parent
 	const handleSelection = (itemValue: number) => {
 		const selected = statusOptions.find((s) => s.value === itemValue);
 		onChange(itemValue, selected?.label ?? "");
@@ -160,7 +136,7 @@ const styles = StyleSheet.create({
 		backgroundColor: "#fff",
 		margin: 30,
 		borderRadius: 10,
-		paddingBlockEnd: 10,
+		paddingBottom: 10,
 	},
 	title: {
 		fontSize: 18,

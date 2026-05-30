@@ -45,7 +45,6 @@ export const updatePregnancyResults = async (
 	pregnancy_result: "Pendiente" | "Positivo" | "Negativo",
 ) => {
 	const idList = Array.isArray(mating_ids) ? mating_ids : [mating_ids];
-	console.log("Updating pregnancy results for IDs:", idList, "to:", pregnancy_result);
 	const response = await client.put(`/api/matingevents/update/pregnancy-result`, {
 		mating_ids: idList,
 		pregnancy_result,

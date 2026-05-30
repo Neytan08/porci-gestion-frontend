@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
+import AddAction from "../../../shared/components/actions/addAction";
 import SearchFilter from "../../../shared/components/filters/searchFilter";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import ConfirmDeleteModal from "../../../shared/components/modals/confirmDeleteModal";
@@ -193,23 +194,18 @@ export default function SowsScreen() {
             <Text style={styles.pinnedSowButtonText}>{`(${selectedSows.size})   `}</Text>
           </Pressable>
         ) : (
-          <Pressable
-            style={({ pressed }) => [
-              styles.pinnedSowButton,
-              pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-            ]}
+          <AddAction
+            label="Agregar"
+            size={35}
+            containerStyle={styles.pinnedSowButton}
+            textStyle={styles.pinnedSowButtonText}
+            imageStyle={styles.icon}
+            pressedStyle={{ opacity: 0.3 }}
             onPress={() => {
               handleAdd();
               clearAllFilters();
             }}
-          >
-            <Image
-              source={require("../../../../assets/icons/add.png")}
-              style={styles.icon}
-              resizeMode="contain"
-            />
-            <Text style={styles.pinnedSowButtonText}> Agregar</Text>
-          </Pressable>
+          />
         )}
 
         {/* Delete confirmation */}
@@ -241,7 +237,7 @@ export default function SowsScreen() {
 }
 
 const styles = StyleSheet.create({
-  icon: { width: 42, height: 42 },
+  icon: { width: 35, height: 35 },
   mainContainer: {
     flex: 1,
     backgroundColor: "#F9FAFB",
@@ -278,7 +274,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
     right: 20,
-    backgroundColor: "#FFA000",
+    backgroundColor: "#2E7D32",
     width: 140,
     height: 50,
     borderRadius: 30,
