@@ -1,6 +1,6 @@
 ﻿import type { FC } from "react";
 import { useState } from "react";
-import type { ImageStyle, StyleProp } from "react-native";
+import type { ImageStyle, StyleProp, ViewStyle } from "react-native";
 import {
     Image,
     Modal,
@@ -9,9 +9,8 @@ import {
     Text,
     View,
 } from "react-native";
-
 import { updatePregnancyResults } from "../api/matingEventApi";
-
+import ActionIconButton from "../../../shared/components/actions/actionIconButton";
 /**
  * UpdatePregnancyResultModal is a reusable component that allows users to update 
  * the pregnancy result of one or more mating events.
@@ -28,6 +27,9 @@ type UpdatePregnancyResultModalProps = {
     selectedIds: number | number[];
     size?: number;
     label?: string;
+    color?: string;
+    hitSlop?: number;
+    containerStyle?: StyleProp<ViewStyle>;
     imageStyle?: StyleProp<ImageStyle>;
 }
 
@@ -35,7 +37,9 @@ const UpdatePregnancyResultModal: FC<UpdatePregnancyResultModalProps> = ({
     onConfirm,
     selectedIds,
     size = 42,
-    label,
+    color = "#616161",
+    hitSlop = 10,
+    containerStyle,
     imageStyle,
 }) => {
     const [updateModalVisible, setUpdateModalVisible] = useState(false);
@@ -59,15 +63,16 @@ const UpdatePregnancyResultModal: FC<UpdatePregnancyResultModalProps> = ({
 
     return (
         <>
-            <Pressable style={styles.updateBtn} onPress={() => setUpdateModalVisible(true)}>
-                <Image
-                    source={require("../../../../assets/icons/change-status.png")}
-                    style={[{ width: size, height: size }, imageStyle]}
-                    resizeMode="contain"
-                />
-                {label && <Text style={styles.updateBtnLabel}>{label}</Text>}
-            </Pressable>
-
+            <ActionIconButton
+                onPress={() => setUpdateModalVisible(true)}
+                iconSource={require("../../../../assets/icons/change-status.png")}
+                size={size}
+                tintColor={color}
+                containerStyle={containerStyle}
+                imageStyle={imageStyle}
+                hitSlop={hitSlop}
+                accessibilityLabel="Actualizar resultado de embarazo"
+            />
             <Modal visible={updateModalVisible} transparent animationType="fade">
                 <View style={styles.modalOverlay}>
                     <Pressable style={styles.overlay} onPress={() => [ setUpdateModalVisible(false), setSelectedResult(null) ]} />
@@ -117,8 +122,6 @@ const UpdatePregnancyResultModal: FC<UpdatePregnancyResultModalProps> = ({
 
 const styles = StyleSheet.create({
     updateBtn: {
-        flex: 1,
-		// paddingVertical: 10,
 		alignItems: "center",
 	},
     updateBtnLabel: {

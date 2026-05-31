@@ -10,6 +10,8 @@ type MatingEventListItemProps = {
 	isActive: boolean;
 	/** Whether this event is part of the current multi-selection set. */
 	selected: boolean;
+	/** Navigate to the detail screen for this event. */
+	onPress: () => void;
 	/** Toggle this event in the multi-selection set. */
 	onToggleSelect: () => void;
 	/** Open the contextual actions modal for this event. */
@@ -24,6 +26,7 @@ function MatingEventListItem({
 	item,
 	isActive,
 	selected,
+	onPress,
 	onToggleSelect,
 	onOpenActions,
 }: MatingEventListItemProps) {
@@ -33,6 +36,7 @@ function MatingEventListItem({
 				styles.pressableRow,
 				pressed && { backgroundColor: "#e0e0e0", opacity: 0.6 },
 			]}
+			onPress={onPress}
 		>
 			<View style={[styles.contentRow, isActive && styles.contentRowActive]}>
 				<RowCheckbox

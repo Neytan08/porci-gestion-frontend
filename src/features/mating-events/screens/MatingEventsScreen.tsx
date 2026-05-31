@@ -53,12 +53,13 @@ export default function MatingEventsScreen() {
     closeSelectedActionsModal,
   } = useMatingEventsModals();
 
-  const { handleAdd, handleMatingAction, confirmDelete, deleting } = useMatingEventActions({
-    navigation,
-    loadAll,
-    modals: { openDeleteModal, closeActionsModal, closeDeleteModal },
-    eventToDelete,
-  });
+  const { handleAdd, handleDetails, handleMatingAction, confirmDelete, deleting } =
+    useMatingEventActions({
+      navigation,
+      loadAll,
+      modals: { openDeleteModal, closeActionsModal, closeDeleteModal },
+      eventToDelete,
+    });
 
   const headers = useMemo(
     () => [
@@ -117,6 +118,7 @@ export default function MatingEventsScreen() {
                 item={item}
                 isActive={actionForEvent?.mating_id === item.mating_id && actionsModalVisible}
                 selected={selectedEvents.has(item.mating_id)}
+                onPress={() => handleDetails(item.mating_id)}
                 onToggleSelect={() => toggleSelect(item.mating_id)}
                 onOpenActions={() => openActionsModal(item)}
               />
@@ -131,6 +133,8 @@ export default function MatingEventsScreen() {
           visible={actionsModalVisible}
           event={actionForEvent}
           onUpdateConfirm={loadAll}
+          onEdit={() => actionForEvent && handleMatingAction("edit", actionForEvent)}
+          onDetails={() => actionForEvent && handleMatingAction("moreDetails", actionForEvent)}
           onDelete={() => actionForEvent && handleMatingAction("delete", actionForEvent)}
           onClose={closeActionsModal}
         />

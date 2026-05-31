@@ -25,6 +25,7 @@ interface UseMatingEventActionsParams {
 
 interface UseMatingEventActionsReturn {
 	handleAdd: () => void;
+	handleDetails: (eventId: number) => void;
 	handleMatingAction: (
 		action: "edit" | "delete" | "moreDetails",
 		event: MatingEvent,
@@ -59,8 +60,15 @@ export function useMatingEventActions({
 	});
 
 	const handleAdd = useCallback(() => {
-		navigation.navigate("AddMatingEvent" as never);
+		navigation.navigate("AddMatingEvent");
 	}, [navigation]);
+
+	const handleDetails = useCallback(
+		(eventId: number) => {
+			navigation.navigate("DetailsMatingEvent", { eventId });
+		},
+		[navigation],
+	);
 
 	const handleMatingAction = useCallback(
 		(action: "edit" | "delete" | "moreDetails", event: MatingEvent) => {
@@ -82,5 +90,11 @@ export function useMatingEventActions({
 		await deleteById(eventToDelete.mating_id);
 	}, [eventToDelete, closeDeleteModal, deleteById]);
 
-	return { handleAdd, handleMatingAction, confirmDelete, deleting };
+	return {
+		handleAdd,
+		handleDetails,
+		handleMatingAction,
+		confirmDelete,
+		deleting,
+	};
 }

@@ -1,6 +1,8 @@
 import { memo } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import DeleteAction from "../../../shared/components/actions/deleteAction";
+import DetailsAction from "../../../shared/components/actions/detailsAction";
+import EditAction from "../../../shared/components/actions/editAction";
 import type { MatingEvent } from "../api/matingEventApi";
 import UpdatePregnancyResultModal from "./UpdatePregnancyResultModal";
 
@@ -8,6 +10,8 @@ type MatingEventActionsModalProps = {
 	visible: boolean;
 	event: MatingEvent | null;
 	onUpdateConfirm: () => void;
+	onEdit: () => void;
+	onDetails: () => void;
 	onDelete: () => void;
 	onClose: () => void;
 };
@@ -20,6 +24,8 @@ function MatingEventActionsModal({
 	visible,
 	event,
 	onUpdateConfirm,
+	onEdit,
+	onDetails,
 	onDelete,
 	onClose,
 }: MatingEventActionsModalProps) {
@@ -35,6 +41,8 @@ function MatingEventActionsModal({
 				<View style={styles.panel}>
 					<Text style={styles.title}>Acciones Disponibles</Text>
 					<View style={styles.actions}>
+						<EditAction onPress={onEdit} />
+						<DetailsAction onPress={onDetails} />
 						<UpdatePregnancyResultModal
 							onConfirm={() => {
 								onUpdateConfirm();

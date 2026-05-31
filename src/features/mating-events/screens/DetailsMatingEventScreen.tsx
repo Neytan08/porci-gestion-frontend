@@ -51,7 +51,7 @@ export default function DetailsMatingEventScreen() {
 		},
 		{ label: "Tipo", value: event.insemination_type ?? "-" },
 		{ label: "Resultado", value: event.pregnancy_result ?? "-" },
-		{ label: "Notas", value: event.notes ?? "-" },
+		{ label: "Notas", value: event.notes ?? "-" }, 
 	];
 
 	return (
@@ -71,6 +71,7 @@ export default function DetailsMatingEventScreen() {
 
 const styles = StyleSheet.create({
 	container: {
+		flex: 1,
 		padding: 20,
 		backgroundColor: "#F9FAFB",
 	},
