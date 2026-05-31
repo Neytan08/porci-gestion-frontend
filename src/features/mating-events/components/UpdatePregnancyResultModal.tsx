@@ -2,7 +2,6 @@
 import { useState } from "react";
 import type { ImageStyle, StyleProp, ViewStyle } from "react-native";
 import {
-    Image,
     Modal,
     Pressable,
     StyleSheet,
@@ -41,6 +40,7 @@ const UpdatePregnancyResultModal: FC<UpdatePregnancyResultModalProps> = ({
     hitSlop = 10,
     containerStyle,
     imageStyle,
+    label,
 }) => {
     const [updateModalVisible, setUpdateModalVisible] = useState(false);
     const [selectedResult, setSelectedResult] = useState<
@@ -71,6 +71,7 @@ const UpdatePregnancyResultModal: FC<UpdatePregnancyResultModalProps> = ({
                 containerStyle={containerStyle}
                 imageStyle={imageStyle}
                 hitSlop={hitSlop}
+                label={label}
                 accessibilityLabel="Actualizar resultado de embarazo"
             />
             <Modal visible={updateModalVisible} transparent animationType="fade">

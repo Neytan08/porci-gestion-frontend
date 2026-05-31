@@ -43,7 +43,8 @@ function MatingEventSelectedActionsModal({
 							}}
 							selectedIds={selectedIds}
 							size={42}
-							label="Actualizar estado"
+							color="#000000"
+							label="Cambiar estado"
 						/>
 						<Pressable
 							style={styles.btn}

@@ -4,7 +4,7 @@ import type {
     StyleProp,
     ViewStyle,
 } from "react-native";
-import { Image, Pressable, StyleSheet } from "react-native";
+import { Image, Pressable, StyleSheet, Text } from "react-native";
 
 type ActionIconButtonProps = {
     onPress: () => void;
@@ -12,6 +12,7 @@ type ActionIconButtonProps = {
     accessibilityLabel: string;
     size?: number;
     tintColor?: string;
+    label?: string;
     containerStyle?: StyleProp<ViewStyle>;
     imageStyle?: StyleProp<ImageStyle>;
     hitSlop?: number;
@@ -32,6 +33,7 @@ export default function ActionIconButton({
     imageStyle,
     hitSlop = 10,
     pressedStyle,
+    label,
 }: ActionIconButtonProps) {
     return (
         <Pressable
@@ -51,6 +53,7 @@ export default function ActionIconButton({
                 style={[{ width: size, height: size, tintColor }, imageStyle]}
                 resizeMode="contain"
             />
+            {label && <Text style={styles.label}>{label}</Text>}
         </Pressable>
     );
 }
@@ -62,5 +65,9 @@ const styles = StyleSheet.create({
     },
     pressed: {
         opacity: 0.8,
+    },
+    label: {
+        fontWeight: "700", 
+        textAlign: "center",
     },
 });
