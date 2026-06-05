@@ -2,9 +2,8 @@
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useCallback, useMemo } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
-import EditAction from "../../../shared/components/actions/editAction";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import SowInfoTable from "../components/SowInfoTable";
 import SowProfileHeader from "../components/SowProfileHeader";
@@ -61,26 +60,10 @@ export default function DetailsSowScreen() {
         <View style={styles.imageAndNameContainer}>
           <SowProfileHeader tagNumber={sow.sow_tag_number} />
         </View>
-
-        {/* Data table with edit shortcut in the header */}
-        <Pressable
-          style={({ pressed }) => [
-            styles.editDetails,
-            pressed && { backgroundColor: "#e0e0e0", opacity: 0.6 },
-          ]}
-        >
-          <View style={styles.detailsView}>
-            <Text style={{ fontWeight: "bold", fontSize: 16, color: "#fff" }}>
-              Detalles de la cerda
-            </Text>
-            <EditAction
-              onPress={() => navigation.navigate("EditSow", { sowId })}
-              size={24}
-              color="#fff"
-            />
-          </View>
-          <SowInfoTable rows={datos} />
-        </Pressable>
+        <SowInfoTable
+          rows={datos}
+          onEdit={() => navigation.navigate("EditSow", { sowId })}
+        />
       </View>
 
       {/* Navigation buttons */}
@@ -107,25 +90,9 @@ const styles = StyleSheet.create({
   },
   imageAndNameContainer: {
     alignItems: "center",
-    margin: 20,
-  },
-  editDetails: {
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    borderRadius: 5,
-  },
-  detailsView:{
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#2E7D32",
-    padding: 8,
+    margin: 10,
   },
   bottomButtons: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
     flexDirection: "row",
     backgroundColor: "#fff",
     borderTopWidth: 1,

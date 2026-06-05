@@ -36,11 +36,6 @@ export default function AddSow() {
     if (!validateSowRequiredFields({ tagNumber, statusId, breedId, mammaryGlands: fields.mammary_glands, entryDate: entryDate.toISOString() })) return;
     if (!validateSowTagNumberFormat(tagNumber)) return;
     try {
-      const isDuplicate = await checkSowTagNumberExists(tagNumber);
-      if (isDuplicate) {
-        Alert.alert("Error", "Ya existe un registro con este identificador. Por favor, use un identificador único.");
-        return;
-      }
       const payload = buildSowApiPayload({
         sow_tag_number: tagNumber,
         entry_date: entryDate.toISOString(),

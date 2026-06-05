@@ -2,9 +2,8 @@
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useMemo } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { RootStackParamList } from '../../../app/navigation/rootStack.types';
-import EditAction from '../../../shared/components/actions/editAction';
 import ScreenContainer from '../../../shared/components/layout/screenContainer';
 import BoarInfoTable from '../components/BoarInfoTable';
 import BoarProfileHeader from '../components/BoarProfileHeader';
@@ -58,26 +57,10 @@ export default function DetailsBoarScreen() {
         <View style={styles.imageAndNameContainer}>
           <BoarProfileHeader tagNumber={boar.boar_tag_number} />
         </View>
-
-        {/* Data table with edit shortcut in the header */}
-        <Pressable
-          style={({ pressed }) => [
-            styles.editDetails,
-            pressed && { backgroundColor: '#e0e0e0', opacity: 0.6 },
-          ]}
-        >
-          <View style={styles.detailsView}>
-            <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#fff' }}>
-              Detalles del verraco
-            </Text>
-            <EditAction
-              onPress={() => navigation.navigate('EditBoar', { boarId })}
-              size={24}
-              color="#fff"
-            />
-          </View>
-          <BoarInfoTable rows={datos} />
-        </Pressable>
+        <BoarInfoTable
+          rows={datos}
+          onEdit={() => navigation.navigate('EditBoar', { boarId })}
+        />
       </View>
 
       {/* Navigation buttons */}
@@ -110,23 +93,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 20,
   },
-  editDetails: {
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    borderRadius: 5,
-  },
-  detailsView: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#2E7D32',
-    padding: 8,
-  },
   bottomButtons: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     flexDirection: 'row',
     backgroundColor: '#fff',
     borderTopWidth: 1,
