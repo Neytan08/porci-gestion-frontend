@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import ListAction from '../../../shared/components/actions/listAction';
 import RowCheckbox from '../../../shared/components/selection/rowCheckBox';
+import { formatIsoDate } from '../../../shared/utils/dateHelpers';
 import type { Boar } from '../api/boarsApi';
 
 type BoarListItemProps = {
@@ -62,7 +63,7 @@ function BoarListItem({
         </Text>
         <Text style={[styles.textCell, { flexBasis: '55%' }]}>
           <Text style={{ fontWeight: '700' }}>Nacimiento: </Text>
-          {item.birth_date ? item.birth_date.split('T')[0] : '-'}
+          {item.birth_date ? formatIsoDate(item.birth_date) : '-'}
         </Text>
         <Text style={[styles.textCell, { flexBasis: '45%' }]}>
           <Text style={{ fontWeight: '700' }}>Edad: </Text>

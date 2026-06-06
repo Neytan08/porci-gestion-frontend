@@ -32,12 +32,15 @@ export function utcIsoStringFromLocalDate(date: Date): string {
 	return localDateToUtcMidnight(date).toISOString();
 }
 
-// Extracts the date part (YYYY-MM-DD) from a UTC ISO string.
+// Extracts the date part from a UTC ISO string and formats it as DD-MM-YYYY.
 // Returns the fallback ("-") when the value is absent or not a valid ISO string.
 export function formatIsoDate(value?: string | null, fallback = "-"): string {
 	if (!value) return fallback;
-	const part = value.split("T")[0];
-	return part.length === 10 ? part : fallback;
+	const match = value.match(/^(\d{4})-(\d{2})-(\d{2})(?:T.*)?$/);
+	if (!match) return fallback;
+
+	const [, year, month, day] = match;
+	return `${day}-${month}-${year}`;
 }
 
 export default {

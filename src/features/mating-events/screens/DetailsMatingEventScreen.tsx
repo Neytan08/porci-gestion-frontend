@@ -4,6 +4,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-nat
 import type { RootStackRouteProp } from "../../../app/navigation/rootStack.types";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import { useMatingEventLoader } from "../hooks/useMatingEventLoader";
+import { formatIsoDate } from "../../../shared/utils/dateHelpers";
 
 type DetailsMatingEventRouteProp = RootStackRouteProp<"DetailsMatingEvent">;
 
@@ -47,7 +48,7 @@ export default function DetailsMatingEventScreen() {
 		{ label: "Verraco", value: event.boars?.boar_tag_number ?? "N/A" },
 		{
 			label: "Fecha de inseminación",
-			value: event.insemination_date ? event.insemination_date.split("T")[0] : "-",
+			value: event.insemination_date ? formatIsoDate(event.insemination_date) : "-",
 		},
 		{ label: "Tipo", value: event.insemination_type ?? "-" },
 		{ label: "Resultado", value: event.pregnancy_result ?? "-" },
