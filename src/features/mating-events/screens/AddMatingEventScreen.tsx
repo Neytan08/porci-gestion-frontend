@@ -13,6 +13,7 @@ import { createMatingEvent } from "../api/matingEventApi";
 import { BoarPicker } from "../../boars/components/BoarsPicker";
 import { BreedingSowPicker } from "../../sows/components/BreedingSowPicker";
 import DatePickerField from "../../../shared/components/selection/datePicker";
+import { localDateToUtcMidnight } from "../../../shared/utils/dateHelpers";
 import InseminationTypePicker, {
 	type InseminationType,
 } from "../components/InseminationTypeDropdown";
@@ -25,7 +26,7 @@ import { validateMatingEventRequiredFields } from "../utils/matingEventValidatio
 
 export default function AddMatingEventScreen() {
 	const navigation = useNavigation();
-	const [inseminationDate, setInseminationDate] = useState(new Date());
+	const [inseminationDate, setInseminationDate] = useState(localDateToUtcMidnight(new Date()));
 	const [sowId, setSowId] = useState<number | null>(null);
 	const [boarId, setBoarId] = useState<number | null>(null);
 	const [inseminationType, setInseminationType] = useState<InseminationType | undefined>(undefined);

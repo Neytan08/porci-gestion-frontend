@@ -7,7 +7,7 @@ import DatePickerField from "../../../shared/components/selection/datePicker";
 import { localDateToUtcMidnight } from "../../../shared/utils/dateHelpers";
 import { BreedDropdown } from "../../reference-data/breeds/components/BreedDropdown";
 import { StatusDropdown } from "../../reference-data/statuses/components/StatusDropdown";
-import { checkSowTagNumberExists, createSow } from "../api/sowsApi";
+import { createSow } from "../api/sowsApi";
 import SowFormFields, { type SowFormFieldValues  }  from "../components/SowFormFields";
 import { buildSowApiPayload } from "../utils/sowTransforms";
 import { validateSowRequiredFields, validateSowTagNumberFormat } from "../utils/sowValidation";
