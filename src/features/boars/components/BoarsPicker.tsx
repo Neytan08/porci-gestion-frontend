@@ -110,11 +110,15 @@ export const BoarPicker = ({
 						{filteredBoars.map((opt) => (
 							<Pressable
 								key={opt.value}
-								style={styles.optionRow}
 								onPress={() => {
 									onChange(opt.value);
 									setVisible(false);
 								}}
+								style={({ pressed }) => [
+									styles.optionRow,
+									value === opt.value && styles.optionRowSelected,
+									pressed && { opacity: 0.5 },
+								]}
 							>
 								<Text
 									style={[
@@ -122,7 +126,6 @@ export const BoarPicker = ({
 										value === opt.value && styles.optionSelected,
 									]}
 								>
-									{" "}
 									{opt.label}
 								</Text>
 							</Pressable>
@@ -178,7 +181,8 @@ const styles = StyleSheet.create({
 		borderRadius: 8,
 		fontSize: 12,
 	},
-	optionText: { fontSize: 16, color: "#333" },
+	optionText: { fontSize: 16, color: "#333", paddingLeft: 10 },
+	optionRowSelected: { backgroundColor: "#e0f2f1" },
 	optionSelected: { color: "#2E7D32", fontWeight: "700" },
 	optionAll: { color: "#555" },
 });
