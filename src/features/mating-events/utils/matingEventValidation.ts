@@ -1,6 +1,6 @@
 import { Alert } from "react-native";
 import type { InseminationType } from "../components/InseminationTypeDropdown";
-import type { PregnancyResult } from "../components/PregnancyResultDropdown";
+import type { PregnancyResult } from "../model/matingEvent";
 
 export interface MatingEventRequiredFields {
 	sowId: number | null;

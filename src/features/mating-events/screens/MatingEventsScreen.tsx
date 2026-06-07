@@ -21,7 +21,8 @@ import MatingEventActionsModal from "../components/MatingEventActionsModal";
 import MatingEventListItem from "../components/MatingEventListItem";
 import MatingEventSelectedActionsModal from "../components/MatingEventSelectedActionsModal";
 import { useMatingEventActions } from "../hooks/useMatingEventActions";
-import { useMatingEventsAPI, type PregnancyResult } from "../hooks/useMatingEventsAPI";
+import { useMatingEventsAPI } from "../hooks/useMatingEventsAPI";
+import type { PregnancyResult } from "../model/matingEvent";
 import { useMatingEventsModals } from "../hooks/useMatingEventsModals";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "MatingEvents">;

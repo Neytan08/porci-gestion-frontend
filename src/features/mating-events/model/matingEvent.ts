@@ -1,10 +1,18 @@
-﻿export type MatingEvent = {
+﻿export type PregnancyResult = "Pendiente" | "Positivo" | "Negativo";
+
+export const PREGNANCY_RESULT_OPTIONS: readonly PregnancyResult[] = [
+	"Pendiente",
+	"Positivo",
+	"Negativo",
+];
+
+export type MatingEvent = {
 	mating_id: number;
 	sow_id: number;
 	boar_id: number | null;
 	insemination_date: string | null;
 	insemination_type: "Monta Natural" | "Artificial" | undefined;
-	pregnancy_result: "Pendiente" | "Positivo" | "Negativo" | undefined;
+	pregnancy_result: PregnancyResult | undefined;
 	notes?: string | undefined;
 
 	// Including related sow details
@@ -15,7 +23,7 @@
 };
 
 export type MatingEventsGroup<TEvent = MatingEvent> = {
-	pregnancy_result: "Pendiente" | "Positivo" | "Negativo" | null;
+	pregnancy_result: PregnancyResult | null;
 	events: TEvent[];
 };
 

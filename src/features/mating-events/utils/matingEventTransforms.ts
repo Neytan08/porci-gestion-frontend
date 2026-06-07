@@ -1,6 +1,5 @@
-import type { MatingEvent } from "../model/matingEvent";
+import type { MatingEvent, PregnancyResult } from "../model/matingEvent";
 import type { InseminationType } from "../components/InseminationTypeDropdown";
-import type { PregnancyResult } from "../components/PregnancyResultDropdown";
 
 export interface MatingEventPayloadInput {
 	sow_id: number;

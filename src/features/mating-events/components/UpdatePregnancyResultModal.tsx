@@ -9,6 +9,10 @@ import {
     View,
 } from "react-native";
 import { updatePregnancyResults } from "../api/matingEventApi";
+import {
+	PREGNANCY_RESULT_OPTIONS,
+	type PregnancyResult,
+} from "../model/matingEvent";
 import ActionIconButton from "../../../shared/components/actions/actionIconButton";
 /**
  * UpdatePregnancyResultModal is a reusable component that allows users to update 
@@ -43,9 +47,7 @@ const UpdatePregnancyResultModal: FC<UpdatePregnancyResultModalProps> = ({
     label,
 }) => {
     const [updateModalVisible, setUpdateModalVisible] = useState(false);
-    const [selectedResult, setSelectedResult] = useState<
-        "Pendiente" | "Positivo" | "Negativo" | null
-    >(null);
+    const [selectedResult, setSelectedResult] = useState<PregnancyResult | null>(null);
 
     // Handle confirming the update
     const handleConfirm = async () => {
@@ -80,7 +82,7 @@ const UpdatePregnancyResultModal: FC<UpdatePregnancyResultModalProps> = ({
                     <View style={styles.modalContainer}>
                         <Text style={styles.title}>Actualizar Resultado de Embarazo</Text>
                         <View style={styles.optionsContainer}>
-                            {(["Pendiente", "Positivo", "Negativo"] as const).map((result) => (
+							{PREGNANCY_RESULT_OPTIONS.map((result) => (
                                 <Pressable
                                     key={result}
                                     style={[

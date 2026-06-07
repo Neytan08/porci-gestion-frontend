@@ -1,7 +1,11 @@
 import client from "../../../shared/api/client";
-import type { MatingEvent, MatingEventsGroup } from "../model/matingEvent";
+import type {
+	MatingEvent,
+	MatingEventsGroup,
+	PregnancyResult,
+} from "../model/matingEvent";
 
-export type { MatingEvent, MatingEventsGroup };
+export type { MatingEvent, MatingEventsGroup, PregnancyResult };
 
 // Mating Events grouped by pregnancy result matching API response
 export const getMatingEvents = async (): Promise<MatingEvent[]> => {
@@ -42,7 +46,7 @@ export const getAllGroupedByPregnancyResult = async (): Promise<
 
 export const updatePregnancyResults = async (
 	mating_ids: number | number[],
-	pregnancy_result: "Pendiente" | "Positivo" | "Negativo",
+	pregnancy_result: PregnancyResult,
 ) => {
 	const idList = Array.isArray(mating_ids) ? mating_ids : [mating_ids];
 	const response = await client.put(`/api/matingevents/update/pregnancy-result`, {
