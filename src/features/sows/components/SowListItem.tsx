@@ -59,7 +59,7 @@ function SowListItem({
         </Text>
         <Text style={[styles.textCell, { flexBasis: '45%' }]}>
           <Text style={{ fontWeight: '700' }}>Estado: </Text>
-          {item.status?.status_name ?? 'Sin estado'}
+          {item.status ?? 'Sin estado'}
         </Text>
         <Text style={[styles.textCell, { flexBasis: '55%' }]}>
           <Text style={{ fontWeight: '700' }}>Ingreso: </Text>

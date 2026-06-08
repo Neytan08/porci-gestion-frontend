@@ -6,9 +6,10 @@ import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import DatePickerField from "../../../shared/components/selection/datePicker";
 import { localDateToUtcMidnight } from "../../../shared/utils/dateHelpers";
 import { BreedDropdown } from "../../reference-data/breeds/components/BreedDropdown";
-import { StatusDropdown } from "../../reference-data/statuses/components/StatusDropdown";
 import { createSow } from "../api/sowsApi";
+import { StatusDropdown } from "../components/StatusDropdown";
 import SowFormFields, { type SowFormFieldValues  }  from "../components/SowFormFields";
+import type { BreedingSowStatus } from "../model/sow";
 import { buildSowApiPayload } from "../utils/sowTransforms";
 import { validateSowRequiredFields, validateSowTagNumberFormat } from "../utils/sowValidation";
 
@@ -21,7 +22,7 @@ export default function AddSow() {
   const navigation = useNavigation();
   // Entry date initialised to UTC midnight to match the app-wide convention
   const [entryDate, setEntryDate] = useState(localDateToUtcMidnight(new Date()));
-  const [statusId, setStatusId] = useState<number | null>(null);
+  const [status, setStatus] = useState<BreedingSowStatus | null>(null);
   const [breedId, setBreedId] = useState<number | null>(null);
   const [tagNumber, setTagNumber] = useState("");
   const [fields, setFields] = useState<SowFormFieldValues>({
@@ -33,13 +34,13 @@ export default function AddSow() {
   });
 
   const handleSubmit = async () => {
-    if (!validateSowRequiredFields({ tagNumber, statusId, breedId, mammaryGlands: fields.mammary_glands, entryDate: entryDate.toISOString() })) return;
+    if (!validateSowRequiredFields({ tagNumber, status, breedId, mammaryGlands: fields.mammary_glands, entryDate: entryDate.toISOString() })) return;
     if (!validateSowTagNumberFormat(tagNumber)) return;
     try {
       const payload = buildSowApiPayload({
         sow_tag_number: tagNumber,
         entry_date: entryDate.toISOString(),
-        status_id: Number(statusId),
+        status: status as BreedingSowStatus,
         breed_id: Number(breedId),
         weight: fields.weight,
         length: fields.length,
@@ -72,8 +73,8 @@ export default function AddSow() {
           placeholder="Ej: 12345"
         />
         <StatusDropdown
-          value={statusId}
-          onChange={(value: number, _label: string) => setStatusId(Number(value))}
+          value={status}
+          onChange={(value) => setStatus(value)}
         />
         <BreedDropdown
           value={breedId}

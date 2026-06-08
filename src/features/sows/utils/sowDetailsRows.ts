@@ -8,7 +8,7 @@ import type { Sow } from "../model/sow";
  */
 export function buildSowRows(sow: Sow): SowInfoRow[] {
 	return [
-		{ label: "Estado",              value: sow.status?.status_name ?? "Sin estado" },
+		{ label: "Estado",              value: sow.status ?? "Sin estado" },
 		{ label: "Raza",                value: sow.breed?.breed_name?.trim() ?? "Sin raza" },
 		{ label: "Fecha de entrada",    value: formatIsoDate(sow.entry_date) },
 		{ label: "Cantidad de pezones", value: sow.mammary_glands ?? "-" },
