@@ -1,6 +1,6 @@
 ﻿import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useCallback, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -26,6 +26,38 @@ import type { PregnancyResult } from "../model/matingEvent";
 import { useMatingEventsModals } from "../hooks/useMatingEventsModals";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "MatingEvents">;
+
+/**
+ * Builds the delete confirmation message based on the targeted event.
+ * Positive events need a different warning because deleting them changes the sow state.
+ */
+function buildDeleteConfirmationMessage(event: MatingEvent | null): ReactNode {
+  if (!event) {
+    return "";
+  }
+  console.log("Event to delete:", event);
+  if (event.pregnancy_result === "Positivo") {
+    return (
+      <Text> 
+        Evento tipo{" "}
+        <Text style={{ fontWeight: "bold" }}>{event.insemination_type ?? ""}</Text> 
+        {" "}se encuentra en estado{" "}
+        <Text style={{ fontWeight: "bold" }}>Positivo</Text>. Al eliminarlo,{" "}
+        <Text style={{ fontWeight: "bold" }}>{event.breedingsows?.sow_tag_number ?? ""}</Text>
+        {" "}volverá al estado{" "}
+        <Text style={{ fontWeight: "bold" }}>Vacia</Text>. ¿Desea continuar?
+      </Text>
+    );
+  }
+
+  return (
+    <Text>
+      ¿Seguro que desea eliminar la inseminación tipo{" "}
+      <Text style={{ fontWeight: "bold" }}>{event.insemination_type ?? ""}</Text> a la cerda{" "}
+      <Text style={{ fontWeight: "bold" }}>{event.breedingsows?.sow_tag_number ?? ""}</Text>?
+    </Text>
+  );
+}
 
 /**
  * Main mating events list screen.
@@ -143,18 +175,8 @@ export default function MatingEventsScreen() {
         {/* Delete confirmation modal */}
         <ConfirmDeleteModal
           visible={deleteModalVisible && eventToDelete !== null}
-          title="Eliminar Inseminación"
-          message={
-            <Text>
-              ¿Seguro que desea eliminar la inseminación tipo{" "}
-              <Text style={{ fontWeight: "bold" }}>{eventToDelete?.insemination_type ?? ""}</Text> a
-              la cerda{" "}
-              <Text style={{ fontWeight: "bold" }}>
-                {eventToDelete?.breedingsows?.sow_tag_number ?? ""}
-              </Text>
-              ?
-            </Text>
-          }
+          title={"Eliminar"}
+          message={buildDeleteConfirmationMessage(eventToDelete)}
           confirmText="Eliminar"
           cancelText="Cancelar"
           loading={deleting}

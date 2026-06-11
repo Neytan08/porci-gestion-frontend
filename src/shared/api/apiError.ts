@@ -14,7 +14,7 @@ export function getApiErrorMessage(
   const {
     timeout = "La solicitud tardó demasiado. Intente nuevamente.",
     noResponse = "No se recibió respuesta del servidor. Verifique su conexión.",
-    // conflict = "Ya existe un conflicto con el recurso solicitado.",
+    conflict = "Ya existe un conflicto con el recurso solicitado.",
     fallback = "Ocurrió un problema al procesar la solicitud. Intente nuevamente.",
   } = overrides;
 
