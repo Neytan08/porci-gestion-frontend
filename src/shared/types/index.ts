@@ -3,11 +3,54 @@
  * Only types that are reusable across features should live here.
  */
 
+// Represents the new error shape returned by the API.
+// The backend now sends: { status, errorCode, message }.
+export type ApiErrorResponse = {
+    // HTTP status code also included in the response body.
+    status?: number;
+
+    // Business error code returned by the backend.
+    // Useful for handling specific UI cases.
+    errorCode?: string;
+
+    // Safe message intended to be shown to the user.
+    message?: string;
+};
+
+// Represents a normalized frontend error object.
+// This gives the UI a consistent shape no matter what failed.
+export type ApiErrorDetails = {
+    // Final message that should be shown in the UI.
+    message: string;
+
+    // HTTP status returned by the backend, if available.
+    status?: number;
+
+    // Business error code returned by the backend, if available.
+    errorCode?: string;
+};
+
 export type ApiErrorMessageOverrides = {
-	timeout?: string;
-	noResponse?: string;
-	conflict?: string;
-	fallback?: string;
+    // Custom message for timeout errors.
+    timeout?: string;
+
+    // Custom message when the server did not respond.
+    noResponse?: string;
+
+    // Generic fallback for 409 conflicts when the API
+    // does not provide a specific message.
+    conflict?: string;
+
+    // Default fallback when no better message is available.
+    fallback?: string;
+
+    // Allows overriding messages by backend errorCode.
+    // Example: { SOW_NOT_EMPTY: "The sow must be empty first." }
+    byErrorCode?: Partial<Record<string, string>>;
+
+    // Allows overriding messages by HTTP status code.
+    // Example: { 500: "An internal error occurred." }
+    byStatus?: Partial<Record<number, string>>;
 };
 
 export type DeleteEntityMessages = {

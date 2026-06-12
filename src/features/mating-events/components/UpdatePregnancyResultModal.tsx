@@ -2,6 +2,7 @@
 import { useState } from "react";
 import type { ImageStyle, StyleProp, ViewStyle } from "react-native";
 import {
+    Alert,
     Modal,
     Pressable,
     StyleSheet,
@@ -14,6 +15,7 @@ import {
 	type PregnancyResult,
 } from "../model/matingEvent";
 import ActionIconButton from "../../../shared/components/actions/actionIconButton";
+import { getApiErrorMessage } from "../../../shared/api/apiError";
 /**
  * UpdatePregnancyResultModal is a reusable component that allows users to update 
  * the pregnancy result of one or more mating events.
@@ -56,7 +58,12 @@ const UpdatePregnancyResultModal: FC<UpdatePregnancyResultModalProps> = ({
             await updatePregnancyResults(selectedIds, selectedResult);
             onConfirm(); // Notify parent of success
         } catch (error) {
-            console.error("Error updating pregnancy result:", error);
+            Alert.alert(
+                "Error",
+                getApiErrorMessage(error, {
+                    fallback: "No se pudo actualizar el resultado de embarazo.",
+                }),
+            );
         } finally {
             setUpdateModalVisible(false);
             setSelectedResult(null);
