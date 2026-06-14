@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { Alert } from "react-native";
 
 import type { UseDeleteEntityParams } from "../types";
+import { getApiErrorMessage } from "../api/apiError";
 
 /**
  * Shared hook for deleting an entity and showing user feedback.
@@ -27,13 +28,11 @@ export function useDeleteEntity<TId = number>({
 				messages?.successTitle ?? "Eliminación completada",
 				messages?.successMessage ?? "Se eliminó correctamente.",
 			);
-		} catch (error) {
-			console.error("Error deleting entity:", error);
+		} catch (error) {;
 			Alert.alert(
 				messages?.errorTitle ?? "Error",
-				messages?.errorMessage ?? "No se pudo eliminar. Intente nuevamente.",
+				getApiErrorMessage(error, { fallback: messages?.errorMessage }),
 			);
-			throw error;
 		} finally {
 			setDeleting(false);
 		}
