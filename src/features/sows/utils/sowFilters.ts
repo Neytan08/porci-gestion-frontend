@@ -25,23 +25,15 @@ export function filterSowsByBreed(sows: Sow[], breedId: number | null): Sow[] {
 }
 
 /**
- * Filters rows by status id.
- *
- * Compatibility strategy:
- * - Prefer nested relational id (`sow.status?.status_id`).
- * - Fall back to root-level id (`sow.status_id`) for flat payloads.
+ * Filters rows by status value.
  *
  * @param sows Source list to evaluate.
- * @param statusId Selected status id. `null` means no active status filter.
+ * @param status Selected status value. `null` means no active status filter.
  * @returns Original list when filter is disabled, otherwise only matching rows.
  */
-export function filterSowsByStatus(sows: Sow[], statusId: number | null): Sow[] {
-  if (statusId === null) return sows;
-  // Prefer the nested relation; fall back to the root field for flat API responses
-  return sows.filter((sow) => {
-    const id = sow.status?.status_id ?? sow.status_id;
-    return id === statusId;
-  });
+export function filterSowsByStatus(sows: Sow[], status: Sow["status"] | null): Sow[] {
+  if (status === null) return sows;
+  return sows.filter((sow) => sow.status === status);
 }
 
 /**
@@ -70,7 +62,7 @@ export function filterSowsBySearch(sows: Sow[], searchQuery: string): Sow[] {
  */
 export interface FilterCriteria {
   breedId: number | null;
-  statusId: number | null;
+  status: Sow["status"] | null;
   searchQuery: string;
 }
 
@@ -84,7 +76,7 @@ export interface FilterCriteria {
 export function applyAllFilters(sows: Sow[], criteria: FilterCriteria): Sow[] {
   let result = sows;
   result = filterSowsByBreed(result, criteria.breedId);
-  result = filterSowsByStatus(result, criteria.statusId);
+  result = filterSowsByStatus(result, criteria.status);
   result = filterSowsBySearch(result, criteria.searchQuery);
   return result;
 }

@@ -1,49 +1,35 @@
-﻿import { useState } from "react";
+import { useMemo, useState } from "react";
+import { FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import {
-	ActivityIndicator,
-	FlatList,
-	Modal,
-	Pressable,
-	StyleSheet,
-	Text,
-	View,
-} from "react-native";
-import { useStatusOptions } from "../hooks/useStatusOptions";
+	BREEDING_SOW_STATUSES,
+	type BreedingSowStatus,
+} from "../model/sow";
 
 /**
  * StatusDropdown is a reusable component that allows users to select a status
- * from a list of options fetched from the API. It displays the currently selected status
- * and opens a modal with all available statuses when pressed. 
- * The component handles loading states and provides feedback while fetching data.
+ * from the fixed BreedingSow status list. It displays the currently selected status
+ * and opens a modal with all available statuses when pressed.
  * Props:
- * - value: The currently selected status ID (number) or null if no status is selected.
- * - onChange: A callback function that is called when a new status is selected. 
- *   It receives the selected status ID and label as parameters.
+ * - value: The currently selected status value or null if no status is selected.
+ * - onChange: A callback function that is called when a new status is selected.
  */
 type StatusDropdownProps = {
-	value: number | null;
-	onChange: (value: number, label: string) => void;
+	value: BreedingSowStatus | null;
+	onChange: (value: BreedingSowStatus) => void;
 };
 
 export const StatusDropdown = ({
 	value,
 	onChange,
 }: StatusDropdownProps) => {
-	const { options: statusOptions, loading } = useStatusOptions();
 	const [statusModalVisible, setStatusModalVisible] = useState(false);
+	const statusOptions = useMemo(
+		() => BREEDING_SOW_STATUSES.map((status) => ({ label: status, value: status })),
+		[],
+	);
 
-	if (loading) {
-		return (
-			<View style={styles.loadingContainer}>
-				<ActivityIndicator size="small" />
-				<Text>Cargando estados...</Text>
-			</View>
-		);
-	}
-
-	const handleSelection = (itemValue: number) => {
-		const selected = statusOptions.find((s) => s.value === itemValue);
-		onChange(itemValue, selected?.label ?? "");
+	const handleSelection = (itemValue: BreedingSowStatus) => {
+		onChange(itemValue);
 		setStatusModalVisible(false);
 	};
 
@@ -84,14 +70,14 @@ export const StatusDropdown = ({
 									onPress={() => handleSelection(item.value)}
 									style={({ pressed }) => [
 										styles.itemRow,
-										item.value === value && styles.selectedRow, // Apply styles for selected item row
+										item.value === value && styles.selectedRow,
 										pressed && { opacity: 0.5 },
 									]}
 								>
 									<Text
 										style={[
 											styles.itemRowText,
-											item.value === value && styles.selectedRowText, // Apply styles for selected item text
+											item.value === value && styles.selectedRowText,
 										]}
 									>
 										{item.label}
@@ -110,7 +96,6 @@ const styles = StyleSheet.create({
 	container: {
 		marginVertical: 10,
 	},
-	// Dropdown styles
 	label: {
 		fontSize: 16,
 		marginBottom: 5,
@@ -126,7 +111,6 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		color: "#333",
 	},
-	// Modal styles
 	statusOverlay: {
 		flex: 1,
 		backgroundColor: "rgba(0,0,0,0.25)",
@@ -144,7 +128,6 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 		margin: 10,
 	},
-	// Items styles
 	itemRow: {
 		padding: 15,
 		borderBottomWidth: 1,
@@ -162,7 +145,4 @@ const styles = StyleSheet.create({
 		color: "#2E7D32",
 		fontWeight: "700",
 	},
-	// Loading container styles
-	loadingContainer: { flexDirection: "row", alignItems: "center", gap: 10 },
 });
-

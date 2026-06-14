@@ -6,7 +6,7 @@ import ScreenContainer from '../../../shared/components/layout/screenContainer';
 import DatePickerField from '../../../shared/components/selection/datePicker';
 import { localDateToUtcMidnight } from '../../../shared/utils/dateHelpers';
 import { BreedDropdown } from '../../reference-data/breeds/components/BreedDropdown';
-import { checkBoarTagNumberExists, createBoar } from '../api/boarsApi';
+import { createBoar } from '../api/boarsApi';
 import BoarFormFields, { type BoarFormFieldValues } from '../components/BoarFormFields';
 import { buildBoarApiPayload } from '../utils/boarTransforms';
 import { validateBoarRequiredFields, validateBoarTagNumberFormat } from '../utils/boarValidation';
@@ -22,11 +22,6 @@ export default function AddBoarScreen() {
     if (!validateBoarRequiredFields({ tagNumber, breedId, birthDate })) return;
     if (!validateBoarTagNumberFormat(tagNumber)) return;
     try {
-      const isDuplicate = await checkBoarTagNumberExists(tagNumber);
-      if (isDuplicate) {
-        Alert.alert('Error', 'Ya existe un registro con este identificador. Por favor, use un identificador único.');
-        return;
-      }
       const payload = buildBoarApiPayload({
         boar_tag_number: tagNumber,
         birth_date: birthDate.toISOString(),
@@ -37,11 +32,10 @@ export default function AddBoarScreen() {
       Alert.alert('Éxito', 'Verraco agregado correctamente.');
       navigation.goBack();
     } catch (error) {
-      if (hasApiStatus(error, 409)) {
-        Alert.alert('Error', 'Ya existe un registro con este identificador. Use un identificador único.');
-        return;
-      }
-      Alert.alert('Error', getApiErrorMessage(error, { fallback: 'No se pudo agregar el verraco.' }));
+      const message = hasApiStatus(error, 409)
+        ? "Ya existe un registro con este identificador. Por favor, use un identificador único."
+        : getApiErrorMessage(error, { fallback: "Hubo un problema al agregar el verraco. Intente nuevamente." });
+      Alert.alert("Error", message);
     }
   };
 

@@ -1,7 +1,8 @@
 import { memo } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import OptionsFilter from '../../../shared/components/filters/optionsFilter';
-import type { FilterOption } from '../hooks/useSowsFiltering';
+import type { BreedFilterOption, StatusFilterOption } from '../hooks/useSowsFiltering';
+import type { Sow } from '../model/sow';
 
 type SowFilterSheetProps = {
   visible: boolean;
@@ -9,12 +10,12 @@ type SowFilterSheetProps = {
   onClose: () => void;
   /** Resets all active filter criteria to their initial state. */
   onClear: () => void;
-  statusOptions: FilterOption[];
-  breedOptions: FilterOption[];
-  onStatusChange: (id: number | null) => void;
+  statusOptions: StatusFilterOption[];
+  breedOptions: BreedFilterOption[];
+  onStatusChange: (status: Sow['status'] | null) => void;
   onBreedChange: (id: number | null) => void;
-  /** Currently selected status filter ID, used to highlight the active option. */
-  selectedStatusId: number | null;
+  /** Currently selected status filter value, used to highlight the active option. */
+  selectedStatus: Sow['status'] | null;
   /** Currently selected breed filter ID, used to highlight the active option. */
   selectedBreedId: number | null;
 };
@@ -32,7 +33,7 @@ function SowFilterSheet({
   breedOptions,
   onStatusChange,
   onBreedChange,
-  selectedStatusId,
+  selectedStatus,
   selectedBreedId,
 }: SowFilterSheetProps) {
   return (
@@ -47,7 +48,7 @@ function SowFilterSheet({
           <Text style={styles.title}>Filtros</Text>
           <OptionsFilter
             options={statusOptions}
-            selectedId={selectedStatusId}
+            selectedId={selectedStatus}
             onChange={onStatusChange}
             title="Estado"
           />

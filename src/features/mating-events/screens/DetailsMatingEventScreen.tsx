@@ -1,17 +1,67 @@
-﻿import { useFocusEffect, useRoute } from "@react-navigation/native";
+﻿import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import { useCallback } from "react";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
-import type { RootStackRouteProp } from "../../../app/navigation/rootStack.types";
+import type {
+	RootStackParamList,
+	RootStackRouteProp,
+} from "../../../app/navigation/rootStack.types";
+import ActionIconButton from "../../../shared/components/actions/actionIconButton";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
+import { formatIsoDate } from "../../../shared/utils/dateHelpers";
 import { useMatingEventLoader } from "../hooks/useMatingEventLoader";
 
 type DetailsMatingEventRouteProp = RootStackRouteProp<"DetailsMatingEvent">;
+type DetailsMatingEventNavigationProp = NativeStackNavigationProp<
+	RootStackParamList,
+	"DetailsMatingEvent"
+>;
+
+type DetailRowProps = {
+	label: string;
+	value: string;
+	actionOnPress?: () => void;
+	actionAccessibilityLabel?: string;
+};
+
+const rightArrowIcon = require("../../../../assets/icons/right-arrow.png");
+
+function DetailRow({
+	label,
+	value,
+	actionOnPress,
+	actionAccessibilityLabel,
+}: DetailRowProps) {
+	const showsAction = typeof actionOnPress === "function";
+
+	return (
+		<View style={styles.row}>
+			<View style={styles.rowContent}>
+				<Text style={styles.rowLabel}>{label}</Text>
+				<Text style={styles.rowValue}>{value}</Text>
+			</View>
+			{showsAction ? (
+				<ActionIconButton
+					onPress={actionOnPress}
+					iconSource={rightArrowIcon}
+					hitSlop={30}
+					size={35}
+					tintColor="#2E7D32"
+					containerStyle={styles.rowActionButton}
+					pressedStyle={styles.rowActionButtonPressed}
+					accessibilityLabel={actionAccessibilityLabel ?? `Ver ${label.toLowerCase()}`}
+				/>
+			) : null}
+		</View>
+	);
+}
 
 /**
  * Read-only detail screen for a single MatingEvent.
  * Reloads data every time the screen gains focus.
  */
 export default function DetailsMatingEventScreen() {
+	const navigation = useNavigation<DetailsMatingEventNavigationProp>();
 	const route = useRoute<DetailsMatingEventRouteProp>();
 	const { eventId } = route.params;
 
@@ -42,27 +92,42 @@ export default function DetailsMatingEventScreen() {
 		);
 	}
 
-	const rows: { label: string; value: string | number | null | undefined }[] = [
-		{ label: "Cerda", value: event.breedingsows?.sow_tag_number ?? event.sow_id },
-		{ label: "Verraco", value: event.boars?.boar_tag_number ?? "N/A" },
+	const sowValue = String(event.breedingsows?.sow_tag_number ?? event.sow_id);
+	const boarId = event.boar_id;
+	const boarValue = String(event.boars?.boar_tag_number ?? "N/A");
+	const detailRows = [
 		{
 			label: "Fecha de inseminación",
-			value: event.insemination_date ? event.insemination_date.split("T")[0] : "-",
+			value: event.insemination_date ? formatIsoDate(event.insemination_date) : "-",
 		},
 		{ label: "Tipo", value: event.insemination_type ?? "-" },
 		{ label: "Resultado", value: event.pregnancy_result ?? "-" },
-		{ label: "Notas", value: event.notes ?? "-" }, 
+		{ label: "Notas", value: event.notes ?? "-" },
 	];
 
 	return (
 		<ScreenContainer>
 			<ScrollView contentContainerStyle={styles.container}>
 				<Text style={styles.title}>Detalles del Evento de Inseminación</Text>
-				{rows.map((row) => (
-					<View key={row.label} style={styles.row}>
-						<Text style={styles.rowLabel}>{row.label}</Text>
-						<Text style={styles.rowValue}>{String(row.value ?? "-")}</Text>
-					</View>
+				<DetailRow
+					label="Cerda"
+					value={sowValue}
+					actionOnPress={() => navigation.navigate("DetailsSow", { sowId: event.sow_id })}
+					actionAccessibilityLabel="Ver detalle de la cerda"
+				/>
+				{/* Some insemination flows do not store a boar reference, so this row stays read-only. */}
+				<DetailRow
+					label="Verraco"
+					value={boarValue}
+					actionOnPress={
+						boarId == null
+							? undefined
+							: () => navigation.navigate("DetailsBoar", { boarId })
+					}
+					actionAccessibilityLabel="Ver detalle del verraco"
+				/>
+				{detailRows.map((row) => (
+					<DetailRow key={row.label} label={row.label} value={String(row.value ?? "-")} />
 				))}
 			</ScrollView>
 		</ScreenContainer>
@@ -90,6 +155,8 @@ const styles = StyleSheet.create({
 		color: "#263238",
 	},
 	row: {
+		flexDirection: "row",
+		alignItems: "center",
 		backgroundColor: "#fff",
 		borderRadius: 10,
 		padding: 14,
@@ -97,8 +164,12 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderColor: "#eee",
 	},
+	rowContent: {
+		flex: 1,
+		paddingRight: 12,
+	},
 	rowLabel: {
-		fontSize: 12,
+		fontSize: 14,
 		color: "#666",
 		marginBottom: 2,
 	},
@@ -106,6 +177,14 @@ const styles = StyleSheet.create({
 		fontSize: 15,
 		color: "#263238",
 		fontWeight: "500",
+	},
+	rowActionButton: {
+		width: 35,
+		height: 35,
+		borderRadius: 17.5,
+	},
+	rowActionButtonPressed: {
+		backgroundColor: "#E8F5E9",
 	},
 });
 

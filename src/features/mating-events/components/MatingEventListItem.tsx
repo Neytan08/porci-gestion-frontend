@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import ListAction from "../../../shared/components/actions/listAction";
 import RowCheckbox from "../../../shared/components/selection/rowCheckBox";
+import { formatIsoDate } from "../../../shared/utils/dateHelpers";
 import type { MatingEvent } from "../api/matingEventApi";
 
 type MatingEventListItemProps = {
@@ -59,7 +60,7 @@ function MatingEventListItem({
 				<Text style={[styles.textCell, { flexBasis: "50%" }]}>
 					<Text style={{ fontWeight: "700" }}>Fecha: </Text>
 					{item.insemination_date
-						? item.insemination_date.split("T")[0]
+						? formatIsoDate(item.insemination_date)
 						: "-"}
 				</Text>
 				<Text style={[styles.textCell, { flexBasis: "50%" }]}>

@@ -89,7 +89,6 @@ export const BreedingSowPicker = ({
 				<Pressable style={styles.overlay} onPress={() => setVisible(false)}>
 					<View style={styles.sheet}>
 						<Text style={styles.title}>{label}</Text>
-
 						<Pressable
 							style={styles.optionRow}
 							onPress={() => {
@@ -110,11 +109,15 @@ export const BreedingSowPicker = ({
 						{filteredSows.map((opt) => (
 							<Pressable
 								key={opt.value}
-								style={styles.optionRow}
 								onPress={() => {
 									onChange(opt.value);
 									setVisible(false);
 								}}
+								style={({ pressed }) => [
+									styles.optionRow,
+									value === opt.value && styles.optionRowSelected,
+									pressed && { opacity: 0.5 },
+								]}
 							>
 								<Text
 									style={[
@@ -122,7 +125,6 @@ export const BreedingSowPicker = ({
 										value === opt.value && styles.optionSelected,
 									]}
 								>
-									{" "}
 									{opt.label}
 								</Text>
 							</Pressable>
@@ -138,8 +140,6 @@ const styles = StyleSheet.create({
 	container: { marginVertical: 10 },
 	label: { fontSize: 16, marginBottom: 6 },
 	loadingContainer: { flexDirection: "row", alignItems: "center", gap: 10 },
-
-	// Estilo tipo InseminationTypePicker
 	select: {
 		borderWidth: 1,
 		borderColor: "#37474F",
@@ -151,7 +151,6 @@ const styles = StyleSheet.create({
 	},
 	selectText: { fontSize: 15, color: "#263238" },
 	placeholder: { color: "#9E9E9E" },
-
 	overlay: {
 		flex: 1,
 		backgroundColor: "rgba(0,0,0,0.25)",
@@ -178,7 +177,8 @@ const styles = StyleSheet.create({
 		borderRadius: 8,
 		fontSize: 12,
 	},
-	optionText: { fontSize: 16, color: "#333" },
+	optionText: { fontSize: 16, color: "#333", paddingLeft: 10 },
+	optionRowSelected: { backgroundColor: "#e0f2f1" },
 	optionSelected: { color: "#2E7D32", fontWeight: "700" },
 	optionAll: { color: "#555" },
 });

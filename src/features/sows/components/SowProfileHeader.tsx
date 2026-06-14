@@ -33,7 +33,7 @@ function SowProfileHeader({ tagNumber, onEditTag }: SowProfileHeaderProps) {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   imagePlaceholder: {
     width: 120,

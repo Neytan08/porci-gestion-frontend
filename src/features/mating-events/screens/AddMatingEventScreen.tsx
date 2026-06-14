@@ -13,23 +13,23 @@ import { createMatingEvent } from "../api/matingEventApi";
 import { BoarPicker } from "../../boars/components/BoarsPicker";
 import { BreedingSowPicker } from "../../sows/components/BreedingSowPicker";
 import DatePickerField from "../../../shared/components/selection/datePicker";
+import { localDateToUtcMidnight } from "../../../shared/utils/dateHelpers";
 import InseminationTypePicker, {
 	type InseminationType,
 } from "../components/InseminationTypeDropdown";
-import PregnancyResultPicker, {
-	type PregnancyResult,
-} from "../components/PregnancyResultDropdown";
+import PregnancyResultPicker from "../components/PregnancyResultDropdown";
+import type { PregnancyResult } from "../model/matingEvent";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import { buildMatingEventPayload } from "../utils/matingEventTransforms";
 import { validateMatingEventRequiredFields } from "../utils/matingEventValidation";
 
 export default function AddMatingEventScreen() {
 	const navigation = useNavigation();
-	const [inseminationDate, setInseminationDate] = useState(new Date());
+	const [inseminationDate, setInseminationDate] = useState(localDateToUtcMidnight(new Date()));
 	const [sowId, setSowId] = useState<number | null>(null);
 	const [boarId, setBoarId] = useState<number | null>(null);
 	const [inseminationType, setInseminationType] = useState<InseminationType | undefined>(undefined);
-	const [pregnancyResult, setPregnancyResult] = useState<PregnancyResult | undefined>(undefined);
+	const [pregnancyResult, setPregnancyResult] = useState<PregnancyResult | undefined>("Pendiente");
 	const [notes, setNotes] = useState("");
 
 	const isNatural = inseminationType === "Monta Natural";

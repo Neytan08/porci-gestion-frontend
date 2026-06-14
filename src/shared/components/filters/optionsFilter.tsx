@@ -1,23 +1,28 @@
 ﻿import { memo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-type FilteringOptionsFormat = { value: number; label: string };
+type FilteringOptionValue = string | number;
 
-type FilteringProps = {
-	options: FilteringOptionsFormat[];
-	selectedId: number | null;
-	onChange: (id: number | null) => void;
+type FilteringOptionsFormat<TValue extends FilteringOptionValue> = {
+	value: TValue;
+	label: string;
+};
+
+type FilteringProps<TValue extends FilteringOptionValue> = {
+	options: FilteringOptionsFormat<TValue>[];
+	selectedId: TValue | null;
+	onChange: (id: TValue | null) => void;
 	title?: string;
 	allLabel?: string;
 };
 
-function OptionsFilter({
+function OptionsFilter<TValue extends FilteringOptionValue>({
 	options,
 	selectedId,
 	onChange,
 	title = "Opciones",
 	allLabel = "Todos",
-}: FilteringProps) {
+}: FilteringProps<TValue>) {
 	return (
 		<View style={styles.container}>
 			<Text style={styles.sectionTitle}>{title}</Text>
@@ -74,4 +79,4 @@ const styles = StyleSheet.create({
 	optionAll: { color: "#555" },
 });
 
-export default memo(OptionsFilter);
+export default memo(OptionsFilter) as typeof OptionsFilter;

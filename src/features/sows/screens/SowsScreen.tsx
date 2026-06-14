@@ -124,7 +124,7 @@ export default function SowsScreen() {
           breedOptions={breedOptions}
           onStatusChange={setStatusFilter}
           onBreedChange={setBreedFilter}
-          selectedStatusId={filters.statusId}
+          selectedStatus={filters.status}
           selectedBreedId={filters.breedId}
         />
 

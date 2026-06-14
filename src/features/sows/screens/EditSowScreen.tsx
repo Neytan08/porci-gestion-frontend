@@ -15,9 +15,9 @@ import { getApiErrorMessage } from "../../../shared/api/apiError";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import DatePickerField from "../../../shared/components/selection/datePicker";
 import { BreedDropdown } from "../../reference-data/breeds/components/BreedDropdown";
-import { StatusDropdown } from "../../reference-data/statuses/components/StatusDropdown";
 import { checkSowTagNumberExists, updateSow } from "../api/sowsApi";
 import EditSowTagModal from "../components/EditSowTagModal";
+import { StatusDropdown } from "../components/StatusDropdown";
 import SowFormFields, { type SowFormFieldValues } from "../components/SowFormFields";
 import SowProfileHeader from "../components/SowProfileHeader";
 import { useSowLoader } from "../hooks/useSowLoader";
@@ -68,7 +68,7 @@ export default function EditSow() {
     if (
       !validateSowRequiredFields({
         tagNumber: sow.sow_tag_number,
-        statusId: sow.status_id,
+        status: sow.status,
         breedId: sow.breed_id,
         mammaryGlands: sow.mammary_glands,
         entryDate: sow.entry_date,
@@ -152,12 +152,11 @@ export default function EditSow() {
         />
 
         <StatusDropdown
-          value={sow.status_id || null}
-          onChange={(newStatusId: number, label: string) => {
+          value={sow.status ?? null}
+          onChange={(newStatus) => {
             setSow({
               ...sow,
-              status_id: newStatusId,
-              status: { status_id: newStatusId, status_name: label },
+              status: newStatus,
             });
           }}
         />

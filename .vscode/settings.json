@@ -1,5 +1,9 @@
 {
     "chat.tools.terminal.autoApprove": {
-        "Set-Content": true
+        "Set-Content": true,
+        "/^cmd /c npx\\.cmd tsc --noEmit$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
     }
 }

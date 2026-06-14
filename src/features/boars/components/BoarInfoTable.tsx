@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import EditAction from '../../../shared/components/actions/editAction';
 
 /** Single row of data in the boar info table. */
 export type BoarInfoRow = {
@@ -10,6 +11,8 @@ export type BoarInfoRow = {
 type BoarInfoTableProps = {
   /** Array of label-value pairs to render as a read-only data table. */
   rows: BoarInfoRow[];
+  /** Callback for editing the current boar from the table header. */
+  onEdit: () => void;
 };
 
 /**
@@ -17,58 +20,70 @@ type BoarInfoTableProps = {
 
  * Each row alternates background color for readability.
  */
-function BoarInfoTable({ rows }: BoarInfoTableProps) {
+function BoarInfoTable({ rows, onEdit }: BoarInfoTableProps) {
   return (
-    <View style={styles.table}>
-      {rows.map((row, index) => (
-        <View
-          key={`${row.label}-${index}`}
-          style={[styles.row, index % 2 === 0 ? styles.rowEven : styles.rowOdd]}
-        >
-          <Text style={styles.label}>{row.label}</Text>
-          <Text style={styles.value}>{row.value}</Text>
-        </View>
-      ))}
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Detalles del verraco</Text>
+        <EditAction onPress={onEdit} size={24} color="#fff" />
+      </View>
+
+      <ScrollView style={styles.scrollArea} contentContainerStyle={styles.scrollContent}>
+        {rows.map((row, index) => (
+          <View
+            key={`${row.label}-${index}`}
+            style={styles.row}>
+            <Text style={styles.label}>{row.label}</Text>
+            <Text style={styles.value}>{row.value}</Text>
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  table: {
+  container: {
+    flex: 1,
+  },
+  scrollArea: {
+    flex: 1,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    // overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#eee',
-    // marginHorizontal: 16,
-    marginBottom: 16,
   },
-  row: {
+  scrollContent: {
+    paddingBottom: 4,
+  },
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 5,
-    borderBottomWidth: 1,
-    borderColor: '#eee'
-    // paddingHorizontal: 12,
+    alignItems: 'center',
+    backgroundColor: '#2E7D32',
+    padding: 8,
+    borderRadius: 10,
   },
-  rowEven: {
-    backgroundColor: '#f9f9f9',
+  headerTitle: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#fff',
   },
-  rowOdd: {
-    backgroundColor: '#fff',
+  row: {
+    backgroundColor: "#fff",
+		borderRadius: 10,
+		padding: 10,
+		marginBottom: 5,
+		borderWidth: 1,
+		borderColor: "#eee",
   },
   label: {
-    // flex: 1,
     fontWeight: '500',
     color: '#555',
     fontSize: 16,
     marginBottom: 5,
   },
   value: {
-    // flex: 1.5,
     fontSize: 15,
     color: '#333',
-    textAlign: 'right',
   },
 });
 

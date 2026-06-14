@@ -53,11 +53,15 @@ const InseminationTypePicker = ({
 						{OPTIONS.map((opt) => (
 							<Pressable
 								key={opt}
-								style={styles.optionRow}
 								onPress={() => {
 									onChange(opt);
 									setVisible(false);
 								}}
+								style={({ pressed }) => [
+									styles.optionRow,
+									value === opt && styles.optionRowSelected,
+									pressed && { opacity: 0.5 },
+								]}
 							>
 								<Text
 									style={[
@@ -109,7 +113,8 @@ const styles = StyleSheet.create({
 		borderBottomWidth: StyleSheet.hairlineWidth,
 		borderBottomColor: "#eee",
 	},
-	optionText: { fontSize: 16, color: "#333" },
+	optionText: { fontSize: 16, color: "#333", paddingLeft: 10 },
+	optionRowSelected: { backgroundColor: "#e0f2f1" },
 	optionSelected: { color: "#2E7D32", fontWeight: "700" },
 	optionAll: { color: "#555" },
 });

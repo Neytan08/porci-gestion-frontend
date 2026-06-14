@@ -8,12 +8,17 @@
 /**
  * Standard shape for dropdown/select options.
  *
- * @property value Numeric identifier (breed_id, status_id, etc.).
+ * @property value Stable identifier used by the option consumer.
  * @property label Display text shown in UI; always trimmed and non-empty.
  */
-export interface OptionItem {
+export interface BreedOptionItem {
   value: number;
   label: string;
+}
+
+export interface StatusOptionItem {
+	value: Sow["status"];
+	label: string;
 }
 
 /**
@@ -22,7 +27,7 @@ export interface OptionItem {
  * @param sows Full sow collection from API.
  * @returns Unique breed options ready for dropdown rendering.
  */
-export function extractSowBreedOptions(sows: Sow[]): OptionItem[] {
+export function extractSowBreedOptions(sows: Sow[]): BreedOptionItem[] {
   // Accumulate unique breeds using a Map to prevent duplicate ids.
   const map = new Map<number, string>();
   sows.forEach((sow) => {
@@ -43,15 +48,13 @@ export function extractSowBreedOptions(sows: Sow[]): OptionItem[] {
  * @param sows Full sow collection from API.
  * @returns Unique status options ready for dropdown rendering.
  */
-export function extractSowStatusOptions(sows: Sow[]): OptionItem[] {
-  // Accumulate unique statuses using a Map to prevent duplicate ids.
-  const map = new Map<number, string>();
+export function extractSowStatusOptions(sows: Sow[]): StatusOptionItem[] {
+  // Accumulate unique statuses using a Map to prevent duplicate values.
+  const map = new Map<Sow["status"], string>();
   sows.forEach((sow) => {
-    const id = sow.status?.status_id ?? sow.status_id;
-    const name = sow.status?.status_name;
-    // Only add if id is present and label is a non-empty string after trim.
-    if (id != null && typeof name === "string" && name.trim()) {
-      map.set(id, name);
+    const status = sow.status;
+    if (typeof status === "string" && status.trim()) {
+      map.set(status, status);
     }
   });
   // Convert Map to OptionItem array maintaining insertion order.

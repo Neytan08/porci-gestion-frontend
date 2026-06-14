@@ -2,22 +2,25 @@
 import type { Sow } from '../api/sowsApi';
 import { applyAllFilters, type FilterCriteria } from '../utils/sowFilters';
 import {
+  type BreedOptionItem,
   extractSowBreedOptions,
   extractSowStatusOptions,
-  type OptionItem,
+  type StatusOptionItem,
 } from '../utils/sowOptionsBuilder';
 
 export interface SowFilterCriteria extends FilterCriteria {}
 
-export interface FilterOption extends OptionItem {}
+export interface BreedFilterOption extends BreedOptionItem {}
+
+export interface StatusFilterOption extends StatusOptionItem {}
 
 interface UseSowsFilteringReturn {
   filters: SowFilterCriteria;
   filteredSows: Sow[];
-  breedOptions: FilterOption[];
-  statusOptions: FilterOption[];
+  breedOptions: BreedFilterOption[];
+  statusOptions: StatusFilterOption[];
   setBreedFilter: (id: number | null) => void;
-  setStatusFilter: (id: number | null) => void;
+  setStatusFilter: (status: Sow['status'] | null) => void;
   setSearchQuery: (query: string) => void;
   clearAllFilters: () => void;
 }
@@ -29,15 +32,15 @@ interface UseSowsFilteringReturn {
 export function useSowsFiltering(sows: Sow[]): UseSowsFilteringReturn {
   const [filters, setFilters] = useState<SowFilterCriteria>({
     breedId: null,
-    statusId: null,
+    status: null,
     searchQuery: '',
   });
 
-  const breedOptions = useMemo<FilterOption[]>(() => {
+  const breedOptions = useMemo<BreedFilterOption[]>(() => {
     return extractSowBreedOptions(sows);
   }, [sows]);
 
-  const statusOptions = useMemo<FilterOption[]>(() => {
+  const statusOptions = useMemo<StatusFilterOption[]>(() => {
     return extractSowStatusOptions(sows);
   }, [sows]);
 
@@ -49,8 +52,8 @@ export function useSowsFiltering(sows: Sow[]): UseSowsFilteringReturn {
     setFilters((prev) => ({ ...prev, breedId: id }));
   }, []);
 
-  const setStatusFilter = useCallback((id: number | null) => {
-    setFilters((prev) => ({ ...prev, statusId: id }));
+  const setStatusFilter = useCallback((status: Sow['status'] | null) => {
+    setFilters((prev) => ({ ...prev, status }));
   }, []);
 
   const setSearchQuery = useCallback((query: string) => {
@@ -60,7 +63,7 @@ export function useSowsFiltering(sows: Sow[]): UseSowsFilteringReturn {
   const clearAllFilters = useCallback(() => {
     setFilters({
       breedId: null,
-      statusId: null,
+      status: null,
       searchQuery: '',
     });
   }, []);

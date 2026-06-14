@@ -6,8 +6,10 @@ import {
 	getAllGroupedByPregnancyResult,
 	type MatingEvent,
 } from "../api/matingEventApi";
-
-export type PregnancyResult = "Pendiente" | "Positivo" | "Negativo";
+import {
+	PREGNANCY_RESULT_OPTIONS,
+	type PregnancyResult,
+} from "../model/matingEvent";
 
 export type MatingEventsCounts = {
 	pendiente: number;
@@ -24,11 +26,14 @@ interface UseMatingEventsAPIReturn {
 	onRefresh: () => Promise<void>;
 }
 
-const EMPTY_MAP: Record<PregnancyResult, MatingEvent[]> = {
-	Pendiente: [],
-	Positivo: [],
-	Negativo: [],
-};
+const createEventsByResultMap = (): Record<PregnancyResult, MatingEvent[]> =>
+	PREGNANCY_RESULT_OPTIONS.reduce(
+		(accumulator, result) => {
+			accumulator[result] = [];
+			return accumulator;
+		},
+		{} as Record<PregnancyResult, MatingEvent[]>,
+	);
 
 /**
  * Hook for fetching mating events grouped by pregnancy result.
@@ -36,7 +41,7 @@ const EMPTY_MAP: Record<PregnancyResult, MatingEvent[]> = {
  */
 export function useMatingEventsAPI(): UseMatingEventsAPIReturn {
 	const [eventsByResult, setEventsByResult] =
-		useState<Record<PregnancyResult, MatingEvent[]>>(EMPTY_MAP);
+		useState<Record<PregnancyResult, MatingEvent[]>>(createEventsByResultMap);
 	const [counts, setCounts] = useState<MatingEventsCounts>({
 		pendiente: 0,
 		positivo: 0,
@@ -47,11 +52,7 @@ export function useMatingEventsAPI(): UseMatingEventsAPIReturn {
 		try {
 			const groups = await getAllGroupedByPregnancyResult();
 
-			const map: Record<PregnancyResult, MatingEvent[]> = {
-				Pendiente: [],
-				Positivo: [],
-				Negativo: [],
-			};
+			const map = createEventsByResultMap();
 
 			for (const g of groups) {
 				const key = g.pregnancy_result as PregnancyResult | null;
@@ -71,7 +72,7 @@ export function useMatingEventsAPI(): UseMatingEventsAPIReturn {
 				fallback: "No se pudieron cargar los eventos de inseminación.",
 			});
 			console.error(message);
-			setEventsByResult(EMPTY_MAP);
+			setEventsByResult(createEventsByResultMap());
 			setCounts({ pendiente: 0, positivo: 0, negativo: 0 });
 		}
 	}, []);

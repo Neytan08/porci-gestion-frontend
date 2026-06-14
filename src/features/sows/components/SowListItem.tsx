@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import ListAction from '../../../shared/components/actions/listAction';
 import RowCheckbox from '../../../shared/components/selection/rowCheckBox';
+import { formatIsoDate } from '../../../shared/utils/dateHelpers';
 import type { Sow } from '../api/sowsApi';
 
 type SowListItemProps = {
@@ -58,11 +59,11 @@ function SowListItem({
         </Text>
         <Text style={[styles.textCell, { flexBasis: '45%' }]}>
           <Text style={{ fontWeight: '700' }}>Estado: </Text>
-          {item.status?.status_name ?? 'Sin estado'}
+          {item.status ?? 'Sin estado'}
         </Text>
         <Text style={[styles.textCell, { flexBasis: '55%' }]}>
           <Text style={{ fontWeight: '700' }}>Ingreso: </Text>
-          {item.entry_date ? item.entry_date.split('T')[0] : '-'}
+          {item.entry_date ? formatIsoDate(item.entry_date) : '-'}
         </Text>
         <Text style={[styles.textCell, { flexBasis: '40%' }]}>
           <Text style={{ fontWeight: '700' }}>Partos: </Text>
