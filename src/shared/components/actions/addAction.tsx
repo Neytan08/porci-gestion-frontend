@@ -5,6 +5,7 @@ import type {
   ViewStyle,
 } from "react-native";
 import { Image, Pressable, StyleSheet, Text } from "react-native";
+import ActionIconButton from "./actionIconButton";
 
 type AddActionProps = {
   onPress: () => void;
@@ -29,52 +30,44 @@ export default function AddAction({
   color,
   containerStyle,
   imageStyle,
-  textStyle,
   hitSlop = 10,
-  pressedStyle,
   accessibilityLabel = label ?? "Agregar",
 }: AddActionProps) {
   return (
-    <Pressable
+    <ActionIconButton
+      // label={label}
       onPress={onPress}
+      iconSource={require("../../../../assets/icons/add.png")}
+      size={size}
+      tintColor={color}
+      containerStyle={containerStyle}
+      imageStyle={imageStyle}
       hitSlop={hitSlop}
-      accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [
-        styles.button,
-        containerStyle,
-        pressed && styles.pressed,
-        pressed && pressedStyle,
-      ]}
-    >
-      <Image
-        source={require("../../../../assets/icons/add.png")}
-        style={[
-          styles.icon,
-          { width: size, height: size },
-          color ? { tintColor: color } : null,
-          imageStyle,
-        ]}
-        resizeMode="contain"
-      />
-      {label ? <Text style={[styles.label, textStyle]}>{label}</Text> : null}
-    </Pressable>
+    />
+    // <Pressable
+    //   onPress={onPress}
+    //   hitSlop={hitSlop}
+    //   accessibilityRole="button"
+    //   accessibilityLabel={accessibilityLabel}
+    //   style={({ pressed }) => [
+    //     styles.button,
+    //     containerStyle,
+    //     pressed && styles.pressed,
+    //     pressed && pressedStyle,
+    //   ]}
+    // >
+    //   <Image
+    //     source={require("../../../../assets/icons/add.png")}
+    //     style={[
+    //       styles.icon,
+    //       { width: size, height: size },
+    //       color ? { tintColor: color } : null,
+    //       imageStyle,
+    //     ]}
+    //     resizeMode="contain"
+    //   />
+    //   {label ? <Text style={[styles.label, textStyle]}>{label}</Text> : null}
+    // </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  icon: {
-    flexShrink: 0,
-  },
-  label: {
-    marginLeft: 4,
-  },
-  pressed: {
-    opacity: 0.8,
-  },
-});

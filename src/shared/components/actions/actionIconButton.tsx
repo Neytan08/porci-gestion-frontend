@@ -53,7 +53,7 @@ export default function ActionIconButton({
                 style={[{ width: size, height: size, tintColor }, imageStyle]}
                 resizeMode="contain"
             />
-            {label && <Text style={styles.label}>{label}</Text>}
+            { label && <Text style={styles.label}>{label}</Text>}
         </Pressable>
     );
 }

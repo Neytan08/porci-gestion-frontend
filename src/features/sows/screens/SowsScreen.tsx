@@ -186,20 +186,17 @@ export default function SowsScreen() {
             ]}
             onPress={openSelectedActionsModal}
           >
-            <Image
-              source={require("../../../../assets/icons/dots.png")}
-              style={styles.icon}
-              resizeMode="contain"
-            />
-            <Text style={styles.pinnedSowButtonText}>{`(${selectedSows.size})   `}</Text>
+          <Text style={styles.pinnedSowButtonText}>{`(${selectedSows.size})`}</Text>
           </Pressable>
         ) : (
           <AddAction
             label="Agregar"
-            size={35}
-            containerStyle={styles.pinnedSowButton}
-            textStyle={styles.pinnedSowButtonText}
-            imageStyle={styles.icon}
+            size={55}
+            containerStyle={styles.pinnedSowAddButton}
+            // textStyle={styles.pinnedSowButtonText}
+            // imageStyle={styles.icon}
+            // color="#ffffff"
+            color="#2E7D32"
             pressedStyle={{ opacity: 0.3 }}
             onPress={() => {
               handleAdd();
@@ -237,7 +234,7 @@ export default function SowsScreen() {
 }
 
 const styles = StyleSheet.create({
-  icon: { width: 35, height: 35 },
+  icon: { width: 50, height: 50 },
   mainContainer: {
     flex: 1,
     backgroundColor: "#F9FAFB",
@@ -275,20 +272,35 @@ const styles = StyleSheet.create({
     bottom: 20,
     right: 20,
     backgroundColor: "#2E7D32",
-    width: 140,
+    width: 80,
     height: 50,
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
+
     elevation: 5,
     shadowColor: "#000",
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 4,
   },
+  pinnedSowAddButton: {
+    flexDirection: "row",
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    // backgroundColor: "#2E7D32",
+    width: 80,
+    height: 50,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   pinnedSowButtonText: {
-    fontSize: 20,
+    fontSize: 30,
+    textAlign: "center",
+    // alignSelf: "center",
     color: "#fff",
-    marginBottom: 2,
+    // marginBottom: 2,
   },
 });
