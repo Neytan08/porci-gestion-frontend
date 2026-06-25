@@ -25,6 +25,7 @@ import { useBoarActions } from '../hooks/useBoarActions';
 import { useBoarsAPI } from '../hooks/useBoarsAPI';
 import { useBoarsFiltering } from '../hooks/useBoarsFiltering';
 import { useBoarsModals } from '../hooks/useBoarsModals';
+import AddAction from '../../../shared/components/actions/addAction';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Boars'>;
 
@@ -65,7 +66,7 @@ export default function BoarsScreen() {
   } = useBoarsModals();
 
   // Navigation and delete actions
-  const { handleAdd, handleDeletePress, handleBoarAction, confirmDelete, deleting } =
+  const { handleAdd, handleDetails, handleDeletePress, handleBoarAction, confirmDelete, deleting } =
     useBoarActions({
       navigation,
       loadBoars,
@@ -124,12 +125,15 @@ export default function BoarsScreen() {
               isActive={boarAction?.boar_id === item.boar_id && actionsModalVisible}
               selected={selectedBoars.has(item.boar_id)}
               onPress={() => {
-                navigation.navigate('DetailsBoar', { boarId: item.boar_id });
+                handleDetails(item.boar_id, selectedBoars.size);
                 clearAllFilters();
               }}
               onLongPress={() => handleDeletePress(item.boar_id, item.boar_tag_number)}
               onToggleSelect={() => toggleSelect(item.boar_id)}
-              onOpenActions={() => openActionsModal(item)}
+              onOpenActions={() => {
+                openActionsModal(item); 
+                deselectAll();
+              }}
             />
           )}
           ListEmptyComponent={
@@ -173,31 +177,20 @@ export default function BoarsScreen() {
             ]}
             onPress={openSelectedActionsModal}
           >
-            <Image
-              source={require('../../../../assets/icons/dots.png')}
-              style={styles.icon}
-              resizeMode="contain"
-            />
-            <Text style={styles.pinnedBoarButtonText}>{`(${selectedBoars.size})   `}</Text>
+          <Text style={styles.pinnedBoarButtonText}>{` ${selectedBoars.size} `}</Text>
           </Pressable>
         ) : (
-          <Pressable
-            style={({ pressed }) => [
-              styles.pinnedBoarButton,
-              pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
-            ]}
+          <AddAction
+            label="Agregar"
+            size={55}
+            containerStyle={styles.pinnedBoarAddButton}
+            color="#2E7D32"
+            pressedStyle={{ opacity: 0.3 , transform: [{ scale: 0.98 }]}}
             onPress={() => {
               handleAdd();
               clearAllFilters();
             }}
-          >
-            <Image
-              source={require('../../../../assets/icons/add.png')}
-              style={styles.icon}
-              resizeMode="contain"
-            />
-            <Text style={styles.pinnedBoarButtonText}> Agregar</Text>
-          </Pressable>
+          />
         )}
 
         {/* Delete confirmation */}
@@ -262,28 +255,33 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   pinnedBoarButton: {
-    flexDirection: 'row',
-    position: 'absolute',
+    flexDirection: "row",
+    position: "absolute",
     bottom: 20,
     right: 20,
-    backgroundColor: '#FFA000',
-    width: 140,
+    backgroundColor: "#2E7D32",
+    width: 50,
     height: 50,
     borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pinnedBoarAddButton: {
+    flexDirection: "row",
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
   },
   pinnedBoarButtonText: {
-    fontSize: 20,
-    color: '#fff',
-    marginBottom: 2,
+    fontSize: 25,
+    textAlign: "center",
+    color: "#fff",
   },
 });
-
 
 

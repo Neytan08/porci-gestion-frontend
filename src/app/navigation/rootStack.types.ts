@@ -7,11 +7,11 @@ export type RootStackParamList = {
 	Sows: undefined;
 	AddSow: undefined;
 	EditSow: { sowId: number };
-	DetailsSow: { sowId: number };
+	DetailsSow: { sowId: number; selectedSowCount?: number };
 	Boars: undefined;
 	AddBoar: undefined;
 	EditBoar: { boarId: number };
-	DetailsBoar: { boarId: number };
+	DetailsBoar: { boarId: number; selectedBoarCount?: number };
 	MatingEvents: undefined;
 	AddMatingEvent: undefined;
 	EditMatingEvent: { eventId: number };

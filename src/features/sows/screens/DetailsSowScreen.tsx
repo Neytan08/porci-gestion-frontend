@@ -1,7 +1,7 @@
 ﻿import type { RouteProp } from "@react-navigation/native";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useCallback, useMemo } from "react";
+import { useCallback, useLayoutEffect, useMemo } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
@@ -23,11 +23,21 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, "DetailsSow"
 export default function DetailsSowScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<DetailsRouteProp>();
-  const { sowId } = route.params;
+  const { sowId, selectedSowCount = 0 } = route.params;
+  const hasActiveSelection = selectedSowCount > 0;
+  const detailsTitle = hasActiveSelection
+    ? `${selectedSowCount} elemento${selectedSowCount === 1 ? "" : "s"} seleccionado${
+        selectedSowCount === 1 ? "" : "s"
+      }`
+    : "Detalles Cerda";
 
   const { sow, loading, error, loadSow } = useSowLoader(sowId);
 
   const datos = useMemo(() => (sow ? buildSowRows(sow) : []), [sow]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ title: detailsTitle });
+  }, [navigation, detailsTitle]);
 
   // Reload whenever the screen regains focus (e.g. after navigating back from Edit)
   useFocusEffect(
@@ -63,6 +73,7 @@ export default function DetailsSowScreen() {
         <SowInfoTable
           rows={datos}
           onEdit={() => navigation.navigate("EditSow", { sowId })}
+          showEditAction={!hasActiveSelection}
         />
       </View>
 
@@ -111,4 +122,3 @@ const styles = StyleSheet.create({
     color: "#007AFF",
   },
 });
-

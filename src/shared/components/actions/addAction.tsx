@@ -45,29 +45,5 @@ export default function AddAction({
       hitSlop={hitSlop}
       accessibilityLabel={accessibilityLabel}
     />
-    // <Pressable
-    //   onPress={onPress}
-    //   hitSlop={hitSlop}
-    //   accessibilityRole="button"
-    //   accessibilityLabel={accessibilityLabel}
-    //   style={({ pressed }) => [
-    //     styles.button,
-    //     containerStyle,
-    //     pressed && styles.pressed,
-    //     pressed && pressedStyle,
-    //   ]}
-    // >
-    //   <Image
-    //     source={require("../../../../assets/icons/add.png")}
-    //     style={[
-    //       styles.icon,
-    //       { width: size, height: size },
-    //       color ? { tintColor: color } : null,
-    //       imageStyle,
-    //     ]}
-    //     resizeMode="contain"
-    //   />
-    //   {label ? <Text style={[styles.label, textStyle]}>{label}</Text> : null}
-    // </Pressable>
   );
 }

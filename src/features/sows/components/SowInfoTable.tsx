@@ -13,18 +13,20 @@ type SowInfoTableProps = {
   rows: SowInfoRow[];
   /** Callback for editing the current sow from the table header. */
   onEdit: () => void;
+  /** Whether to show the edit action in the table header. */
+  showEditAction?: boolean;
 };
 
 /**
  * Read-only data table for displaying sow attributes.
  * Each row alternates background color for readability.
  */
-function SowInfoTable({ rows, onEdit }: SowInfoTableProps) {
+function SowInfoTable({ rows, onEdit, showEditAction = true }: SowInfoTableProps) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Detalles de la cerda</Text>
-        <EditAction onPress={onEdit} size={24} color="#fff" />
+        {showEditAction ? <EditAction onPress={onEdit} size={24} color="#fff" /> : null}
       </View>
       <ScrollView style={styles.scrollArea} contentContainerStyle={styles.scrollContent}>
         {rows.map((item) => (

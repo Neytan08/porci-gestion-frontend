@@ -24,7 +24,7 @@ interface UseSowActionsReturn {
   /** Navigate to the AddSow screen. */
   handleAdd: () => void;
   /** Navigate to the DetailsSow screen for a given sow ID. */
-  handleDetails: (sowId: number) => void;
+  handleDetails: (sowId: number, selectedSowCount?: number) => void;
   /** Open the delete modal from a long-press gesture on a list row. */
   handleDeletePress: (sowId: number, sowTag: string) => void;
   /**
@@ -71,8 +71,8 @@ export function useSowActions({
   }, [navigation]);
 
   const handleDetails = useCallback(
-    (sowId: number) => {
-      navigation.navigate('DetailsSow', { sowId });
+    (sowId: number, selectedSowCount?: number) => {
+      navigation.navigate('DetailsSow', { sowId, selectedSowCount });
     },
     [navigation],
   );

@@ -4,7 +4,6 @@ import { useCallback } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   Pressable,
   RefreshControl,
   StyleSheet,
@@ -139,12 +138,15 @@ export default function SowsScreen() {
               isActive={sowAction?.sow_id === item.sow_id && actionsModalVisible}
               selected={selectedSows.has(item.sow_id)}
               onPress={() => {
-                handleDetails(item.sow_id);
+                handleDetails(item.sow_id, selectedSows.size);
                 clearAllFilters();
               }}
               onLongPress={() => handleDeletePress(item.sow_id, item.sow_tag_number)}
               onToggleSelect={() => toggleSelect(item.sow_id)}
-              onOpenActions={() => openActionsModal(item)}
+              onOpenActions={() => {
+                openActionsModal(item);
+                deselectAll();
+              }}
             />
           )}
           ListEmptyComponent={<Text style={styles.noSowsText}>No hay cerdas registradas.</Text>}
@@ -186,18 +188,15 @@ export default function SowsScreen() {
             ]}
             onPress={openSelectedActionsModal}
           >
-          <Text style={styles.pinnedSowButtonText}>{`(${selectedSows.size})`}</Text>
+          <Text style={styles.pinnedSowButtonText}>{` ${selectedSows.size} `}</Text>
           </Pressable>
         ) : (
           <AddAction
             label="Agregar"
             size={55}
             containerStyle={styles.pinnedSowAddButton}
-            // textStyle={styles.pinnedSowButtonText}
-            // imageStyle={styles.icon}
-            // color="#ffffff"
             color="#2E7D32"
-            pressedStyle={{ opacity: 0.3 }}
+            pressedStyle={{ opacity: 0.3 , transform: [{ scale: 0.98 }]}}
             onPress={() => {
               handleAdd();
               clearAllFilters();
@@ -272,35 +271,26 @@ const styles = StyleSheet.create({
     bottom: 20,
     right: 20,
     backgroundColor: "#2E7D32",
-    width: 80,
+    width: 50,
     height: 50,
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
-
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
   },
   pinnedSowAddButton: {
     flexDirection: "row",
     position: "absolute",
     bottom: 20,
     right: 20,
-    // backgroundColor: "#2E7D32",
-    width: 80,
+    width: 50,
     height: 50,
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
   },
   pinnedSowButtonText: {
-    fontSize: 30,
+    fontSize: 25,
     textAlign: "center",
-    // alignSelf: "center",
     color: "#fff",
-    // marginBottom: 2,
   },
 });

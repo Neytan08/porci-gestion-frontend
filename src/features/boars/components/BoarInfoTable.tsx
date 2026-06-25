@@ -13,6 +13,8 @@ type BoarInfoTableProps = {
   rows: BoarInfoRow[];
   /** Callback for editing the current boar from the table header. */
   onEdit: () => void;
+  /** Whether to show the edit action in the table header. */
+  showEditAction?: boolean;
 };
 
 /**
@@ -20,12 +22,12 @@ type BoarInfoTableProps = {
 
  * Each row alternates background color for readability.
  */
-function BoarInfoTable({ rows, onEdit }: BoarInfoTableProps) {
+function BoarInfoTable({ rows, onEdit, showEditAction = true }: BoarInfoTableProps) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Detalles del verraco</Text>
-        <EditAction onPress={onEdit} size={24} color="#fff" />
+        {showEditAction ? <EditAction onPress={onEdit} size={24} color="#fff" /> : null}
       </View>
 
       <ScrollView style={styles.scrollArea} contentContainerStyle={styles.scrollContent}>
