@@ -23,3 +23,8 @@ export type Sow = {
 	removal_reason?: string | null;
 	breed: { breed_id: number; breed_name: string } | null;
 };
+
+export type RetireSowsPayload = {
+	removal_date: string;
+	removal_reason: string;
+};

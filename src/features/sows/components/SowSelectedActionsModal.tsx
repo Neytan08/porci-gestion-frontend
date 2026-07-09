@@ -1,14 +1,19 @@
 import { memo } from 'react';
 import { Alert, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import RetireSowModal from './RetireSowModal';
 
 type SowSelectedActionsModalProps = {
   visible: boolean;
   /** Number of currently selected sows; shown in the modal title. */
   selectedCount: number;
+  /** IDs of the currently selected sows. */
+  selectedIds: number[];
   /** Close this modal without performing any action. */
   onClose: () => void;
   /** Clear the entire multi-selection set. */
   onDeselect: () => void;
+  /** Refresh parent state after selected sows are retired. */
+  onRetired: () => void | Promise<void>;
 };
 
 /**
@@ -18,8 +23,10 @@ type SowSelectedActionsModalProps = {
 function SowSelectedActionsModal({
   visible,
   selectedCount,
+  selectedIds,
   onClose,
   onDeselect,
+  onRetired,
 }: SowSelectedActionsModalProps) {
   return (
     <Modal
@@ -45,18 +52,18 @@ function SowSelectedActionsModal({
               <Text style={{ fontWeight: '700', textAlign: 'center' }}>Extraer a PDF</Text>
             </Pressable>
 
-            {/* Retire sows — not yet implemented */}
-            <Pressable
-              style={styles.btn}
-              onPress={() => Alert.alert('Funcion no implementada')}
-            >
-              <Image
-                source={require('../../../../assets/icons/trash.png')}
-                style={styles.icon}
-                resizeMode="contain"
-              />
-              <Text style={{ fontWeight: '700', textAlign: 'center' }}>Desechar Cerdas</Text>
-            </Pressable>
+            {/* Retire selected sows */}
+            <RetireSowModal
+              selectedIds={selectedIds}
+              onConfirm={async () => {
+                await onRetired();
+                onDeselect();
+                onClose();
+              }}
+              label="Desechar Cerdas"
+              containerStyle={styles.btn}
+              imageStyle={styles.icon}
+            />
 
             {/* Clear selection */}
             <Pressable
@@ -111,6 +118,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
     alignItems: 'center',
+    justifyContent: 'flex-start',
   },
   icon: { width: 42, height: 42 },
 });

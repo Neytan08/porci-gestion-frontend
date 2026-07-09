@@ -176,6 +176,10 @@ export default function SowsScreen() {
           onDetails={() => sowAction && handleSowAction("moreDetails", sowAction)}
           onDelete={() => sowAction && handleSowAction("delete", sowAction)}
           onClose={closeActionsModal}
+          onRetired={async () => {
+            await loadSows();
+            clearAllFilters();
+          }}
           onBeforeAction={clearAllFilters}
         />
 
@@ -224,8 +228,13 @@ export default function SowsScreen() {
         <SowSelectedActionsModal
           visible={selectedActionsVisible}
           selectedCount={selectedSows.size}
+          selectedIds={Array.from(selectedSows)}
           onClose={closeSelectedActionsModal}
           onDeselect={deselectAll}
+          onRetired={async () => {
+            await loadSows();
+            clearAllFilters();
+          }}
         />
       </View>
     </ScreenContainer>

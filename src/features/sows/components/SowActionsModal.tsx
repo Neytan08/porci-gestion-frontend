@@ -4,6 +4,7 @@ import DeleteAction from '../../../shared/components/actions/deleteAction';
 import DetailsAction from '../../../shared/components/actions/detailsAction';
 import EditAction from '../../../shared/components/actions/editAction';
 import type { Sow } from '../api/sowsApi';
+import RetireSowModal from './RetireSowModal';
 
 type SowActionsModalProps = {
   visible: boolean;
@@ -17,6 +18,8 @@ type SowActionsModalProps = {
   onDelete: () => void;
   /** Close this modal without performing any action. */
   onClose: () => void;
+  /** Refresh parent state after the sow is retired. */
+  onRetired: () => void | Promise<void>;
   /** Optional callback executed before any action (Edit, Details, Delete). */
   onBeforeAction?: () => void;
 };
@@ -33,6 +36,7 @@ function SowActionsModal({
   onDetails,
   onDelete,
   onClose,
+  onRetired,
   onBeforeAction,
 }: SowActionsModalProps) {
   const handleAction = (action: () => void) => {
@@ -56,6 +60,14 @@ function SowActionsModal({
           <View style={styles.actions}>
             <EditAction onPress={() => handleAction(onEdit)} />
             <DetailsAction onPress={() => handleAction(onDetails)} />
+            <RetireSowModal
+              selectedIds={sow?.sow_id ?? 0}
+              onConfirm={async () => {
+                await onRetired();
+                onClose();
+              }}
+              size={22}
+            />
             <DeleteAction onPress={onDelete} />
           </View>
         </View>
