@@ -4,6 +4,7 @@ import DeleteAction from '../../../shared/components/actions/deleteAction';
 import DetailsAction from '../../../shared/components/actions/detailsAction';
 import EditAction from '../../../shared/components/actions/editAction';
 import type { Boar } from '../api/boarsApi';
+import RetireBoarModal from './RetireBoarModal';
 
 type BoarActionsModalProps = {
   visible: boolean;
@@ -17,6 +18,8 @@ type BoarActionsModalProps = {
   onDelete: () => void;
   /** Close this modal without performing any action. */
   onClose: () => void;
+  /** Refresh parent state after the boar is retired. */
+  onRetired: () => void | Promise<void>;
   /** Optional callback executed before any action (Edit, Details, Delete). */
   onBeforeAction?: () => void;
 };
@@ -33,6 +36,7 @@ function BoarActionsModal({
   onDetails,
   onDelete,
   onClose,
+  onRetired,
   onBeforeAction,
 }: BoarActionsModalProps) {
   const handleAction = (action: () => void) => {
@@ -52,6 +56,14 @@ function BoarActionsModal({
           <View style={styles.actions}>
             <EditAction onPress={() => handleAction(onEdit)} />
             <DetailsAction onPress={() => handleAction(onDetails)} />
+            <RetireBoarModal
+              boarId={boar?.boar_id ?? 0}
+              onConfirm={async () => {
+                await onRetired();
+                onClose();
+              }}
+              size={22}
+            />
             <DeleteAction onPress={onDelete} />
           </View>
         </View>

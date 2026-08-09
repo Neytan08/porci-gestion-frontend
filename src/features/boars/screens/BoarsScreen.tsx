@@ -165,6 +165,10 @@ export default function BoarsScreen() {
           onDetails={() => boarAction && handleBoarAction('moreDetails', boarAction)}
           onDelete={() => boarAction && handleBoarAction('delete', boarAction)}
           onClose={closeActionsModal}
+          onRetired={async () => {
+            await loadBoars();
+            clearAllFilters();
+          }}
           onBeforeAction={clearAllFilters}
         />
 
@@ -283,5 +287,4 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
 });
-
 
