@@ -30,9 +30,6 @@ export const deleteSowById = async (id: number) => {
 
 /**
  * Retires one or more sows with the specified IDs.
- * @param sowIds
- * @param payload
- * @returns
  */
 export const retireSows = async (
 	sowIds: number | number[],

@@ -8,6 +8,8 @@ export type RootStackParamList = {
 	AddSow: undefined;
 	EditSow: { sowId: number };
 	DetailsSow: { sowId: number; selectedSowCount?: number };
+	Farrowings: { sowId: number };
+	AddFarrowing: { sowId: number };
 	Boars: undefined;
 	AddBoar: undefined;
 	EditBoar: { boarId: number };

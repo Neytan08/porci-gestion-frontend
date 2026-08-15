@@ -32,8 +32,10 @@ export function utcIsoStringFromLocalDate(date: Date): string {
 	return localDateToUtcMidnight(date).toISOString();
 }
 
-// Extracts the date part from a UTC ISO string and formats it as DD-MM-YYYY.
-// Returns the fallback ("-") when the value is absent or not a valid ISO string.
+/** 
+ * Extracts the date part from a UTC ISO string and formats it as DD-MM-YYYY.
+ * Returns the fallback ("-") when the value is absent or not a valid ISO string.
+ */
 export function formatIsoDate(value?: string | null, fallback = "-"): string {
 	if (!value) return fallback;
 	const match = value.match(/^(\d{4})-(\d{2})-(\d{2})(?:T.*)?$/);

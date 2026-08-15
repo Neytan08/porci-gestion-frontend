@@ -1,15 +1,7 @@
 ﻿import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useCallback } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 import AddAction from "../../../shared/components/actions/addAction";
 import SearchFilter from "../../../shared/components/filters/searchFilter";
@@ -73,26 +65,20 @@ export default function SowsScreen() {
   } = useSowsModals();
 
   // Navigation and delete actions
-  const { 
-    handleAdd, 
-    handleDetails, 
-    handleDeletePress, 
-    handleSowAction, 
-    confirmDelete, 
-    deleting 
-  } = useSowActions({
-    navigation,
-    loadSows,
-    modals: { openDeleteModal, closeActionsModal, closeDeleteModal },
-    deleteSelectedSow,
-  });
+  const { handleAdd, handleDetails, handleDeletePress, handleSowAction, confirmDelete, deleting } =
+    useSowActions({
+      navigation,
+      loadSows,
+      modals: { openDeleteModal, closeActionsModal, closeDeleteModal },
+      deleteSelectedSow,
+    });
 
   // Reload the list every time this screen gains focus
   useFocusEffect(
     useCallback(() => {
       loadSows();
     }, [loadSows]),
-  ); 
+  );
 
   if (loading) {
     return (
@@ -192,7 +178,7 @@ export default function SowsScreen() {
             ]}
             onPress={openSelectedActionsModal}
           >
-          <Text style={styles.pinnedSowButtonText}>{` ${selectedSows.size} `}</Text>
+            <Text style={styles.pinnedSowButtonText}>{` ${selectedSows.size} `}</Text>
           </Pressable>
         ) : (
           <AddAction
@@ -200,7 +186,7 @@ export default function SowsScreen() {
             size={55}
             containerStyle={styles.pinnedSowAddButton}
             color="#2E7D32"
-            pressedStyle={{ opacity: 0.3 , transform: [{ scale: 0.98 }]}}
+            pressedStyle={{ opacity: 0.3, transform: [{ scale: 0.98 }] }}
             onPress={() => {
               handleAdd();
               clearAllFilters();

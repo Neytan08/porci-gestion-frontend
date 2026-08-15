@@ -45,7 +45,7 @@ export const DEFAULT_SOW_FIELDS: SowFormFieldConfig[] = [
     key: "farrowing_number",
     label: "Número de Partos",
     keyboardType: "numeric",
-    placeholder: "0",
+    placeholder: "Ej: 3",
   },
   {
     key: "description",

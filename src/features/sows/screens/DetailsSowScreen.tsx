@@ -2,7 +2,7 @@
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useCallback, useLayoutEffect, useMemo } from "react";
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import SowInfoTable from "../components/SowInfoTable";
@@ -77,14 +77,25 @@ export default function DetailsSowScreen() {
         />
       </View>
 
-      {/* Navigation buttons */}
-      <View style={styles.bottomButtons}>
-        {["Historial", "Vacunas", "Eventos", "Editar"].map((title) => (
-          <TouchableOpacity key={title} style={styles.button}>
-            <Text style={styles.buttonText}>{title}</Text>
+      {/* TODO: Implement "Vacunas" Action  THIS IS NOT NEEDED YET. THIS TODO IT'S JUST A HEADS UP */}
+      {!hasActiveSelection ? (
+        <View style={styles.bottomButtons}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("Farrowings", { sowId })}
+          >
+            <Image
+              source={require("../../../../assets/icons/farrowings.png")}
+              style={styles.buttonIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.buttonText}>Partos</Text>
           </TouchableOpacity>
-        ))}
-      </View>
+          <TouchableOpacity style={styles.button} disabled>
+            <Text style={styles.buttonText}>Vacunas</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
     </ScreenContainer>
   );
 }
@@ -105,20 +116,21 @@ const styles = StyleSheet.create({
   },
   bottomButtons: {
     flexDirection: "row",
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderColor: "#ccc",
   },
   button: {
     flex: 1,
-    paddingVertical: 20,
+    // paddingVertical: 10,
     alignItems: "center",
     justifyContent: "center",
-    borderRightWidth: 1,
-    borderColor: "#ccc",
+  },
+  buttonIcon: {
+    width: 30,
+    height: 30,
+    tintColor: "#2E7D32",
   },
   buttonText: {
     fontWeight: "bold",
-    color: "#007AFF",
+    color: "#555",
+    fontSize: 16,
   },
 });

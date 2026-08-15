@@ -18,6 +18,8 @@ export const rootStackScreenOptions = {
     AddSow: { title: "Agregar Cerda" },
     EditSow: { title: "Editar Cerda" },
     DetailsSow: { title: "Detalles Cerda" },
+    Farrowings: { title: "Partos" },
+    AddFarrowing: { title: "Agregar Parto" },
     Boars: { title: "Cerdos" },
     AddBoar: { title: "Agregar Verraco" },
     EditBoar: { title: "Editar Verraco" },

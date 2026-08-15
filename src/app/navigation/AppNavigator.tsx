@@ -8,6 +8,8 @@ import AddMatingEventScreen from "../../features/mating-events/screens/AddMating
 import DetailsMatingEventScreen from "../../features/mating-events/screens/DetailsMatingEventScreen";
 import EditMatingEventScreen from "../../features/mating-events/screens/EditMatingEventScreen";
 import MatingEventsScreen from "../../features/mating-events/screens/MatingEventsScreen";
+import AddFarrowing from "../../features/farrowings/screens/AddFarrowing";
+import FarrowingsScreen from "../../features/farrowings/screens/FarrowingsScreen";
 import AddSowScreen from "../../features/sows/screens/AddSowScreen";
 import DetailsSowScreen from "../../features/sows/screens/DetailsSowScreen";
 import EditSowScreen from "../../features/sows/screens/EditSowScreen";
@@ -27,6 +29,8 @@ export default function AppNavigator() {
         <Stack.Screen name="AddSow" component={AddSowScreen} options={rootStackScreenOptions.AddSow} />
         <Stack.Screen name="EditSow" component={EditSowScreen} options={rootStackScreenOptions.EditSow} />
         <Stack.Screen name="DetailsSow" component={DetailsSowScreen} options={rootStackScreenOptions.DetailsSow} />
+        <Stack.Screen name="Farrowings" component={FarrowingsScreen} options={rootStackScreenOptions.Farrowings} />
+        <Stack.Screen name="AddFarrowing" component={AddFarrowing} options={rootStackScreenOptions.AddFarrowing} />
         <Stack.Screen name="Boars" component={BoarsScreen} options={rootStackScreenOptions.Boars} />
         <Stack.Screen name="AddBoar" component={AddBoarScreen} options={rootStackScreenOptions.AddBoar} />
         <Stack.Screen name="EditBoar" component={EditBoarScreen} options={rootStackScreenOptions.EditBoar} />
