@@ -1,22 +1,13 @@
 ﻿import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
-import {
-	Alert,
-	Pressable,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TextInput,
-} from "react-native";
+import { Alert,	Pressable, ScrollView, StyleSheet, Text, TextInput } from "react-native";
 import { getApiErrorMessage } from "../../../shared/api/apiError";
 import { createMatingEvent } from "../api/matingEventApi";
 import { BoarPicker } from "../../boars/components/BoarsPicker";
 import { BreedingSowPicker } from "../../sows/components/BreedingSowPicker";
 import DatePickerField from "../../../shared/components/selection/datePicker";
 import { localDateToUtcMidnight } from "../../../shared/utils/dateHelpers";
-import InseminationTypePicker, {
-	type InseminationType,
-} from "../components/InseminationTypeDropdown";
+import InseminationTypePicker, { type  InseminationType } from "../components/InseminationTypeDropdown";
 import PregnancyResultPicker from "../components/PregnancyResultDropdown";
 import type { PregnancyResult } from "../model/matingEvent";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";

@@ -1,17 +1,7 @@
 ﻿import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { type ReactNode, useCallback, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 import ConfirmDeleteModal from "../../../shared/components/modals/confirmDeleteModal";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
@@ -24,6 +14,7 @@ import { useMatingEventActions } from "../hooks/useMatingEventActions";
 import { useMatingEventsAPI } from "../hooks/useMatingEventsAPI";
 import type { PregnancyResult } from "../model/matingEvent";
 import { useMatingEventsModals } from "../hooks/useMatingEventsModals";
+import AddAction from "../../../shared/components/actions/addAction";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "MatingEvents">;
 
@@ -38,14 +29,11 @@ function buildDeleteConfirmationMessage(event: MatingEvent | null): ReactNode {
   console.log("Event to delete:", event);
   if (event.pregnancy_result === "Positivo") {
     return (
-      <Text> 
-        Evento tipo{" "}
-        <Text style={{ fontWeight: "bold" }}>{event.insemination_type ?? ""}</Text> 
-        {" "}se encuentra en estado{" "}
-        <Text style={{ fontWeight: "bold" }}>Positivo</Text>. Al eliminarlo,{" "}
-        <Text style={{ fontWeight: "bold" }}>{event.breedingsows?.sow_tag_number ?? ""}</Text>
-        {" "}volverá al estado{" "}
-        <Text style={{ fontWeight: "bold" }}>Vacia</Text>. ¿Desea continuar?
+      <Text>
+        Evento tipo <Text style={{ fontWeight: "bold" }}>{event.insemination_type ?? ""}</Text> se
+        encuentra en estado <Text style={{ fontWeight: "bold" }}>Positivo</Text>. Al eliminarlo,{" "}
+        <Text style={{ fontWeight: "bold" }}>{event.breedingsows?.sow_tag_number ?? ""}</Text>{" "}
+        volverá al estado <Text style={{ fontWeight: "bold" }}>Vacia</Text>. ¿Desea continuar?
       </Text>
     );
   }
@@ -153,7 +141,10 @@ export default function MatingEventsScreen() {
                 selected={selectedEvents.has(item.mating_id)}
                 onPress={() => handleDetails(item.mating_id)}
                 onToggleSelect={() => toggleSelect(item.mating_id)}
-                onOpenActions={() => openActionsModal(item)}
+                onOpenActions={() => {
+                  openActionsModal(item);
+                  deselectAll();
+                }}
               />
             )}
             ListEmptyComponent={<Text style={styles.emptyText}>Sin registros</Text>}
@@ -199,23 +190,26 @@ export default function MatingEventsScreen() {
 
         {/* Floating action button — Add or bulk actions */}
         {selectedEvents.size > 0 ? (
-          <TouchableOpacity style={styles.fab} onPress={openSelectedActionsModal}>
-            <Image
-              source={require("../../../../assets/icons/dots.png")}
-              style={styles.icon}
-              resizeMode="contain"
-            />
-            <Text style={styles.fabText}>{`(${selectedEvents.size})   `}</Text>
-          </TouchableOpacity>
+          <Pressable
+            style={({ pressed }) => [
+              styles.pinnedEventButton,
+              pressed && { opacity: 0.8, transform: [{ scale: 0.98 }] },
+            ]}
+            onPress={openSelectedActionsModal}
+          >
+            <Text style={styles.pinnedEventButtonText}>{` ${selectedEvents.size} `}</Text>
+          </Pressable>
         ) : (
-          <TouchableOpacity style={styles.fab} onPress={handleAdd}>
-            <Image
-              source={require("../../../../assets/icons/add.png")}
-              style={styles.icon}
-              resizeMode="contain"
-            />
-            <Text style={styles.fabText}>Agregar</Text>
-          </TouchableOpacity>
+          <AddAction
+            label="Agregar"
+            size={55}
+            containerStyle={styles.pinnedEventAddButton}
+            color="#2E7D32"
+            pressedStyle={{ opacity: 0.3, transform: [{ scale: 0.98 }] }}
+            onPress={() => {
+              handleAdd();
+            }}
+          />
         )}
       </View>
     </ScreenContainer>
@@ -288,5 +282,33 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#fff",
     marginBottom: 2,
+  },
+  pinnedEventButton: {
+    flexDirection: "row",
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "#2E7D32",
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pinnedEventAddButton: {
+    flexDirection: "row",
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pinnedEventButtonText: {
+    fontSize: 25,
+    textAlign: "center",
+    color: "#fff",
   },
 });

@@ -9,7 +9,7 @@ import { BreedDropdown } from "../../reference-data/breeds/components/BreedDropd
 import { createSow } from "../api/sowsApi";
 import { StatusDropdown } from "../components/StatusDropdown";
 import SowFormFields, { type SowFormFieldValues  }  from "../components/SowFormFields";
-import type { BreedingSowStatus } from "../model/sow";
+import type { SelectableBreedingSowStatus } from "../model/sow";
 import { buildSowApiPayload } from "../utils/sowTransforms";
 import { validateSowRequiredFields, validateSowTagNumberFormat } from "../utils/sowValidation";
 
@@ -22,7 +22,7 @@ export default function AddSow() {
   const navigation = useNavigation();
   // Entry date initialised to UTC midnight to match the app-wide convention
   const [entryDate, setEntryDate] = useState(localDateToUtcMidnight(new Date()));
-  const [status, setStatus] = useState<BreedingSowStatus | null>(null);
+  const [status, setStatus] = useState<SelectableBreedingSowStatus | null>(null);
   const [breedId, setBreedId] = useState<number | null>(null);
   const [tagNumber, setTagNumber] = useState("");
   const [fields, setFields] = useState<SowFormFieldValues>({
@@ -40,7 +40,7 @@ export default function AddSow() {
       const payload = buildSowApiPayload({
         sow_tag_number: tagNumber,
         entry_date: entryDate.toISOString(),
-        status: status as BreedingSowStatus,
+        status: status as SelectableBreedingSowStatus,
         breed_id: Number(breedId),
         weight: fields.weight,
         length: fields.length,

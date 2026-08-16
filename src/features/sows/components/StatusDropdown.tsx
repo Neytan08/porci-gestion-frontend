@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 import {
 	BREEDING_SOW_STATUSES,
-	type BreedingSowStatus,
+	type SelectableBreedingSowStatus,
 } from "../model/sow";
 
 /**
@@ -14,8 +14,8 @@ import {
  * - onChange: A callback function that is called when a new status is selected.
  */
 type StatusDropdownProps = {
-	value: BreedingSowStatus | null;
-	onChange: (value: BreedingSowStatus) => void;
+	value: SelectableBreedingSowStatus | null;
+	onChange: (value: SelectableBreedingSowStatus) => void;
 };
 
 export const StatusDropdown = ({
@@ -23,12 +23,14 @@ export const StatusDropdown = ({
 	onChange,
 }: StatusDropdownProps) => {
 	const [statusModalVisible, setStatusModalVisible] = useState(false);
-	const statusOptions = useMemo(
-		() => BREEDING_SOW_STATUSES.map((status) => ({ label: status, value: status })),
-		[],
-	);
-
-	const handleSelection = (itemValue: BreedingSowStatus) => {
+	const statusOptions = useMemo(() => {
+		const allowed = BREEDING_SOW_STATUSES.filter(
+			(s): s is SelectableBreedingSowStatus => s !== "Retirada",
+		);
+		return allowed.map((status) => ({ label: status, value: status }));
+	}, []);
+	
+	const handleSelection = (itemValue: SelectableBreedingSowStatus) => {
 		onChange(itemValue);
 		setStatusModalVisible(false);
 	};

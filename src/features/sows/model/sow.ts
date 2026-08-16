@@ -1,11 +1,14 @@
 export const BREEDING_SOW_STATUSES = [
-	"Gestacion",
-	"Lactancia",
 	"Vacia",
+	"Gestación",
+	"Lactancia",
 	"No Productiva",
+	"Retirada",
 ] as const;
 
 export type BreedingSowStatus = (typeof BREEDING_SOW_STATUSES)[number];
+
+export type SelectableBreedingSowStatus = Exclude<BreedingSowStatus, "Retirada">;
 
 export type Sow = {
 	sow_id: number;
