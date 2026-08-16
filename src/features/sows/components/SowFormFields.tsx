@@ -43,7 +43,7 @@ export const DEFAULT_SOW_FIELDS: SowFormFieldConfig[] = [
   },
   {
     key: "farrowing_number",
-    label: "Número de Partos",
+    label: "Cantidad de Partos",
     keyboardType: "numeric",
     placeholder: "Ej: 3",
   },
