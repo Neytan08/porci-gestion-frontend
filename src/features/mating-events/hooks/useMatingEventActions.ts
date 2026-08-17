@@ -25,7 +25,7 @@ interface UseMatingEventActionsParams {
 
 interface UseMatingEventActionsReturn {
 	handleAdd: () => void;
-	handleDetails: (eventId: number) => void;
+	handleDetails: (eventId: number, selectedEventCount?: number) => void;
 	handleMatingAction: (
 		action: "edit" | "delete" | "moreDetails",
 		event: MatingEvent,
@@ -64,8 +64,8 @@ export function useMatingEventActions({
 	}, [navigation]);
 
 	const handleDetails = useCallback(
-		(eventId: number) => {
-			navigation.navigate("DetailsMatingEvent", { eventId });
+		(eventId: number, selectedEventCount?: number) => {
+			navigation.navigate("DetailsMatingEvent", { eventId, selectedEventCount });
 		},
 		[navigation],
 	);

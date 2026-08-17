@@ -1,8 +1,6 @@
 ﻿import { memo, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-
-export type InseminationType = "Monta Natural" | "Artificial";
-const OPTIONS: InseminationType[] = ["Monta Natural", "Artificial"];
+import { INSEMINATION_TYPE_OPTIONS, type InseminationType } from "../model/matingEvent";
 
 type Props = {
 	label?: string;
@@ -50,7 +48,7 @@ const InseminationTypePicker = ({
 							</Text>
 						</Pressable>
 
-						{OPTIONS.map((opt) => (
+						{INSEMINATION_TYPE_OPTIONS.map((opt) => (
 							<Pressable
 								key={opt}
 								onPress={() => {

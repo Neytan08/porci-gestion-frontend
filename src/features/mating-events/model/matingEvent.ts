@@ -1,9 +1,14 @@
 ﻿export type PregnancyResult = "Pendiente" | "Positivo" | "Negativo";
-
 export const PREGNANCY_RESULT_OPTIONS: readonly PregnancyResult[] = [
 	"Pendiente",
 	"Positivo",
 	"Negativo",
+];
+
+export type InseminationType = "Monta Natural" | "Inseminación";
+export const INSEMINATION_TYPE_OPTIONS: readonly InseminationType[] = [
+	"Monta Natural",
+	"Inseminación",
 ];
 
 export type MatingEvent = {
@@ -11,7 +16,7 @@ export type MatingEvent = {
 	sow_id: number;
 	boar_id: number | null;
 	insemination_date: string | null;
-	insemination_type: "Monta Natural" | "Artificial" | undefined;
+	insemination_type: InseminationType | undefined;
 	pregnancy_result: PregnancyResult | undefined;
 	notes?: string | undefined;
 

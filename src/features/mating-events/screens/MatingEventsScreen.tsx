@@ -139,7 +139,7 @@ export default function MatingEventsScreen() {
                 item={item}
                 isActive={actionForEvent?.mating_id === item.mating_id && actionsModalVisible}
                 selected={selectedEvents.has(item.mating_id)}
-                onPress={() => handleDetails(item.mating_id)}
+                onPress={() => handleDetails(item.mating_id, selectedEvents.size)}
                 onToggleSelect={() => toggleSelect(item.mating_id)}
                 onOpenActions={() => {
                   openActionsModal(item);

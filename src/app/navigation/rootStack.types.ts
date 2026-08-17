@@ -17,7 +17,7 @@ export type RootStackParamList = {
 	MatingEvents: undefined;
 	AddMatingEvent: undefined;
 	EditMatingEvent: { eventId: number };
-	DetailsMatingEvent: { eventId: number };
+	DetailsMatingEvent: { eventId: number; selectedEventCount?: number };
 };
 
 // Builds the union of valid screen names from the root stack.
