@@ -8,6 +8,11 @@ export const getSows = async (): Promise<Sow[]> => {
 	return res.data;
 };
 
+export const getAllSowsBySpecificStatus  = async (status: string): Promise<Sow[]> => {
+	const res = await client.get(`/api/breedingsows/status/${status}`);
+	return res.data;
+}
+
 export const getSowById = async (id: number): Promise<Sow> => {
 	const res = await client.get(`/api/breedingsows/${id}`);
 	return res.data;

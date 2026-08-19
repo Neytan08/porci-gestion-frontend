@@ -1,14 +1,6 @@
 ﻿import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useState } from "react";
-import {
-	Alert,
-	Pressable,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TextInput,
-	View,
-} from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { getApiErrorMessage } from "../../../shared/api/apiError";
 import type { RootStackRouteProp } from "../../../app/navigation/rootStack.types";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
@@ -16,9 +8,8 @@ import DatePickerField from "../../../shared/components/selection/datePicker";
 import { BoarPicker } from "../../boars/components/BoarsPicker";
 import { BreedingSowPicker } from "../../sows/components/BreedingSowPicker";
 import { updateMatingEvent } from "../api/matingEventApi";
-import InseminationTypePicker, {
-	type InseminationType,
-} from "../components/InseminationTypeDropdown";
+import InseminationTypePicker from "../components/InseminationTypeDropdown";
+import type { InseminationType } from "../model/matingEvent";
 import { useMatingEventLoader } from "../hooks/useMatingEventLoader";
 import { buildMatingEventPayload } from "../utils/matingEventTransforms";
 import { validateMatingEventRequiredFields } from "../utils/matingEventValidation";
@@ -153,7 +144,7 @@ export default function EditMatingEventScreen() {
 						{event.pregnancy_result ?? "-"}
 					</Text>
 					<Text style={styles.readonlyHint}>
-						Para modificar este campo use la opción "Actualizar estado" en la lista.
+						Para modificar este campo use la opción "Cambiar estado" en la lista.
 					</Text>
 				</View>
 

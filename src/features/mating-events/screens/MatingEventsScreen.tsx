@@ -151,13 +151,14 @@ export default function MatingEventsScreen() {
             contentContainerStyle={{ paddingBottom: 90, paddingTop: 8 }}
           />
         )}
-
+        
         {/* Per-row actions modal */}
         <MatingEventActionsModal
           visible={actionsModalVisible}
           event={actionForEvent}
           onUpdateConfirm={loadAll}
           onEdit={() => actionForEvent && handleMatingAction("edit", actionForEvent)}
+          hideEdit={selectedTab === "Positivo"}
           onDetails={() => actionForEvent && handleMatingAction("moreDetails", actionForEvent)}
           onDelete={() => actionForEvent && handleMatingAction("delete", actionForEvent)}
           onClose={closeActionsModal}

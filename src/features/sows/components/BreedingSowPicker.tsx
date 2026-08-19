@@ -2,7 +2,8 @@
 import { useCallback, useMemo, useState } from "react";
 import {ActivityIndicator, Modal, Pressable, StyleSheet, Text, TextInput, View} from "react-native";
 import { useLoadingAction } from "../../../shared/hooks/useLoadingAction";
-import { getSows, type Sow } from "../api/sowsApi";
+import { getAllSowsBySpecificStatus, type Sow } from "../api/sowsApi";
+import { BREEDING_SOW_STATUSES } from "../model/sow";
 
 type BreedingSowPickerProps = {
 	label?: string;
@@ -17,17 +18,14 @@ export const BreedingSowPicker = ({
 	onChange,
 	placeholder = "Seleccionar cerda...",
 }: BreedingSowPickerProps) => {
-	const [sowOptions, setSowOptions] = useState<
-		{ label: string; value: number }[]
-	>([]);
-	// const [loading, setLoading] = useState(true);
+	const [sowOptions, setSowOptions] = useState<{ label: string; value: number }[]	>([]);
 	const [visible, setVisible] = useState(false);
 	const [searchQuery, setSearchQuery] = useState<string>("");
 	
 	// Fetch sows from API
 	const fetchSows = useCallback(async () => {
 		try {
-			const data = await getSows();
+			const data = await getAllSowsBySpecificStatus(BREEDING_SOW_STATUSES[0]); // Fetch sows with the first status
 			const mapped = data.map((item: Sow) => ({
 				label: item.sow_tag_number,
 				value: item.sow_id,
@@ -75,6 +73,7 @@ export const BreedingSowPicker = ({
 	return (
 		<View style={styles.container}>
 			<Text style={styles.label}>{label}</Text>
+			<Text style={styles.helperText}>Solo muestra cerdas en estado Vacia</Text>
 			<Pressable style={styles.select} onPress={() => setVisible(true)}>
 				<Text style={[styles.selectText, !selectedLabel && styles.placeholder]}>
 					{selectedLabel ?? placeholder}
@@ -139,6 +138,7 @@ export const BreedingSowPicker = ({
 const styles = StyleSheet.create({
 	container: { marginVertical: 10 },
 	label: { fontSize: 16, marginBottom: 6 },
+	helperText: { fontSize: 12, color: "#607D8B", marginBottom: 6 },
 	loadingContainer: { flexDirection: "row", alignItems: "center", gap: 10 },
 	select: {
 		borderWidth: 1,
@@ -166,7 +166,8 @@ const styles = StyleSheet.create({
 	},
 	title: { fontSize: 16, fontWeight: "700", marginBottom: 8 },
 	optionRow: {
-		paddingVertical: 12,
+		marginVertical: 4,
+		paddingVertical: 10,
 		borderBottomWidth: StyleSheet.hairlineWidth,
 		borderBottomColor: "#eee",
 	},
@@ -182,4 +183,3 @@ const styles = StyleSheet.create({
 	optionSelected: { color: "#2E7D32", fontWeight: "700" },
 	optionAll: { color: "#555" },
 });
-
