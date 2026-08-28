@@ -25,7 +25,8 @@ export const BreedingSowPicker = ({
 	// Fetch sows from API
 	const fetchSows = useCallback(async () => {
 		try {
-			const data = await getAllSowsBySpecificStatus(BREEDING_SOW_STATUSES[0]); // Fetch sows with the first status
+			// Fetch only sows eligible for mating-event creation.
+			const data = await getAllSowsBySpecificStatus(BREEDING_SOW_STATUSES.vacia);
 			const mapped = data.map((item: Sow) => ({
 				label: item.sow_tag_number,
 				value: item.sow_id,
@@ -73,7 +74,9 @@ export const BreedingSowPicker = ({
 	return (
 		<View style={styles.container}>
 			<Text style={styles.label}>{label}</Text>
-			<Text style={styles.helperText}>Solo muestra cerdas en estado Vacia</Text>
+			<Text style={styles.helperText}>
+				Solo muestra cerdas en estado {BREEDING_SOW_STATUSES.vacia}
+			</Text>
 			<Pressable style={styles.select} onPress={() => setVisible(true)}>
 				<Text style={[styles.selectText, !selectedLabel && styles.placeholder]}>
 					{selectedLabel ?? placeholder}

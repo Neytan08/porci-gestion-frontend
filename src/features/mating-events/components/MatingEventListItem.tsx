@@ -55,12 +55,12 @@ function MatingEventListItem({
 				</Text>
 				<Text style={[styles.textCell, { flexBasis: "50%" }]}>
 					<Text style={{ fontWeight: "700" }}>Tipo: </Text>
-					{item.insemination_type ?? "-"}
+					{item.reproduction_type ?? "-"}
 				</Text>
 				<Text style={[styles.textCell, { flexBasis: "50%" }]}>
 					<Text style={{ fontWeight: "700" }}>Fecha: </Text>
-					{item.insemination_date
-						? formatIsoDate(item.insemination_date)
+					{item.reproduction_date
+						? formatIsoDate(item.reproduction_date)
 						: "-"}
 				</Text>
 				<Text style={[styles.textCell, { flexBasis: "50%" }]}>

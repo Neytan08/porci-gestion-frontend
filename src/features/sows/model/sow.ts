@@ -1,14 +1,20 @@
-export const BREEDING_SOW_STATUSES = [
-	"Vacia",
-	"Gestación",
-	"Lactancia",
-	"No Productiva",
-	"Retirada",
-] as const;
+export const BREEDING_SOW_STATUSES = {
+	vacia: "Vacia",
+	gestacion: "Gestación",
+	lactancia: "Lactancia",
+	noProductiva: "No Productiva",
+	retirada: "Retirada",
+} as const;
 
-export type BreedingSowStatus = (typeof BREEDING_SOW_STATUSES)[number];
+// Builds the status union from the object values so consumers use the shared constants.
+export type BreedingSowStatus =
+	(typeof BREEDING_SOW_STATUSES)[keyof typeof BREEDING_SOW_STATUSES];
 
-export type SelectableBreedingSowStatus = Exclude<BreedingSowStatus, "Retirada">;
+// Retired sows are managed by the retire flow, so they are excluded from normal status selection.
+export type SelectableBreedingSowStatus = Exclude<
+	BreedingSowStatus,
+	typeof BREEDING_SOW_STATUSES.retirada
+>;
 
 export type Sow = {
 	sow_id: number;

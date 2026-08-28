@@ -12,9 +12,10 @@ import MatingEventListItem from "../components/MatingEventListItem";
 import MatingEventSelectedActionsModal from "../components/MatingEventSelectedActionsModal";
 import { useMatingEventActions } from "../hooks/useMatingEventActions";
 import { useMatingEventsAPI } from "../hooks/useMatingEventsAPI";
-import type { PregnancyResult } from "../model/matingEvent";
+import { PREGNANCY_RESULT_OPTIONS, PREGNANCY_RESULTS,	type PregnancyResult } from "../model/matingEvent";
 import { useMatingEventsModals } from "../hooks/useMatingEventsModals";
 import AddAction from "../../../shared/components/actions/addAction";
+import { BREEDING_SOW_STATUSES } from "../../sows/model/sow";
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, "MatingEvents">;
 
@@ -27,13 +28,13 @@ function buildDeleteConfirmationMessage(event: MatingEvent | null): ReactNode {
     return "";
   }
   console.log("Event to delete:", event);
-  if (event.pregnancy_result === "Positivo") {
+  if (event.pregnancy_result === PREGNANCY_RESULTS.positivo) {
     return (
       <Text>
-        Evento tipo <Text style={{ fontWeight: "bold" }}>{event.insemination_type ?? ""}</Text> se
-        encuentra en estado <Text style={{ fontWeight: "bold" }}>Positivo</Text>. Al eliminarlo,{" "}
+        Evento tipo <Text style={{ fontWeight: "bold" }}>{event.reproduction_type ?? ""}</Text> se
+        encuentra en estado <Text style={{ fontWeight: "bold" }}>{PREGNANCY_RESULTS.positivo}</Text>. Al eliminarlo,{" "}
         <Text style={{ fontWeight: "bold" }}>{event.breedingsows?.sow_tag_number ?? ""}</Text>{" "}
-        volverá al estado <Text style={{ fontWeight: "bold" }}>Vacia</Text>. ¿Desea continuar?
+        volverá al estado <Text style={{ fontWeight: "bold" }}>{BREEDING_SOW_STATUSES.vacia}</Text>. ¿Desea continuar?
       </Text>
     );
   }
@@ -41,7 +42,7 @@ function buildDeleteConfirmationMessage(event: MatingEvent | null): ReactNode {
   return (
     <Text>
       ¿Seguro que desea eliminar la inseminación tipo{" "}
-      <Text style={{ fontWeight: "bold" }}>{event.insemination_type ?? ""}</Text> a la cerda{" "}
+      <Text style={{ fontWeight: "bold" }}>{event.reproduction_type ?? ""}</Text> a la cerda{" "}
       <Text style={{ fontWeight: "bold" }}>{event.breedingsows?.sow_tag_number ?? ""}</Text>?
     </Text>
   );
@@ -83,11 +84,11 @@ export default function MatingEventsScreen() {
     });
 
   const headers = useMemo(
-    () => [
-      { key: "Pendiente" as PregnancyResult, label: `Pendiente (${counts.pendiente})` },
-      { key: "Positivo" as PregnancyResult, label: `Positivos (${counts.positivo})` },
-      { key: "Negativo" as PregnancyResult, label: `Negativos (${counts.negativo})` },
-    ],
+    () =>
+      PREGNANCY_RESULT_OPTIONS.map((result) => ({
+        key: result,
+        label: `${result} (${counts[result]})`,
+      })),
     [counts],
   );
 
@@ -158,7 +159,7 @@ export default function MatingEventsScreen() {
           event={actionForEvent}
           onUpdateConfirm={loadAll}
           onEdit={() => actionForEvent && handleMatingAction("edit", actionForEvent)}
-          hideEdit={selectedTab === "Positivo"}
+          hideEdit={selectedTab === PREGNANCY_RESULTS.positivo}
           onDetails={() => actionForEvent && handleMatingAction("moreDetails", actionForEvent)}
           onDelete={() => actionForEvent && handleMatingAction("delete", actionForEvent)}
           onClose={closeActionsModal}

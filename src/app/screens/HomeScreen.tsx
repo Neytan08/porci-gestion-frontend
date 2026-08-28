@@ -17,7 +17,7 @@ type HomeMenuCard = {
 const HOME_MENU_CARDS: HomeMenuCard[] = [
 	{ id: "1", title: "Cerdas", route: "Sows", icon: require("../../../assets/icons/sow.png") },
 	{ id: "2", title: "Cerdos", route: "Boars", icon: require("../../../assets/icons/farm.png") },
-	{ id: "3", title: "Eventos", route: "MatingEvents", icon: require("../../../assets/icons/add-event.png") },
+	{ id: "3", title: "Reproducción", route: "MatingEvents", icon: require("../../../assets/icons/add-event.png") },
 ];
 
 export default function HomeScreen() {

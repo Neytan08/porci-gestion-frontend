@@ -105,9 +105,9 @@ export default function DetailsMatingEventScreen() {
 	const detailRows = [
 		{
 			label: "Fecha de inseminación",
-			value: event.insemination_date ? formatIsoDate(event.insemination_date) : "-",
+			value: event.reproduction_date ? formatIsoDate(event.reproduction_date) : "-",
 		},
-		{ label: "Tipo", value: event.insemination_type ?? "-" },
+		{ label: "Tipo", value: event.reproduction_type ?? "-" },
 		{ label: "Resultado", value: event.pregnancy_result ?? "-" },
 		{ label: "Notas", value: event.notes ?? "-" },
 	];

@@ -1,16 +1,16 @@
 ﻿import { memo, useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import { INSEMINATION_TYPE_OPTIONS, type InseminationType } from "../model/matingEvent";
+import { REPRODUCTION_TYPE_OPTIONS, type ReproductionType } from "../model/matingEvent";
 
 type Props = {
 	label?: string;
-	value?: InseminationType;
-	onChange: (value: InseminationType | undefined) => void;
+	value?: ReproductionType;
+	onChange: (value: ReproductionType | undefined) => void;
 	placeholder?: string;
 };
 
-const InseminationTypePicker = ({
-	label = "Tipo de Inseminación",
+const ReproductionTypePicker = ({
+	label = "Tipo de Reproducción",
 	value,
 	onChange,
 	placeholder = "Seleccionar tipo",
@@ -48,7 +48,7 @@ const InseminationTypePicker = ({
 							</Text>
 						</Pressable>
 
-						{INSEMINATION_TYPE_OPTIONS.map((opt) => (
+						{REPRODUCTION_TYPE_OPTIONS.map((opt) => (
 							<Pressable
 								key={opt}
 								onPress={() => {
@@ -117,5 +117,4 @@ const styles = StyleSheet.create({
 	optionAll: { color: "#555" },
 });
 
-export default memo(InseminationTypePicker);
-
+export default memo(ReproductionTypePicker);

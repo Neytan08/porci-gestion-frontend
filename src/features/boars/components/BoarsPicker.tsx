@@ -138,11 +138,19 @@ export const BoarPicker = ({
 };
 
 const styles = StyleSheet.create({
-	container: { marginVertical: 10 },
-	label: { fontSize: 16, marginBottom: 6 },
-	loadingContainer: { flexDirection: "row", alignItems: "center", gap: 10 },
-
-	// Estilo tipo InseminationTypePicker
+	container: {
+		marginVertical: 10,
+	},
+	label: {
+		fontSize: 16,
+		marginBottom: 6,
+	},
+	loadingContainer: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 10,
+	},
+	// Estilo tipo ReproductionTypePicker
 	select: {
 		borderWidth: 1,
 		borderColor: "#37474F",
@@ -152,9 +160,13 @@ const styles = StyleSheet.create({
 		marginBottom: 15,
 		backgroundColor: "#fff",
 	},
-	selectText: { fontSize: 15, color: "#263238" },
-	placeholder: { color: "#9E9E9E" },
-
+	selectText: {
+		fontSize: 15,
+		color: "#263238",
+	},
+	placeholder: {
+		color: "#9E9E9E",
+	},
 	overlay: {
 		flex: 1,
 		backgroundColor: "rgba(0,0,0,0.25)",
@@ -181,9 +193,19 @@ const styles = StyleSheet.create({
 		borderRadius: 8,
 		fontSize: 12,
 	},
-	optionText: { fontSize: 16, color: "#333", paddingLeft: 10 },
-	optionRowSelected: { backgroundColor: "#e0f2f1" },
-	optionSelected: { color: "#2E7D32", fontWeight: "700" },
-	optionAll: { color: "#555" },
+	optionText: {
+		fontSize: 16,
+		color: "#333",
+		paddingLeft: 10
+	},
+	optionRowSelected: {
+		backgroundColor: "#e0f2f1"
+	},
+	optionSelected: {
+		color: "#2E7D32",
+		fontWeight: "700"
+	},
+	optionAll: {
+		color: "#555"
+	},
 });
-

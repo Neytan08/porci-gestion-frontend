@@ -60,7 +60,7 @@ function SowSelectedActionsModal({
                 onDeselect();
                 onClose();
               }}
-              label="Desechar Cerdas"
+              label="Retirar Cerdas"
               containerStyle={styles.btn}
               imageStyle={styles.icon}
             />

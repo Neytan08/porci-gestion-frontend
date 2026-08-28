@@ -30,7 +30,7 @@ export default function RetireAction({
   containerStyle,
   imageStyle,
   hitSlop = 10,
-  accessibilityLabel = label ?? "Desechar",
+  accessibilityLabel = label ?? "Retirar",
 }: RetireActionProps) {
   return (
     <ActionIconButton

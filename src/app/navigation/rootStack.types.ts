@@ -15,7 +15,8 @@ export type RootStackParamList = {
 	EditBoar: { boarId: number };
 	DetailsBoar: { boarId: number; selectedBoarCount?: number };
 	MatingEvents: undefined;
-	AddMatingEvent: undefined;
+	// Optional sowId lets DetailsSowScreen open this shared form with an eligible sow preselected.
+	AddMatingEvent: { sowId?: number } | undefined;
 	EditMatingEvent: { eventId: number };
 	DetailsMatingEvent: { eventId: number; selectedEventCount?: number };
 };

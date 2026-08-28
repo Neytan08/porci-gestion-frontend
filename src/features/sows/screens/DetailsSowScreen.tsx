@@ -2,12 +2,13 @@
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useCallback, useLayoutEffect, useMemo } from "react";
-import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import SowInfoTable from "../components/SowInfoTable";
 import SowProfileHeader from "../components/SowProfileHeader";
 import { useSowLoader } from "../hooks/useSowLoader";
+import { BREEDING_SOW_STATUSES } from "../model/sow";
 import { buildSowRows } from "../utils/sowDetailsRows";
 
 // Route prop for receiving sowId from navigation
@@ -46,6 +47,21 @@ export default function DetailsSowScreen() {
     }, [loadSow]),
   );
 
+  // Opens the mating-event form only for sows that satisfy the reproduction business rule.
+  const handleAddReproduction = useCallback(() => {
+    // Mating events can only be created for sows in the centralized eligible status.
+    if (sow?.status !== BREEDING_SOW_STATUSES.vacia) {
+      Alert.alert(
+        "Acción no permitida",
+        `Solo se pueden registrar reproducción para cerdas en estado ${BREEDING_SOW_STATUSES.vacia}`,
+      );
+      return;
+    }
+
+    // Passes the current sowId so AddMatingEventScreen can preselect the watched sow.
+    navigation.navigate("AddMatingEvent", { sowId });
+  }, [navigation, sow?.status, sowId]);
+
   if (loading) {
     return (
       <View style={styles.center}>
@@ -80,7 +96,7 @@ export default function DetailsSowScreen() {
       {/* TODO: Implement "Vacunas" Action  THIS IS NOT NEEDED YET. THIS TODO IT'S JUST A HEADS UP */}
       {!hasActiveSelection ? (
         <View style={styles.bottomButtons}>
-          <TouchableOpacity
+          <Pressable
             style={styles.button}
             onPress={() => navigation.navigate("Farrowings", { sowId })}
           >
@@ -90,10 +106,22 @@ export default function DetailsSowScreen() {
               resizeMode="contain"
             />
             <Text style={styles.buttonText}>Partos</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} disabled>
+          </Pressable>
+          {/* Reproduction action reuses AddMatingEventScreen with the current sow preselected. */}
+          <Pressable
+            style={styles.button}
+            onPress={handleAddReproduction}
+          >
+            <Image
+              source={require("../../../../assets/icons/add.png")}
+              style={styles.buttonIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.buttonText}>Reproducción</Text>
+          </Pressable>
+          <Pressable style={styles.button} disabled>
             <Text style={styles.buttonText}>Vacunas</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       ) : null}
     </ScreenContainer>
