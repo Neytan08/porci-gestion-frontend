@@ -1,5 +1,9 @@
 import client from "../../../shared/api/client";
-import type { RetireSowsPayload, Sow } from "../model/sow";
+import type {
+	BreedingSowStatus,
+	RetireSowsPayload,
+	Sow,
+} from "../model/sow";
 
 export type { Sow, RetireSowsPayload };
 
@@ -26,6 +30,16 @@ export const createSow = async (payload: Partial<Sow>) => {
 export const updateSow = async (id: number, payload: Partial<Sow>) => {
 	const res = await client.put(`/api/breedingsows/${id}`, payload);
 	return res.data;
+};
+
+export const validateSowStatusChange = async (
+	id: number,
+	status: BreedingSowStatus,
+): Promise<void> => {
+	await client.post<void>(
+		`/api/breedingsows/${id}/validate-status-change`,
+		{ status },
+	);
 };
 
 export const deleteSowById = async (id: number) => {

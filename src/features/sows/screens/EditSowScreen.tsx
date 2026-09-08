@@ -1,27 +1,20 @@
 ﻿import type { RouteProp } from "@react-navigation/native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { useCallback, useEffect, useRef } from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ActivityIndicator, Alert, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 import { getApiErrorMessage } from "../../../shared/api/apiError";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import DatePickerField from "../../../shared/components/selection/datePicker";
 import { BreedDropdown } from "../../reference-data/breeds/components/BreedDropdown";
-import { checkSowTagNumberExists, updateSow } from "../api/sowsApi";
+import { checkSowTagNumberExists, updateSow, validateSowStatusChange } from "../api/sowsApi";
 import EditSowTagModal from "../components/EditSowTagModal";
 import { StatusDropdown } from "../components/StatusDropdown";
 import SowFormFields, { type SowFormFieldValues } from "../components/SowFormFields";
 import SowProfileHeader from "../components/SowProfileHeader";
 import { useSowLoader } from "../hooks/useSowLoader";
 import { useSowsModals } from "../hooks/useSowsModals";
+import { BREEDING_SOW_STATUSES, type SelectableBreedingSowStatus } from "../model/sow";
 import { buildSowApiPayload } from "../utils/sowTransforms";
 import { validateSowRequiredFields, validateSowTagNumberFormat } from "../utils/sowValidation";
 
@@ -47,6 +40,7 @@ export default function EditSow() {
   const { sowId } = route.params;
   const { sow, setSow, loading, loadSow } = useSowLoader(sowId);
   const { editSowTagVisible, openEditSowTag, closeEditSowTag } = useSowsModals();
+  const [validatingStatusChange, setValidatingStatusChange] = useState(false);
   // Stores the tag number that came from the server so we can skip the
   // duplicate check when the user saves without changing it.
   const originalTagRef = useRef<string | null>(null);
@@ -63,8 +57,37 @@ export default function EditSow() {
     }
   }, [sow]);
 
+  // Validates manual status changes before mutating the form state.
+  const handleStatusChange = useCallback(async (candidateStatus: SelectableBreedingSowStatus) => {
+    if (!sow || validatingStatusChange || candidateStatus === sow.status) return;
+    setValidatingStatusChange(true);
+    try {
+      await validateSowStatusChange(sowId, candidateStatus);
+
+      setSow((currentSow) =>
+        currentSow
+          ? {
+            ...currentSow,
+            status: candidateStatus,
+          }
+          : currentSow,
+      );
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        getApiErrorMessage(error, {
+          fallback: "No se pudo validar el cambio de estado. Intente nuevamente.",
+        }),
+      );
+    } finally {
+      setValidatingStatusChange(false);
+    }
+  },
+    [sow, sowId, setSow, validatingStatusChange],
+  );
+
   const handleUpdateSow = async () => {
-    if (!sow) return;
+    if (!sow || validatingStatusChange) return;
     if (
       !validateSowRequiredFields({
         tagNumber: sow.sow_tag_number,
@@ -134,6 +157,9 @@ export default function EditSow() {
     );
   }
 
+  const statusDropdownValue: SelectableBreedingSowStatus | null =
+    sow.status === BREEDING_SOW_STATUSES.retirada ? null : sow.status;
+
   return (
     <ScreenContainer>
       <ScrollView style={styles.mainContainer}>
@@ -152,12 +178,10 @@ export default function EditSow() {
         />
 
         <StatusDropdown
-          value={sow.status ?? null}
+          value={statusDropdownValue}
+          disabled={validatingStatusChange}
           onChange={(newStatus) => {
-            setSow({
-              ...sow,
-              status: newStatus,
-            });
+            handleStatusChange(newStatus);
           }}
         />
         <BreedDropdown
@@ -180,12 +204,27 @@ export default function EditSow() {
         <SowFormFields values={formValues} onChange={handleFormChange} />
 
         <Pressable
-          style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
+          disabled={validatingStatusChange}
+          style={({ pressed }) => [
+            styles.button,
+            validatingStatusChange && styles.disabledButton,
+            pressed && { opacity: 0.8 },
+          ]}
           onPress={handleUpdateSow}
         >
           <Text style={styles.buttonText}>Actualizar</Text>
         </Pressable>
       </ScrollView>
+
+      {/* Validation overlay for status changes */}
+      <Modal visible={validatingStatusChange} transparent animationType="fade">
+        <View style={styles.validationOverlay}>
+          <View style={styles.validationModal}>
+            <ActivityIndicator size="small" color="#2E7D32" />
+            <Text style={styles.validationText}>Validando cambio de estado...</Text>
+          </View>
+        </View>
+      </Modal>
     </ScreenContainer>
   );
 }
@@ -209,8 +248,32 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: "center",
   },
+  disabledButton: {
+    opacity: 0.6,
+  },
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  validationOverlay: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.25)",
+    padding: 24,
+  },
+  validationModal: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+  },
+  validationText: {
+    color: "#333",
+    fontSize: 15,
+    fontWeight: "600",
   },
 });

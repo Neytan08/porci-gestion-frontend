@@ -13,11 +13,13 @@ import { BREEDING_SOW_STATUSES,	type SelectableBreedingSowStatus } from "../mode
 type StatusDropdownProps = {
 	value: SelectableBreedingSowStatus | null;
 	onChange: (value: SelectableBreedingSowStatus) => void;
+	disabled?: boolean;
 };
 
 export const StatusDropdown = ({
 	value,
 	onChange,
+	disabled = false,
 }: StatusDropdownProps) => {
 	const [statusModalVisible, setStatusModalVisible] = useState(false);
 	const statusOptions = useMemo(() => {
@@ -30,6 +32,7 @@ export const StatusDropdown = ({
 	}, []);
 	
 	const handleSelection = (itemValue: SelectableBreedingSowStatus) => {
+		if (disabled) return;
 		onChange(itemValue);
 		setStatusModalVisible(false);
 	};
@@ -39,8 +42,13 @@ export const StatusDropdown = ({
 			<Text style={styles.label}>{"Estado *"}</Text>
 			{/* Dropdown to open modal and show selected status */}
 			<Pressable
+				disabled={disabled}
 				onPress={() => setStatusModalVisible(true)}
-				style={({ pressed }) => [styles.dropdown, pressed && { opacity: 0.3 }]}
+				style={({ pressed }) => [
+					styles.dropdown,
+					disabled && styles.disabled,
+					pressed && { opacity: 0.3 },
+				]}
 			>
 				<Text style={styles.selectedStatus}>
 					{statusOptions.find((item) => item.value === value)?.label ||
@@ -68,10 +76,12 @@ export const StatusDropdown = ({
 							renderItem={({ item }) => (
 								// Each status item
 								<Pressable
+									disabled={disabled}
 									onPress={() => handleSelection(item.value)}
 									style={({ pressed }) => [
 										styles.itemRow,
 										item.value === value && styles.selectedRow,
+										disabled && styles.disabled,
 										pressed && { opacity: 0.5 },
 									]}
 								>
@@ -111,6 +121,9 @@ const styles = StyleSheet.create({
 	selectedStatus: {
 		fontSize: 16,
 		color: "#333",
+	},
+	disabled: {
+		opacity: 0.5,
 	},
 	statusOverlay: {
 		flex: 1,
