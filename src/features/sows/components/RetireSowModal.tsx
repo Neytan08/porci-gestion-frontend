@@ -1,22 +1,10 @@
 import { memo, useState } from "react";
 import type { ImageStyle, StyleProp, ViewStyle } from "react-native";
-import {
-	ActivityIndicator,
-	Alert,
-	Modal,
-	Pressable,
-	StyleSheet,
-	Text,
-	TextInput,
-	View,
-} from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import {ActivityIndicator, Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { getApiErrorMessage } from "../../../shared/api/apiError";
 import RetireAction from "../../../shared/components/actions/retireAction";
-import {
-	localDateToUtcMidnight,
-	utcIsoOrDateToLocalForDisplay,
-} from "../../../shared/utils/dateHelpers";
+import DatePickerField from "../../../shared/components/selection/datePicker";
+import { localDateToUtcMidnight } from "../../../shared/utils/dateHelpers";
 import { retireSows } from "../api/sowsApi";
 
 type RetireSowModalProps = {
@@ -30,8 +18,6 @@ type RetireSowModalProps = {
 	imageStyle?: StyleProp<ImageStyle>;
 };
 
-const getDefaultRemovalDate = () => localDateToUtcMidnight(new Date());
-
 function RetireSowModal({
 	selectedIds,
 	onConfirm,
@@ -43,27 +29,16 @@ function RetireSowModal({
 	imageStyle,
 }: RetireSowModalProps) {
 	const [visible, setVisible] = useState(false);
-	const [datePickerVisible, setDatePickerVisible] = useState(false);
-	const [removalDate, setRemovalDate] = useState<Date | null>(getDefaultRemovalDate);
+	const [removalDate, setRemovalDate] = useState(localDateToUtcMidnight(new Date()));
 	const [removalReason, setRemovalReason] = useState("");
 	const [loading, setLoading] = useState(false);
 
 	const ids = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
 	const validIds = ids.filter((id) => Number.isFinite(id) && id > 0);
 	const trimmedReason = removalReason.trim();
-	const formattedDate = removalDate
-		? utcIsoOrDateToLocalForDisplay(removalDate)?.toLocaleDateString("es-CR", {
-				day: "2-digit",
-				month: "2-digit",
-				year: "numeric",
-				hour12: false,
-			})
-		: "";
 
 	const resetForm = () => {
-		setRemovalDate(getDefaultRemovalDate());
 		setRemovalReason("");
-		setDatePickerVisible(false);
 	};
 
 	const closeModal = () => {
@@ -72,12 +47,7 @@ function RetireSowModal({
 		resetForm();
 	};
 
-	const handleDateConfirm = (selectedDate: Date) => {
-		setDatePickerVisible(false);
-		setRemovalDate(localDateToUtcMidnight(selectedDate));
-	};
-
-	const handleConfirm = async () => {
+	const handleRetirePress = () => {
 		if (validIds.length === 0) {
 			Alert.alert("Error", "Debe seleccionar al menos una cerda.");
 			return;
@@ -90,6 +60,18 @@ function RetireSowModal({
 			);
 			return;
 		}
+
+		Alert.alert(
+			"Retirar cerdas",
+			"Esta accion es irreversible, desea continuar?",
+			[
+				{ text: "Cancelar", style: "cancel" },
+				{ text: "Aceptar", onPress: () => void handleConfirm() },
+			],
+		);
+	};
+
+	const handleConfirm = async () => {
 
 		setLoading(true);
 		try {
@@ -135,18 +117,13 @@ function RetireSowModal({
 					<View style={styles.modalContainer}>
 						<Text style={styles.title}>Retirar cerdas</Text>
 
-						<Text style={styles.label}>Fecha de retiro</Text>
-						<Pressable
-							style={styles.select}
-							onPress={() => setDatePickerVisible(true)}
-							disabled={loading}
-						>
-							<Text style={[styles.selectText, !removalDate && styles.placeholder]}>
-								{formattedDate || "Seleccionar fecha"}
-							</Text>
-						</Pressable>
+						<DatePickerField
+							label="Fecha de Retiro *"
+							value={removalDate}
+							onChange={(date) => setRemovalDate(date)}
+						/>
 
-						<Text style={styles.label}>Razon del retiro</Text>
+						<Text style={styles.label}>Razon del retiro *</Text>
 						<TextInput
 							value={removalReason}
 							onChangeText={setRemovalReason}
@@ -175,7 +152,7 @@ function RetireSowModal({
 									pressed && styles.pressed,
 									loading && styles.disabledButton,
 								]}
-								onPress={handleConfirm}
+								onPress={handleRetirePress}
 								disabled={loading}
 							>
 								{loading ? (
@@ -187,17 +164,6 @@ function RetireSowModal({
 						</View>
 					</View>
 				</View>
-
-				<DateTimePickerModal
-					isVisible={datePickerVisible}
-					mode="date"
-					date={utcIsoOrDateToLocalForDisplay(removalDate) ?? new Date()}
-					onConfirm={handleDateConfirm}
-					onCancel={() => setDatePickerVisible(false)}
-					locale="es-ES"
-					confirmTextIOS="Aceptar"
-					cancelTextIOS="Cancelar"
-				/>
 			</Modal>
 		</>
 	);

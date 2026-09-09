@@ -1,22 +1,10 @@
 import { memo, useState } from "react";
 import type { ImageStyle, StyleProp, ViewStyle } from "react-native";
-import {
-	ActivityIndicator,
-	Alert,
-	Modal,
-	Pressable,
-	StyleSheet,
-	Text,
-	TextInput,
-	View,
-} from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import {ActivityIndicator, Alert, Modal, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { getApiErrorMessage } from "../../../shared/api/apiError";
 import RetireAction from "../../../shared/components/actions/retireAction";
-import {
-	localDateToUtcMidnight,
-	utcIsoOrDateToLocalForDisplay,
-} from "../../../shared/utils/dateHelpers";
+import DatePickerField from "../../../shared/components/selection/datePicker";
+import { localDateToUtcMidnight } from "../../../shared/utils/dateHelpers";
 import { retireBoar } from "../api/boarsApi";
 
 type RetireBoarModalProps = {
@@ -30,8 +18,6 @@ type RetireBoarModalProps = {
 	imageStyle?: StyleProp<ImageStyle>;
 };
 
-const getDefaultRemovalDate = () => localDateToUtcMidnight(new Date());
-
 function RetireBoarModal({
 	boarId,
 	onConfirm,
@@ -43,25 +29,14 @@ function RetireBoarModal({
 	imageStyle,
 }: RetireBoarModalProps) {
 	const [visible, setVisible] = useState(false);
-	const [datePickerVisible, setDatePickerVisible] = useState(false);
-	const [removalDate, setRemovalDate] = useState<Date | null>(getDefaultRemovalDate);
+	const [removalDate, setRemovalDate] = useState(localDateToUtcMidnight(new Date()));
 	const [removalReason, setRemovalReason] = useState("");
 	const [loading, setLoading] = useState(false);
 
 	const trimmedReason = removalReason.trim();
-	const formattedDate = removalDate
-		? utcIsoOrDateToLocalForDisplay(removalDate)?.toLocaleDateString("es-CR", {
-				day: "2-digit",
-				month: "2-digit",
-				year: "numeric",
-				hour12: false,
-			})
-		: "";
-
+	
 	const resetForm = () => {
-		setRemovalDate(getDefaultRemovalDate());
 		setRemovalReason("");
-		setDatePickerVisible(false);
 	};
 
 	const closeModal = () => {
@@ -70,12 +45,7 @@ function RetireBoarModal({
 		resetForm();
 	};
 
-	const handleDateConfirm = (selectedDate: Date) => {
-		setDatePickerVisible(false);
-		setRemovalDate(localDateToUtcMidnight(selectedDate));
-	};
-
-	const handleConfirm = async () => {
+	const handleRetirePress = () => {
 		if (!Number.isFinite(boarId) || boarId <= 0) {
 			Alert.alert("Error", "Debe seleccionar un verraco.");
 			return;
@@ -88,6 +58,18 @@ function RetireBoarModal({
 			);
 			return;
 		}
+
+		Alert.alert(
+			"Retirar verraco",
+			"Esta accion es irreversible, desea continuar?",
+			[
+				{ text: "Cancelar", style: "cancel" },
+				{ text: "Aceptar", onPress: () => void handleConfirm() },
+			],
+		);
+	};
+
+	const handleConfirm = async () => {
 
 		setLoading(true);
 		try {
@@ -133,16 +115,11 @@ function RetireBoarModal({
 					<View style={styles.modalContainer}>
 						<Text style={styles.title}>Retirar verraco</Text>
 
-						<Text style={styles.label}>Fecha de retiro</Text>
-						<Pressable
-							style={styles.select}
-							onPress={() => setDatePickerVisible(true)}
-							disabled={loading}
-						>
-							<Text style={[styles.selectText, !removalDate && styles.placeholder]}>
-								{formattedDate || "Seleccionar fecha"}
-							</Text>
-						</Pressable>
+						<DatePickerField
+							label="Fecha de Retiro *"
+							value={removalDate}
+							onChange={(date) => setRemovalDate(date)}
+						/>
 
 						<Text style={styles.label}>Razon del retiro</Text>
 						<TextInput
@@ -173,7 +150,7 @@ function RetireBoarModal({
 									pressed && styles.pressed,
 									loading && styles.disabledButton,
 								]}
-								onPress={handleConfirm}
+								onPress={handleRetirePress}
 								disabled={loading}
 							>
 								{loading ? (
@@ -185,17 +162,6 @@ function RetireBoarModal({
 						</View>
 					</View>
 				</View>
-
-				<DateTimePickerModal
-					isVisible={datePickerVisible}
-					mode="date"
-					date={utcIsoOrDateToLocalForDisplay(removalDate) ?? new Date()}
-					onConfirm={handleDateConfirm}
-					onCancel={() => setDatePickerVisible(false)}
-					locale="es-ES"
-					confirmTextIOS="Aceptar"
-					cancelTextIOS="Cancelar"
-				/>
 			</Modal>
 		</>
 	);

@@ -27,7 +27,6 @@ function buildDeleteConfirmationMessage(event: MatingEvent | null): ReactNode {
   if (!event) {
     return "";
   }
-  console.log("Event to delete:", event);
   if (event.pregnancy_result === PREGNANCY_RESULTS.positivo) {
     return (
       <Text>
@@ -92,7 +91,7 @@ export default function MatingEventsScreen() {
     [counts],
   );
 
-  const [selectedTab, setSelectedTab] = useState<PregnancyResult | null>(null);
+  const [selectedTab, setSelectedTab] = useState<PregnancyResult>(PREGNANCY_RESULTS.positivo);
   const listData: MatingEvent[] = selectedTab ? eventsByResult[selectedTab] : [];
 
   useFocusEffect(
@@ -126,7 +125,7 @@ export default function MatingEventsScreen() {
           })}
         </View>
 
-        {loadingAll && !selectedTab ? (
+        {loadingAll ? (
           <View style={styles.center}>
             <ActivityIndicator size="large" color="#2E7D32" />
           </View>
