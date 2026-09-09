@@ -1,45 +1,41 @@
-﻿import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
-import {
-	Alert,
-	Pressable,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TextInput,
-} from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput } from "react-native";
+import type { RootStackScreenProps } from "../../../app/navigation/rootStack.types";
 import { getApiErrorMessage } from "../../../shared/api/apiError";
-import { createMatingEvent } from "../api/matingEventApi";
-import { BoarPicker } from "../../boars/components/BoarsPicker";
-import { BreedingSowPicker } from "../../sows/components/BreedingSowPicker";
+import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import DatePickerField from "../../../shared/components/selection/datePicker";
 import { localDateToUtcMidnight } from "../../../shared/utils/dateHelpers";
-import InseminationTypePicker, {
-	type InseminationType,
-} from "../components/InseminationTypeDropdown";
+import { BoarPicker } from "../../boars/components/BoarsPicker";
+import { BreedingSowPicker } from "../../sows/components/BreedingSowPicker";
+import { createMatingEvent } from "../api/matingEventApi";
 import PregnancyResultPicker from "../components/PregnancyResultDropdown";
-import type { PregnancyResult } from "../model/matingEvent";
-import ScreenContainer from "../../../shared/components/layout/screenContainer";
+import ReproductionTypePicker from "../components/ReproductionTypeDropdown";
+import { PREGNANCY_RESULTS,	REPRODUCTION_TYPES,	type PregnancyResult, type ReproductionType } from "../model/matingEvent";
 import { buildMatingEventPayload } from "../utils/matingEventTransforms";
 import { validateMatingEventRequiredFields } from "../utils/matingEventValidation";
 
-export default function AddMatingEventScreen() {
-	const navigation = useNavigation();
+type AddMatingEventScreenProps = RootStackScreenProps<"AddMatingEvent">;
+
+export default function AddMatingEventScreen({ route, navigation }: AddMatingEventScreenProps) {
+	// DetailsSowScreen may pass an eligible sowId so this shared form opens with that sow already selected.
+	const preselectedSowId = route.params?.sowId ?? null;
 	const [inseminationDate, setInseminationDate] = useState(localDateToUtcMidnight(new Date()));
-	const [sowId, setSowId] = useState<number | null>(null);
+	const [sowId, setSowId] = useState<number | null>(preselectedSowId);
 	const [boarId, setBoarId] = useState<number | null>(null);
-	const [inseminationType, setInseminationType] = useState<InseminationType | undefined>(undefined);
-	const [pregnancyResult, setPregnancyResult] = useState<PregnancyResult | undefined>("Pendiente");
+	const [reproductionType, setReproductionType] = useState<ReproductionType | undefined>(undefined);
+	const [pregnancyResult, setPregnancyResult] = useState<PregnancyResult | undefined>(
+		PREGNANCY_RESULTS.pendiente,
+	);
 	const [notes, setNotes] = useState("");
 
-	const isNatural = inseminationType === "Monta Natural";
+	const isNatural = reproductionType === REPRODUCTION_TYPES.natural;
 
 	const handleSubmit = async () => {
 		if (
 			!validateMatingEventRequiredFields({
 				sowId,
 				inseminationDate,
-				inseminationType,
+				reproductionType,
 				pregnancyResult,
 				boarId,
 			})
@@ -50,8 +46,8 @@ export default function AddMatingEventScreen() {
 			const payload = buildMatingEventPayload({
 				sow_id: sowId as number,
 				boar_id: boarId,
-				insemination_date: inseminationDate.toISOString(),
-				insemination_type: inseminationType,
+				reproduction_date: inseminationDate.toISOString(),
+				reproduction_type: reproductionType,
 				pregnancy_result: pregnancyResult,
 				notes,
 			});
@@ -65,12 +61,13 @@ export default function AddMatingEventScreen() {
 			);
 		}
 	};
+
 	return (
 		<ScreenContainer>
 			<ScrollView style={styles.container}>
-				<Text style={styles.title}>Agregar Evento de Inseminación o Monta</Text>
+				<Text style={styles.title}>Agregar Evento de Reproducción</Text>
 				<DatePickerField
-					label="Fecha de Inseminación *"
+					label="Fecha de Reproducción *"
 					value={inseminationDate}
 					onChange={setInseminationDate}
 				/>
@@ -79,12 +76,12 @@ export default function AddMatingEventScreen() {
 					value={sowId}
 					onChange={(value: number | null) => setSowId(value)}
 				/>
-				<InseminationTypePicker
-					label="Tipo de Inseminación o Monta *"
-					value={inseminationType}
+				<ReproductionTypePicker
+					label="Tipo de Reproducción *"
+					value={reproductionType}
 					onChange={(val) => {
-						setInseminationType(val);
-						if (val !== "Monta Natural") setBoarId(null);
+						setReproductionType(val);
+						if (val !== REPRODUCTION_TYPES.natural) setBoarId(null);
 					}}
 				/>
 				{isNatural && (
@@ -150,4 +147,3 @@ const styles = StyleSheet.create({
 		fontWeight: "bold",
 	},
 });
-

@@ -12,3 +12,8 @@
 	age: { years: number; months: number } | null;
 };
 
+export type RetireBoarPayload = {
+	removal_date: string;
+	removal_reason: string;
+};
+

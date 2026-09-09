@@ -1,12 +1,17 @@
 import client from "../../../shared/api/client";
-import type { Sow } from "../model/sow";
+import type { RetireSowsPayload, Sow } from "../model/sow";
 
-export type { Sow };
+export type { Sow, RetireSowsPayload };
 
 export const getSows = async (): Promise<Sow[]> => {
 	const res = await client.get("/api/breedingsows/");
 	return res.data;
 };
+
+export const getAllSowsBySpecificStatus  = async (status: string): Promise<Sow[]> => {
+	const res = await client.get(`/api/breedingsows/status/${status}`);
+	return res.data;
+}
 
 export const getSowById = async (id: number): Promise<Sow> => {
 	const res = await client.get(`/api/breedingsows/${id}`);
@@ -25,6 +30,20 @@ export const updateSow = async (id: number, payload: Partial<Sow>) => {
 
 export const deleteSowById = async (id: number) => {
 	const res = await client.delete(`/api/breedingsows/${id}`);
+	return res.data;
+};
+
+/**
+ * Retires one or more sows with the specified IDs.
+ */
+export const retireSows = async (
+	sowIds: number | number[],
+	payload: RetireSowsPayload,
+) => {
+	const res = await client.patch("/api/breedingsows/retire", {
+		sow_ids: sowIds,
+		...payload,
+	});
 	return res.data;
 };
 

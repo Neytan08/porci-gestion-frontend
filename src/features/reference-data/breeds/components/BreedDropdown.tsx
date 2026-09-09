@@ -76,10 +76,11 @@ export const BreedDropdown = ({
 				{/* Adding breed button + */}
 				<AddAction
 					onPress={() => setAddingModalVisible(true)}
-					size={30}
-					color="#37474F"
+					size={35}
+					color="#2E7D32"
 					accessibilityLabel="Agregar raza"
 					pressedStyle={{ opacity: 0.3 }}
+					containerStyle={{ marginLeft: 10 }}
 				/>
 			</View>
 			{/* Modal for selecting breed */}

@@ -1,13 +1,12 @@
 import { Alert } from "react-native";
-import type { InseminationType } from "../components/InseminationTypeDropdown";
-import type { PregnancyResult } from "../model/matingEvent";
+import { type PregnancyResult, REPRODUCTION_TYPES, type ReproductionType } from "../model/matingEvent";
 
 export interface MatingEventRequiredFields {
 	sowId: number | null;
 	inseminationDate: Date | null;
-	inseminationType: InseminationType | undefined;
+	reproductionType: ReproductionType | undefined;
 	pregnancyResult: PregnancyResult | undefined;
-	/** Required only when inseminationType is "Monta Natural". */
+	/** Required only when reproductionType is natural reproduction. */
 	boarId: number | null;
 }
 
@@ -18,15 +17,15 @@ export interface MatingEventRequiredFields {
 export function validateMatingEventRequiredFields(
 	fields: MatingEventRequiredFields,
 ): boolean {
-	const { sowId, inseminationDate, inseminationType, pregnancyResult } = fields;
+	const { sowId, inseminationDate, reproductionType, pregnancyResult } = fields;
 
-	if (!sowId || !inseminationDate || !inseminationType || !pregnancyResult) {
+	if (!sowId || !inseminationDate || !reproductionType || !pregnancyResult) {
 		Alert.alert("Error", "Por favor, complete todos los campos obligatorios.");
 		return false;
 	}
 
-	if (inseminationType === "Monta Natural" && !fields.boarId) {
-		Alert.alert("Error", "Debe seleccionar un verraco para 'Monta Natural'.");
+	if (reproductionType === REPRODUCTION_TYPES.natural && !fields.boarId) {
+		Alert.alert("Error", `Debe seleccionar un verraco para '${REPRODUCTION_TYPES.natural}'.`);
 		return false;
 	}
 

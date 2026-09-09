@@ -14,6 +14,7 @@ type MatingEventActionsModalProps = {
 	onDetails: () => void;
 	onDelete: () => void;
 	onClose: () => void;
+	hideEdit?: boolean;
 };
 
 /**
@@ -28,6 +29,7 @@ function MatingEventActionsModal({
 	onDetails,
 	onDelete,
 	onClose,
+	hideEdit = false,
 }: MatingEventActionsModalProps) {
 	return (
 		<Modal
@@ -41,7 +43,7 @@ function MatingEventActionsModal({
 				<View style={styles.panel}>
 					<Text style={styles.title}>Acciones Disponibles</Text>
 					<View style={styles.actions}>
-						<EditAction onPress={onEdit} />
+						{!hideEdit && <EditAction onPress={onEdit} />}
 						<DetailsAction onPress={onDetails} />
 						<UpdatePregnancyResultModal
 							onConfirm={() => {

@@ -1,7 +1,7 @@
 import client from "../../../shared/api/client";
-import type { Boar } from "../model/boar";
+import type { Boar, RetireBoarPayload } from "../model/boar";
 
-export type { Boar };
+export type { Boar, RetireBoarPayload };
 
 export const getBoars = async (): Promise<Boar[]> => {
 	const response = await client.get("/api/boars");
@@ -25,6 +25,17 @@ export const updateBoar = async (id: number, payload: Partial<Boar>) => {
 
 export const deleteBoar = async (id: number) => {
 	const response = await client.delete(`/api/boars/${id}`);
+	return response.data;
+};
+
+export const retireBoar = async (
+	boarId: number,
+	payload: RetireBoarPayload,
+) => {
+	const response = await client.patch("/api/boars/retire", {
+		boar_ids: boarId,
+		...payload,
+	});
 	return response.data;
 };
 

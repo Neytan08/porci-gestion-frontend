@@ -1,7 +1,7 @@
 ﻿import type { RouteProp } from '@react-navigation/native';
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useLayoutEffect, useMemo } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { RootStackParamList } from '../../../app/navigation/rootStack.types';
 import ScreenContainer from '../../../shared/components/layout/screenContainer';
@@ -21,11 +21,21 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'DetailsBoar
 export default function DetailsBoarScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<DetailsRouteProp>();
-  const { boarId } = route.params;
+  const { boarId, selectedBoarCount = 0 } = route.params;
+  const hasActiveSelection = selectedBoarCount > 0;
+  const detailsTitle = hasActiveSelection
+    ? `${selectedBoarCount} elemento${selectedBoarCount === 1 ? '' : 's'} seleccionado${
+        selectedBoarCount === 1 ? '' : 's'
+      }`
+    : 'Detalles Verraco';
 
   const { boar, loading, error, loadBoar } = useBoarLoader(boarId);
 
   const datos = useMemo(() => (boar ? buildBoarRows(boar) : []), [boar]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ title: detailsTitle });
+  }, [navigation, detailsTitle]);
 
   useFocusEffect(
     useCallback(() => {
@@ -60,6 +70,7 @@ export default function DetailsBoarScreen() {
         <BoarInfoTable
           rows={datos}
           onEdit={() => navigation.navigate('EditBoar', { boarId })}
+          showEditAction={!hasActiveSelection}
         />
       </View>
 
@@ -112,4 +123,3 @@ const styles = StyleSheet.create({
     color: '#007AFF',
   },
 });
-

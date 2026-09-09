@@ -54,18 +54,18 @@ function MatingEventListItem({
 					{item.breedingsows?.sow_tag_number ?? item.sow_id}
 				</Text>
 				<Text style={[styles.textCell, { flexBasis: "50%" }]}>
-					<Text style={{ fontWeight: "700" }}>Verraco: </Text>
-					{item.boars?.boar_tag_number ?? "N/A"}
+					<Text style={{ fontWeight: "700" }}>Tipo: </Text>
+					{item.reproduction_type ?? "-"}
 				</Text>
 				<Text style={[styles.textCell, { flexBasis: "50%" }]}>
 					<Text style={{ fontWeight: "700" }}>Fecha: </Text>
-					{item.insemination_date
-						? formatIsoDate(item.insemination_date)
+					{item.reproduction_date
+						? formatIsoDate(item.reproduction_date)
 						: "-"}
 				</Text>
 				<Text style={[styles.textCell, { flexBasis: "50%" }]}>
-					<Text style={{ fontWeight: "700" }}>Tipo: </Text>
-					{item.insemination_type ?? "-"}
+					<Text style={{ fontWeight: "700" }}>Verraco: </Text>
+					{item.boars?.boar_tag_number ?? "N/A"}
 				</Text>
 				<Text style={[styles.textCell, { flexBasis: "100%" }]}>
 					<Text style={{ fontWeight: "700" }}>Notas: </Text>

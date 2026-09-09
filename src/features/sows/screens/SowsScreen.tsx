@@ -1,16 +1,7 @@
 ﻿import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useCallback } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 import AddAction from "../../../shared/components/actions/addAction";
 import SearchFilter from "../../../shared/components/filters/searchFilter";
@@ -74,26 +65,20 @@ export default function SowsScreen() {
   } = useSowsModals();
 
   // Navigation and delete actions
-  const { 
-    handleAdd, 
-    handleDetails, 
-    handleDeletePress, 
-    handleSowAction, 
-    confirmDelete, 
-    deleting 
-  } = useSowActions({
-    navigation,
-    loadSows,
-    modals: { openDeleteModal, closeActionsModal, closeDeleteModal },
-    deleteSelectedSow,
-  });
+  const { handleAdd, handleDetails, handleDeletePress, handleSowAction, confirmDelete, deleting } =
+    useSowActions({
+      navigation,
+      loadSows,
+      modals: { openDeleteModal, closeActionsModal, closeDeleteModal },
+      deleteSelectedSow,
+    });
 
   // Reload the list every time this screen gains focus
   useFocusEffect(
     useCallback(() => {
       loadSows();
     }, [loadSows]),
-  ); 
+  );
 
   if (loading) {
     return (
@@ -139,12 +124,15 @@ export default function SowsScreen() {
               isActive={sowAction?.sow_id === item.sow_id && actionsModalVisible}
               selected={selectedSows.has(item.sow_id)}
               onPress={() => {
-                handleDetails(item.sow_id);
+                handleDetails(item.sow_id, selectedSows.size);
                 clearAllFilters();
               }}
               onLongPress={() => handleDeletePress(item.sow_id, item.sow_tag_number)}
               onToggleSelect={() => toggleSelect(item.sow_id)}
-              onOpenActions={() => openActionsModal(item)}
+              onOpenActions={() => {
+                openActionsModal(item);
+                deselectAll();
+              }}
             />
           )}
           ListEmptyComponent={<Text style={styles.noSowsText}>No hay cerdas registradas.</Text>}
@@ -174,6 +162,10 @@ export default function SowsScreen() {
           onDetails={() => sowAction && handleSowAction("moreDetails", sowAction)}
           onDelete={() => sowAction && handleSowAction("delete", sowAction)}
           onClose={closeActionsModal}
+          onRetired={async () => {
+            await loadSows();
+            clearAllFilters();
+          }}
           onBeforeAction={clearAllFilters}
         />
 
@@ -186,21 +178,15 @@ export default function SowsScreen() {
             ]}
             onPress={openSelectedActionsModal}
           >
-            <Image
-              source={require("../../../../assets/icons/dots.png")}
-              style={styles.icon}
-              resizeMode="contain"
-            />
-            <Text style={styles.pinnedSowButtonText}>{`(${selectedSows.size})   `}</Text>
+            <Text style={styles.pinnedSowButtonText}>{` ${selectedSows.size} `}</Text>
           </Pressable>
         ) : (
           <AddAction
             label="Agregar"
-            size={35}
-            containerStyle={styles.pinnedSowButton}
-            textStyle={styles.pinnedSowButtonText}
-            imageStyle={styles.icon}
-            pressedStyle={{ opacity: 0.3 }}
+            size={55}
+            containerStyle={styles.pinnedSowAddButton}
+            color="#2E7D32"
+            pressedStyle={{ opacity: 0.3, transform: [{ scale: 0.98 }] }}
             onPress={() => {
               handleAdd();
               clearAllFilters();
@@ -228,8 +214,13 @@ export default function SowsScreen() {
         <SowSelectedActionsModal
           visible={selectedActionsVisible}
           selectedCount={selectedSows.size}
+          selectedIds={Array.from(selectedSows)}
           onClose={closeSelectedActionsModal}
           onDeselect={deselectAll}
+          onRetired={async () => {
+            await loadSows();
+            clearAllFilters();
+          }}
         />
       </View>
     </ScreenContainer>
@@ -237,7 +228,7 @@ export default function SowsScreen() {
 }
 
 const styles = StyleSheet.create({
-  icon: { width: 35, height: 35 },
+  icon: { width: 50, height: 50 },
   mainContainer: {
     flex: 1,
     backgroundColor: "#F9FAFB",
@@ -275,20 +266,26 @@ const styles = StyleSheet.create({
     bottom: 20,
     right: 20,
     backgroundColor: "#2E7D32",
-    width: 140,
+    width: 50,
     height: 50,
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
+  },
+  pinnedSowAddButton: {
+    flexDirection: "row",
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
   },
   pinnedSowButtonText: {
-    fontSize: 20,
+    fontSize: 25,
+    textAlign: "center",
     color: "#fff",
-    marginBottom: 2,
   },
 });

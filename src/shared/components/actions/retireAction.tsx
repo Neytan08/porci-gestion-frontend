@@ -6,7 +6,7 @@ import type {
 } from "react-native";
 import ActionIconButton from "./actionIconButton";
 
-type AddActionProps = {
+type RetireActionProps = {
   onPress: () => void;
   label?: string;
   size?: number;
@@ -20,9 +20,9 @@ type AddActionProps = {
 };
 
 /**
- * Shared add action that supports icon-only and icon-with-label variants.
+ * Shared retire action that supports icon-only and icon-with-label variants.
  */
-export default function AddAction({
+export default function RetireAction({
   onPress,
   label,
   size = 22,
@@ -30,13 +30,13 @@ export default function AddAction({
   containerStyle,
   imageStyle,
   hitSlop = 10,
-  accessibilityLabel = label ?? "Agregar",
-}: AddActionProps) {
+  accessibilityLabel = label ?? "Retirar",
+}: RetireActionProps) {
   return (
     <ActionIconButton
-      // label={label}
+      label={label}
       onPress={onPress}
-      iconSource={require("../../../../assets/icons/add.png")}
+      iconSource={require("../../../../assets/icons/retired.png")}
       size={size}
       tintColor={color}
       containerStyle={containerStyle}

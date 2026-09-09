@@ -36,17 +36,6 @@ function BoarSelectedActionsModal({
               />
               <Text style={{ fontWeight: '700', textAlign: 'center' }}>Extraer a PDF</Text>
             </Pressable>
-
-            {/* Retire boars — not yet implemented */}
-            <Pressable style={styles.btn} onPress={() => Alert.alert('Función no implementada')}>
-              <Image
-                source={require('../../../../assets/icons/trash.png')}
-                style={styles.icon}
-                resizeMode="contain"
-              />
-              <Text style={{ fontWeight: '700', textAlign: 'center' }}>Desechar Verracos</Text>
-            </Pressable>
-
             {/* Clear selection */}
             <Pressable
               style={styles.btn}

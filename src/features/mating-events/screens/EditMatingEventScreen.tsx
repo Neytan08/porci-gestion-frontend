@@ -1,14 +1,6 @@
 ﻿import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useState } from "react";
-import {
-	Alert,
-	Pressable,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TextInput,
-	View,
-} from "react-native";
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { getApiErrorMessage } from "../../../shared/api/apiError";
 import type { RootStackRouteProp } from "../../../app/navigation/rootStack.types";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
@@ -16,9 +8,8 @@ import DatePickerField from "../../../shared/components/selection/datePicker";
 import { BoarPicker } from "../../boars/components/BoarsPicker";
 import { BreedingSowPicker } from "../../sows/components/BreedingSowPicker";
 import { updateMatingEvent } from "../api/matingEventApi";
-import InseminationTypePicker, {
-	type InseminationType,
-} from "../components/InseminationTypeDropdown";
+import ReproductionTypePicker from "../components/ReproductionTypeDropdown";
+import { REPRODUCTION_TYPES, type ReproductionType } from "../model/matingEvent";
 import { useMatingEventLoader } from "../hooks/useMatingEventLoader";
 import { buildMatingEventPayload } from "../utils/matingEventTransforms";
 import { validateMatingEventRequiredFields } from "../utils/matingEventValidation";
@@ -40,18 +31,18 @@ export default function EditMatingEventScreen() {
 	const [inseminationDate, setInseminationDate] = useState(new Date());
 	const [sowId, setSowId] = useState<number | null>(null);
 	const [boarId, setBoarId] = useState<number | null>(null);
-	const [inseminationType, setInseminationType] = useState<InseminationType | undefined>(undefined);
+	const [reproductionType, setReproductionType] = useState<ReproductionType | undefined>(undefined);
 	const [notes, setNotes] = useState("");
 
 	// Pre-fill form once the event data loads
 	useEffect(() => {
 		if (!event) return;
 		setInseminationDate(
-			event.insemination_date ? new Date(event.insemination_date) : new Date(),
+			event.reproduction_date ? new Date(event.reproduction_date) : new Date(),
 		);
 		setSowId(event.sow_id);
 		setBoarId(event.boar_id ?? null);
-		setInseminationType(event.insemination_type);
+		setReproductionType(event.reproduction_type);
 		setNotes(event.notes ?? "");
 	}, [event]);
 
@@ -61,14 +52,14 @@ export default function EditMatingEventScreen() {
 		}, [loadEvent]),
 	);
 
-	const isNatural = inseminationType === "Monta Natural";
+	const isNatural = reproductionType === REPRODUCTION_TYPES.natural;
 
 	const handleSubmit = async () => {
 		if (
 			!validateMatingEventRequiredFields({
 				sowId,
 				inseminationDate,
-				inseminationType,
+				reproductionType,
 				// Pregnancy result is kept unchanged — not editable in this screen
 				pregnancyResult: event?.pregnancy_result,
 				boarId,
@@ -80,8 +71,8 @@ export default function EditMatingEventScreen() {
 			const payload = buildMatingEventPayload({
 				sow_id: sowId as number,
 				boar_id: boarId,
-				insemination_date: inseminationDate.toISOString(),
-				insemination_type: inseminationType,
+				reproduction_date: inseminationDate.toISOString(),
+				reproduction_type: reproductionType,
 				// Keep the existing pregnancy result — it is managed through UpdatePregnancyResultModal
 				pregnancy_result: event?.pregnancy_result,
 				notes,
@@ -130,12 +121,12 @@ export default function EditMatingEventScreen() {
 					value={sowId}
 					onChange={(value: number | null) => setSowId(value)}
 				/>
-				<InseminationTypePicker
+				<ReproductionTypePicker
 					label="Tipo de Inseminación o Monta *"
-					value={inseminationType}
+					value={reproductionType}
 					onChange={(val) => {
-						setInseminationType(val);
-						if (val !== "Monta Natural") setBoarId(null);
+						setReproductionType(val);
+						if (val !== REPRODUCTION_TYPES.natural) setBoarId(null);
 					}}
 				/>
 				{isNatural && (
@@ -153,7 +144,7 @@ export default function EditMatingEventScreen() {
 						{event.pregnancy_result ?? "-"}
 					</Text>
 					<Text style={styles.readonlyHint}>
-						Para modificar este campo use la opción "Actualizar estado" en la lista.
+						Para modificar este campo use la opción "Cambiar estado" en la lista.
 					</Text>
 				</View>
 

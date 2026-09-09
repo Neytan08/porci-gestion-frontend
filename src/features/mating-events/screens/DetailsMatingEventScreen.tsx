@@ -1,11 +1,8 @@
 ﻿import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
-import { useCallback } from "react";
+import { useCallback, useLayoutEffect } from "react";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
-import type {
-	RootStackParamList,
-	RootStackRouteProp,
-} from "../../../app/navigation/rootStack.types";
+import type { RootStackParamList, RootStackRouteProp } from "../../../app/navigation/rootStack.types";
 import ActionIconButton from "../../../shared/components/actions/actionIconButton";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import { formatIsoDate } from "../../../shared/utils/dateHelpers";
@@ -63,10 +60,20 @@ function DetailRow({
 export default function DetailsMatingEventScreen() {
 	const navigation = useNavigation<DetailsMatingEventNavigationProp>();
 	const route = useRoute<DetailsMatingEventRouteProp>();
-	const { eventId } = route.params;
+	const { eventId, selectedEventCount = 0 } = route.params;
+	const hasActiveSelection = selectedEventCount > 0;
+	const detailsTitle = hasActiveSelection
+		? `${selectedEventCount} elemento${selectedEventCount === 1 ? "" : "s"} seleccionado${
+			selectedEventCount === 1 ? "" : "s"
+		}`
+		: "Detalles Inseminación o Monta";
 
 	const { event, loading, error, loadEvent } = useMatingEventLoader(eventId);
 
+	useLayoutEffect(() => {
+		navigation.setOptions({ title: detailsTitle });
+	  }, [navigation, detailsTitle]);
+	
 	useFocusEffect(
 		useCallback(() => {
 			loadEvent();
@@ -98,9 +105,9 @@ export default function DetailsMatingEventScreen() {
 	const detailRows = [
 		{
 			label: "Fecha de inseminación",
-			value: event.insemination_date ? formatIsoDate(event.insemination_date) : "-",
+			value: event.reproduction_date ? formatIsoDate(event.reproduction_date) : "-",
 		},
-		{ label: "Tipo", value: event.insemination_type ?? "-" },
+		{ label: "Tipo", value: event.reproduction_type ?? "-" },
 		{ label: "Resultado", value: event.pregnancy_result ?? "-" },
 		{ label: "Notas", value: event.notes ?? "-" },
 	];
@@ -112,7 +119,11 @@ export default function DetailsMatingEventScreen() {
 				<DetailRow
 					label="Cerda"
 					value={sowValue}
-					actionOnPress={() => navigation.navigate("DetailsSow", { sowId: event.sow_id })}
+					actionOnPress={
+						hasActiveSelection
+							? undefined
+							: () => navigation.navigate("DetailsSow", { sowId: event.sow_id })
+					}
 					actionAccessibilityLabel="Ver detalle de la cerda"
 				/>
 				{/* Some insemination flows do not store a boar reference, so this row stays read-only. */}
@@ -120,7 +131,7 @@ export default function DetailsMatingEventScreen() {
 					label="Verraco"
 					value={boarValue}
 					actionOnPress={
-						boarId == null
+						boarId == null || hasActiveSelection
 							? undefined
 							: () => navigation.navigate("DetailsBoar", { boarId })
 					}

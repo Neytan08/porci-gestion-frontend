@@ -1,13 +1,14 @@
 ﻿import type { RouteProp } from "@react-navigation/native";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useCallback, useMemo } from "react";
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useCallback, useLayoutEffect, useMemo } from "react";
+import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import type { RootStackParamList } from "../../../app/navigation/rootStack.types";
 import ScreenContainer from "../../../shared/components/layout/screenContainer";
 import SowInfoTable from "../components/SowInfoTable";
 import SowProfileHeader from "../components/SowProfileHeader";
 import { useSowLoader } from "../hooks/useSowLoader";
+import { BREEDING_SOW_STATUSES } from "../model/sow";
 import { buildSowRows } from "../utils/sowDetailsRows";
 
 // Route prop for receiving sowId from navigation
@@ -23,11 +24,21 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, "DetailsSow"
 export default function DetailsSowScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<DetailsRouteProp>();
-  const { sowId } = route.params;
+  const { sowId, selectedSowCount = 0 } = route.params;
+  const hasActiveSelection = selectedSowCount > 0;
+  const detailsTitle = hasActiveSelection
+    ? `${selectedSowCount} elemento${selectedSowCount === 1 ? "" : "s"} seleccionado${
+        selectedSowCount === 1 ? "" : "s"
+      }`
+    : "Detalles Cerda";
 
   const { sow, loading, error, loadSow } = useSowLoader(sowId);
 
   const datos = useMemo(() => (sow ? buildSowRows(sow) : []), [sow]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ title: detailsTitle });
+  }, [navigation, detailsTitle]);
 
   // Reload whenever the screen regains focus (e.g. after navigating back from Edit)
   useFocusEffect(
@@ -35,6 +46,21 @@ export default function DetailsSowScreen() {
       loadSow();
     }, [loadSow]),
   );
+
+  // Opens the mating-event form only for sows that satisfy the reproduction business rule.
+  const handleAddReproduction = useCallback(() => {
+    // Mating events can only be created for sows in the centralized eligible status.
+    if (sow?.status !== BREEDING_SOW_STATUSES.vacia) {
+      Alert.alert(
+        "Acción no permitida",
+        `Solo se pueden registrar reproducción para cerdas en estado ${BREEDING_SOW_STATUSES.vacia}`,
+      );
+      return;
+    }
+
+    // Passes the current sowId so AddMatingEventScreen can preselect the watched sow.
+    navigation.navigate("AddMatingEvent", { sowId });
+  }, [navigation, sow?.status, sowId]);
 
   if (loading) {
     return (
@@ -63,17 +89,41 @@ export default function DetailsSowScreen() {
         <SowInfoTable
           rows={datos}
           onEdit={() => navigation.navigate("EditSow", { sowId })}
+          showEditAction={!hasActiveSelection}
         />
       </View>
 
-      {/* Navigation buttons */}
-      <View style={styles.bottomButtons}>
-        {["Historial", "Vacunas", "Eventos", "Editar"].map((title) => (
-          <TouchableOpacity key={title} style={styles.button}>
-            <Text style={styles.buttonText}>{title}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {/* TODO: Implement "Vacunas" Action  THIS IS NOT NEEDED YET. THIS TODO IT'S JUST A HEADS UP */}
+      {!hasActiveSelection ? (
+        <View style={styles.bottomButtons}>
+          <Pressable
+            style={styles.button}
+            onPress={() => navigation.navigate("Farrowings", { sowId })}
+          >
+            <Image
+              source={require("../../../../assets/icons/farrowings.png")}
+              style={styles.buttonIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.buttonText}>Partos</Text>
+          </Pressable>
+          {/* Reproduction action reuses AddMatingEventScreen with the current sow preselected. */}
+          <Pressable
+            style={styles.button}
+            onPress={handleAddReproduction}
+          >
+            <Image
+              source={require("../../../../assets/icons/add.png")}
+              style={styles.buttonIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.buttonText}>Reproducción</Text>
+          </Pressable>
+          <Pressable style={styles.button} disabled>
+            <Text style={styles.buttonText}>Vacunas</Text>
+          </Pressable>
+        </View>
+      ) : null}
     </ScreenContainer>
   );
 }
@@ -94,21 +144,21 @@ const styles = StyleSheet.create({
   },
   bottomButtons: {
     flexDirection: "row",
-    backgroundColor: "#fff",
-    borderTopWidth: 1,
-    borderColor: "#ccc",
   },
   button: {
     flex: 1,
-    paddingVertical: 20,
+    // paddingVertical: 10,
     alignItems: "center",
     justifyContent: "center",
-    borderRightWidth: 1,
-    borderColor: "#ccc",
+  },
+  buttonIcon: {
+    width: 30,
+    height: 30,
+    tintColor: "#2E7D32",
   },
   buttonText: {
     fontWeight: "bold",
-    color: "#007AFF",
+    color: "#555",
+    fontSize: 16,
   },
 });
-

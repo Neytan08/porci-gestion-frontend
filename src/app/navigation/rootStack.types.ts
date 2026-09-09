@@ -7,15 +7,18 @@ export type RootStackParamList = {
 	Sows: undefined;
 	AddSow: undefined;
 	EditSow: { sowId: number };
-	DetailsSow: { sowId: number };
+	DetailsSow: { sowId: number; selectedSowCount?: number };
+	Farrowings: { sowId: number };
+	AddFarrowing: { sowId: number };
 	Boars: undefined;
 	AddBoar: undefined;
 	EditBoar: { boarId: number };
-	DetailsBoar: { boarId: number };
+	DetailsBoar: { boarId: number; selectedBoarCount?: number };
 	MatingEvents: undefined;
-	AddMatingEvent: undefined;
+	// Optional sowId lets DetailsSowScreen open this shared form with an eligible sow preselected.
+	AddMatingEvent: { sowId?: number } | undefined;
 	EditMatingEvent: { eventId: number };
-	DetailsMatingEvent: { eventId: number };
+	DetailsMatingEvent: { eventId: number; selectedEventCount?: number };
 };
 
 // Builds the union of valid screen names from the root stack.

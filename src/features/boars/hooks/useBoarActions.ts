@@ -24,7 +24,7 @@ interface UseBoarActionsReturn {
   /** Navigate to the AddBoar screen. */
   handleAdd: () => void;
   /** Navigate to the DetailsBoar screen for a given boar ID. */
-  handleDetails: (boarId: number) => void;
+  handleDetails: (boarId: number, selectedBoarCount?: number) => void;
   /** Open the delete modal from a long-press gesture on a list row. */
   handleDeletePress: (boarId: number, boarTag: string) => void;
   /**
@@ -71,8 +71,8 @@ export function useBoarActions({
   }, [navigation]);
 
   const handleDetails = useCallback(
-    (boarId: number) => {
-      navigation.navigate('DetailsBoar', { boarId });
+    (boarId: number, selectedBoarCount?: number) => {
+      navigation.navigate('DetailsBoar', { boarId, selectedBoarCount });
     },
     [navigation],
   );

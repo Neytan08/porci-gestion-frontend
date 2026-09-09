@@ -1,9 +1,6 @@
 import { useMemo, useState } from "react";
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
-import {
-	BREEDING_SOW_STATUSES,
-	type BreedingSowStatus,
-} from "../model/sow";
+import { BREEDING_SOW_STATUSES,	type SelectableBreedingSowStatus } from "../model/sow";
 
 /**
  * StatusDropdown is a reusable component that allows users to select a status
@@ -14,8 +11,8 @@ import {
  * - onChange: A callback function that is called when a new status is selected.
  */
 type StatusDropdownProps = {
-	value: BreedingSowStatus | null;
-	onChange: (value: BreedingSowStatus) => void;
+	value: SelectableBreedingSowStatus | null;
+	onChange: (value: SelectableBreedingSowStatus) => void;
 };
 
 export const StatusDropdown = ({
@@ -23,12 +20,16 @@ export const StatusDropdown = ({
 	onChange,
 }: StatusDropdownProps) => {
 	const [statusModalVisible, setStatusModalVisible] = useState(false);
-	const statusOptions = useMemo(
-		() => BREEDING_SOW_STATUSES.map((status) => ({ label: status, value: status })),
-		[],
-	);
-
-	const handleSelection = (itemValue: BreedingSowStatus) => {
+	const statusOptions = useMemo(() => {
+		// Convert the status object to dropdown options while excluding retired sows from manual selection.
+		const allowed = Object.values(BREEDING_SOW_STATUSES).filter(
+			(status): status is SelectableBreedingSowStatus =>
+				status !== BREEDING_SOW_STATUSES.retirada,
+		);
+		return allowed.map((status) => ({ label: status, value: status }));
+	}, []);
+	
+	const handleSelection = (itemValue: SelectableBreedingSowStatus) => {
 		onChange(itemValue);
 		setStatusModalVisible(false);
 	};
