@@ -17,11 +17,11 @@ type SowInfoTableProps = {
   showEditAction?: boolean;
 };
 
-const WIDE_LABELS = new Set(["Fecha de entrada", "Notas"]);
+const WIDE_LABELS = new Set(["Descripción"]);
 const STATUS_LABEL = "Estado";
 
 function isWideRow(label: string) {
-  return WIDE_LABELS.has(label) || label.toLowerCase().startsWith("descripci");
+  return WIDE_LABELS.has(label);
 }
 
 function isStatusRow(label: string) {

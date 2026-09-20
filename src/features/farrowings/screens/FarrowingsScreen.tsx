@@ -10,6 +10,7 @@ import { useLoadingAction } from "../../../shared/hooks/useLoadingAction";
 import { useRefreshingAction } from "../../../shared/hooks/useRefreshingAction";
 import { getSowById, type Sow } from "../../sows/api/sowsApi";
 import FarrowingCard from "../components/FarrowingCard";
+import WeanFarrowingModal from "../components/WeanFarrowingModal";
 
 type FarrowingsScreenProps = RootStackScreenProps<"Farrowings">;
 
@@ -22,6 +23,7 @@ export default function FarrowingsScreen({ route, navigation }: FarrowingsScreen
   const { sowId } = route.params;
   const [sow, setSow] = useState<Sow | null>(null);
   const [farrowings, setFarrowings] = useState<Farrowing[]>([]);
+  const [selectedFarrowing, setSelectedFarrowing] = useState<Farrowing | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchScreenData = useCallback(async () => {
@@ -112,7 +114,12 @@ export default function FarrowingsScreen({ route, navigation }: FarrowingsScreen
               </Text>
             </View>
           }
-          renderItem={({ item }) => <FarrowingCard item={item} />}
+          renderItem={({ item }) => (
+            <FarrowingCard
+              item={item}
+              onWean={() => setSelectedFarrowing(item)}
+            />
+          )}
           ListEmptyComponent={<Text style={styles.emptyText}>No hay partos registrados.</Text>}
           contentContainerStyle={styles.listContent}
         />
@@ -125,6 +132,18 @@ export default function FarrowingsScreen({ route, navigation }: FarrowingsScreen
           onPress={() => navigation.navigate("AddFarrowing", { sowId })}
           accessibilityLabel="Agregar parto"
         />
+
+        {selectedFarrowing && (
+          <WeanFarrowingModal
+            visible
+            farrowingId={selectedFarrowing.farrowing_id}
+            onClose={() => setSelectedFarrowing(null)}
+            onConfirm={async () => {
+              await fetchScreenData();
+              setSelectedFarrowing(null);
+            }}
+          />
+        )}
       </View>
     </ScreenContainer>
   );

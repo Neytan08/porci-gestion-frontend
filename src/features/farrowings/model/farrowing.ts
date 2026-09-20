@@ -16,6 +16,7 @@ export type Farrowing = {
 	still_births: number | null;
 	mummies: number | null;
 	weaning_date: string | null;
+	weaned_date: string | null;
 	weaned_piglets: number | null;
 	notes?: string | null;
 };
@@ -31,6 +32,12 @@ export type CreateFarrowingPayload = {
 	still_births: number;
 	mummies: number;
 	notes?: string | null;
+};
+
+/** Payload used to record the actual weaning of a farrowing. */
+export type WeanFarrowingPayload = {
+	weaned_date: string;
+	weaned_piglets: number;
 };
 
 /**

@@ -1,10 +1,12 @@
 import { memo } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import WeanAction from "../../../shared/components/actions/weanAction";
 import { formatIsoDate } from "../../../shared/utils/dateHelpers";
 import type { Farrowing } from "../model/farrowing";
 
 type FarrowingCardProps = {
 	item: Farrowing;
+	onWean: () => void;
 };
 
 const numberOrDash = (value: number | null | undefined) => value ?? "-";
@@ -13,7 +15,7 @@ const numberOrDash = (value: number | null | undefined) => value ?? "-";
  * Compact read-only card for a farrowing record.
  * It intentionally hides internal identifiers that do not help the user in this context.
  */
-function FarrowingCard({ item }: FarrowingCardProps) {
+function FarrowingCard({ item, onWean }: FarrowingCardProps) {
 	return (
 		<View style={styles.card}>
 			<View style={styles.headerRow}>
@@ -47,13 +49,29 @@ function FarrowingCard({ item }: FarrowingCardProps) {
 					{numberOrDash(item.weaned_piglets)}
 				</Text>
 				<Text style={styles.cellWide}>
-					<Text style={styles.label}>Fecha de destete: </Text>
+					<Text style={styles.label}>Destete Programado: </Text>
 					{formatIsoDate(item.weaning_date)}
 				</Text>
+				{item.weaned_date && (
+					<Text style={styles.cellWide}>
+						<Text style={styles.label}>Destete Realizado: </Text>
+						{formatIsoDate(item.weaned_date)}
+					</Text>
+				)}
 				<Text style={styles.cellWide}>
 					<Text style={styles.label}>Notas: </Text>
 					{item.notes?.trim() ? item.notes : "-"}
 				</Text>
+				{!item.weaned_date && (
+					<View style={styles.actionRow}>
+						<WeanAction
+							onPress={onWean}
+							size={60}
+							color="#2E7D32"
+							accessibilityLabel="Destetar parto"
+						/>
+					</View>
+				)}
 			</View>
 		</View>
 	);
@@ -101,6 +119,13 @@ const styles = StyleSheet.create({
 		flexBasis: "100%",
 		fontSize: 14,
 		marginTop: 2,
+	},
+	actionRow: {
+		alignItems: "flex-end",
+		justifyContent: 'flex-end',
+		flexBasis: "100%",
+		marginTop: -20,
+		marginBottom: -5,
 	},
 	label: {
 		fontWeight: "700",

@@ -11,6 +11,7 @@ export function buildSowRows(sow: Sow): SowInfoRow[] {
 		{ label: "Estado",              value: sow.status ?? "Sin estado" },
 		{ label: "Raza",                value: sow.breed?.breed_name?.trim() ?? "Sin raza" },
 		{ label: "Fecha de entrada",    value: formatIsoDate(sow.entry_date) },
+		{ label: "Ultimo Destete",    	value: formatIsoDate(sow.last_weaning_date) },
 		{ label: "Cantidad de pezones", value: sow.mammary_glands ?? "-" },
 		{ label: "Peso (kg)",           value: sow.weight ?? "-" },
 		{ label: "Largo (cm)",          value: sow.length ?? "-" },
