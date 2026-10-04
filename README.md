@@ -1,6 +1,6 @@
 # PorciGestión
 
-Mobile application created around a real farming need: improving the tracking of breeding sows and their reproductive records.
+Mobile application created around a real farming need: improving the tracking of breeding sows and their reproductive records until retirement.
 
 PorciGestión is being developed for use in a real pig breeding operation, with workflows designed around how reproductive information is actually recorded and managed.
 
@@ -8,7 +8,7 @@ PorciGestión is being developed for use in a real pig breeding operation, with 
 
 ## Overview
 
-The application provides a mobile interface for managing breeding sows, boars, reproduction events, pregnancy results, farrowings, and weaning records.
+The application provides a mobile interface for managing breeding sows, boars until retirement, reproduction events, pregnancy results, farrowings, and weaning records.
 
 The interface follows the reproductive lifecycle of each sow, allowing available actions and information to reflect its current state.
 
@@ -20,6 +20,7 @@ The interface follows the reproductive lifecycle of each sow, allowing available
 - Pregnancy tracking
 - Farrowing records
 - Weaning management
+- Vaccines and vaccine type v2.0
 
 ## Engineering
 
